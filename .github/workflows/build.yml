@@ -200,9 +200,6 @@ jobs:
             base_path: ./src
             docker_repos: [bitwarden, bitwardenprod.azurecr.io, bitwardenqa.azurecr.io]
             dotnet: true
-          - project_name: Attachments
-            base_path: ./util
-            docker_repos: [bitwarden, bitwardenprod.azurecr.io, bitwardenqa.azurecr.io]
           - project_name: Events
             base_path: ./src
             docker_repos: [bitwarden, bitwardenprod.azurecr.io, bitwardenqa.azurecr.io]

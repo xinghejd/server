@@ -44,16 +44,6 @@ services:
       - global.env
       - ../env/uid.env
 
-  attachments:
-    image: bitwarden/attachments:{{{CoreVersion}}}
-    container_name: bitwarden-attachments
-    restart: always
-    volumes:
-      - ../core/attachments:/etc/bitwarden/core/attachments
-    env_file:
-      - global.env
-      - ../env/uid.env
-
   api:
     image: bitwarden/api:{{{CoreVersion}}}
     container_name: bitwarden-api

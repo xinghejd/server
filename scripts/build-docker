@@ -57,7 +57,6 @@ done
 case "$PROJECT" in
   "admin" | "Admin") docker_build Admin $PWD/src/Admin $TAG $PUSH ;;
   "api" | "Api") docker_build Api $PWD/src/Api $TAG $PUSH ;;
-  "attachments" | "Attachments") docker_build Attachments $PWD/util/Attachments $TAG $PUSH ;;
   #"billing" | "Billing") docker_build Billing $PWD/src/Billing $TAG $PUSH ;;
   "events" | "Events") docker_build Events $PWD/src/Events $TAG $PUSH ;;
   "eventsprocessor" | "EventsProcessor") docker_build EventsProcessor $PWD/src/EventsProcessor $TAG $PUSH ;;
@@ -72,7 +71,6 @@ case "$PROJECT" in
   "")
     docker_build Admin $PWD/src/Admin $TAG $PUSH
     docker_build Api $PWD/src/Api $TAG $PUSH
-    docker_build Attachments $PWD/util/Attachments $TAG $PUSH
     #docker_build Billing $PWD/src/Billing $TAG $PUSH
     docker_build Events $PWD/src/Events $TAG $PUSH
     docker_build EventsProcessor $PWD/src/EventsProcessor $TAG $PUSH

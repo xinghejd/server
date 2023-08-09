@@ -186,8 +186,6 @@ jobs:
             origin_docker_repo: bitwarden
           - project_name: Api
             origin_docker_repo: bitwarden
-          - project_name: Attachments
-            origin_docker_repo: bitwarden
           - project_name: Events
             prod_acr: true
             origin_docker_repo: bitwarden
