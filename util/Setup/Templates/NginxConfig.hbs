@@ -111,7 +111,7 @@ server {
 {{/if}}
 
   location /attachments/ {
-    root /etc/bitwarden/core/attachments;
+    alias /etc/bitwarden/attachments;
   }
 
   location /api/ {
