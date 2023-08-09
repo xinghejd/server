@@ -111,7 +111,7 @@ server {
 {{/if}}
 
   location /attachments/ {
-    proxy_pass http://attachments:5000/;
+    root /etc/bitwarden/core/attachments;
   }
 
   location /api/ {
