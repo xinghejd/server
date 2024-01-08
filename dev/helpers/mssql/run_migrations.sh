@@ -77,32 +77,21 @@ migrate () {
 }
 
 get_migrations_to_run() {
-  # get a semicolon delimited list of all migrations
-  # this exceeds the max command length, so we save it to a file that MSSQL can use to bulk insert from
-  # tr replaces newlines with semicolons
-  # sed removes the trailing semicolon
-  local tempfile="$HELPERS_DIRECTORY/tempfile"
-  echo -n `(cd $MIGRATE_DIRECTORY && ls -1 *.sql) | tr '\n' ';' | sed 's/;$//'` > "$tempfile"
+  # Navigate to the migrations directory and create a JSON array of all SQL files
+  jsonArray=$(cd $MIGRATE_DIRECTORY && ls -1 *.sql | sed 's/^/"/' | sed 's/$/"/' | paste -sd, -)
 
-  # this query returns a space delimited list of migrations that need to be run
-  local query="EXEC ReadRequiredMigrations '$tempfile'"
-  local result=`/opt/mssql-tools/bin/sqlcmd -S $SERVER -d migrations_$DATABASE -U $USER -P $PASSWD -I -Q "$query" -W -h-1`
+  # Format the JSON array
+  formattedJsonArray="[$jsonArray]"
 
-  # clean up tempfile
-  if test -f "$tempfile"; then
-    rm "$tempfile";
-  fi
+  # Escape single quotes in JSON content
+  escapedJsonContent=$(echo $formattedJsonArray | sed "s/'/''/g")
 
-  echo "$result";
+  # Prepare the SQL query
+  query="EXEC ReadRequiredMigrations '$escapedJsonContent'"
+
+  # Execute the query using sqlcmd
+  result=$(/opt/mssql-tools/bin/sqlcmd -S $SERVER -d migrations_$DATABASE -U $USER -P $PASSWD -I -Q "$query" -W -h-1)
+  echo $result
 }
 
-MIGRATIONS_TO_RUN=$(get_migrations_to_run)
-if [[ -z $MIGRATIONS_TO_RUN ]]; then
- echo "No migrations required - already up to date."
- exit
-fi
-
-for f in $MIGRATIONS_TO_RUN; do
-  migrate "$MIGRATE_DIRECTORY/$f"
-  record_migration $f
-done;
+get_migrations_to_run
