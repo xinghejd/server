@@ -86,9 +86,6 @@ namespace Bit.SqliteMigrations.Migrations
                     b.Property<bool>("LimitCollectionCreation")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("LimitCollectionCreationDeletion")
-                        .HasColumnType("INTEGER");
-
                     b.Property<bool>("LimitCollectionDeletion")
                         .HasColumnType("INTEGER");
 
