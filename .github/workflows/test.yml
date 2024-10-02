@@ -18,4 +18,6 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets-2@vgrassia/test
         with:
           keyvault: "bitwarden-ci"
-          secrets: "test-secret-1"
+          secrets: "test-secret-1,
+                    test-secret-2,
+                    test-secret-3"
