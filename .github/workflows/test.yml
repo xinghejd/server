@@ -15,7 +15,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets-2@vgrassia/test
+        uses: bitwarden/gh-actions/get-keyvault-secrets-3@vgrassia/test
         with:
           keyvault: "bitwarden-ci"
           secrets: "test-secret-1,
