@@ -16,16 +16,18 @@ public class LicensingServiceTests
 {
     private static string licenseFilePath(Guid orgId) =>
         Path.Combine(OrganizationLicenseDirectory.Value, $"{orgId}.json");
+
     private static string LicenseDirectory => Path.GetDirectoryName(OrganizationLicenseDirectory.Value);
-    private static Lazy<string> OrganizationLicenseDirectory => new(() =>
-    {
-        var directory = Path.Combine(Path.GetTempPath(), "organization");
-        if (!Directory.Exists(directory))
+    private static Lazy<string> OrganizationLicenseDirectory =>
+        new(() =>
         {
-            Directory.CreateDirectory(directory);
-        }
-        return directory;
-    });
+            var directory = Path.Combine(Path.GetTempPath(), "organization");
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+            return directory;
+        });
 
     public static SutProvider<LicensingService> GetSutProvider()
     {
@@ -35,9 +37,7 @@ public class LicensingServiceTests
         settings.LicenseDirectory = LicenseDirectory;
         settings.SelfHosted = true;
 
-        return new SutProvider<LicensingService>(fixture)
-            .SetDependency(settings)
-            .Create();
+        return new SutProvider<LicensingService>(fixture).SetDependency(settings).Create();
     }
 
     [Theory, BitAutoData, OrganizationLicenseCustomize]

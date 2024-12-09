@@ -17,9 +17,9 @@ public class SecretsManagerSubscriptionUpdateRequestModel
         return new SecretsManagerSubscriptionUpdate(organization, false)
         {
             MaxAutoscaleSmSeats = MaxAutoscaleSeats,
-            MaxAutoscaleSmServiceAccounts = MaxAutoscaleServiceAccounts
+            MaxAutoscaleSmServiceAccounts = MaxAutoscaleServiceAccounts,
         }
-        .AdjustSeats(SeatAdjustment)
-        .AdjustServiceAccounts(ServiceAccountAdjustment);
+            .AdjustSeats(SeatAdjustment)
+            .AdjustServiceAccounts(ServiceAccountAdjustment);
     }
 }

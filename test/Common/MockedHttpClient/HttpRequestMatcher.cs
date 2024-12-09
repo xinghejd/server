@@ -18,7 +18,8 @@ public class HttpRequestMatcher : IHttpRequestMatcher
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    public bool Matches(HttpRequestMessage request) => _matcher(request) && (_childMatcher == null || _childMatcher.Matches(request));
+    public bool Matches(HttpRequestMessage request) =>
+        _matcher(request) && (_childMatcher == null || _childMatcher.Matches(request));
 
     public HttpRequestMatcher(HttpMethod method)
     {
@@ -52,8 +53,10 @@ public class HttpRequestMatcher : IHttpRequestMatcher
 
     public HttpRequestMatcher WithQueryParameters(Dictionary<string, string> requiredQueryParameters) =>
         WithQueryParameters(requiredQueryParameters.Select(x => $"{x.Key}={x.Value}").ToArray());
+
     public HttpRequestMatcher WithQueryParameters(string name, string value) =>
         WithQueryParameters($"{name}={value}");
+
     public HttpRequestMatcher WithQueryParameters(params string[] queryKeyValues)
     {
         bool matcher(HttpRequestMessage request)
@@ -89,7 +92,9 @@ public class HttpRequestMatcher : IHttpRequestMatcher
     public async Task<HttpResponseMessage> RespondToAsync(HttpRequestMessage request)
     {
         NumberOfMatches++;
-        return await (_childMatcher == null ? _mockedResponse.RespondToAsync(request) : _childMatcher.RespondToAsync(request));
+        return await (
+            _childMatcher == null ? _mockedResponse.RespondToAsync(request) : _childMatcher.RespondToAsync(request)
+        );
     }
 
     private HttpRequestMatcher AddChild(Func<HttpRequestMessage, bool> matcher)

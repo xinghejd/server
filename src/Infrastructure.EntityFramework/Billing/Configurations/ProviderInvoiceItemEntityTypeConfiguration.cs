@@ -8,9 +8,7 @@ public class ProviderInvoiceItemEntityTypeConfiguration : IEntityTypeConfigurati
 {
     public void Configure(EntityTypeBuilder<ProviderInvoiceItem> builder)
     {
-        builder
-            .Property(t => t.Id)
-            .ValueGeneratedNever();
+        builder.Property(t => t.Id).ValueGeneratedNever();
 
         builder.ToTable(nameof(ProviderInvoiceItem));
     }

@@ -55,16 +55,18 @@ public class SecretsManagerEventsControllerTests : IClassFixture<ApiApplicationF
     [InlineData(true, false, false)]
     [InlineData(true, false, true)]
     [InlineData(true, true, false)]
-    public async Task GetServiceAccountEvents_SmNotEnabled_NotFound(bool useSecrets, bool accessSecrets, bool organizationEnabled)
+    public async Task GetServiceAccountEvents_SmNotEnabled_NotFound(
+        bool useSecrets,
+        bool accessSecrets,
+        bool organizationEnabled
+    )
     {
         var (org, _) = await _organizationHelper.Initialize(useSecrets, accessSecrets, organizationEnabled);
         await LoginAsync(_email);
 
-        var serviceAccount = await _serviceAccountRepository.CreateAsync(new ServiceAccount
-        {
-            OrganizationId = org.Id,
-            Name = _mockEncryptedString
-        });
+        var serviceAccount = await _serviceAccountRepository.CreateAsync(
+            new ServiceAccount { OrganizationId = org.Id, Name = _mockEncryptedString }
+        );
 
         var response = await _client.GetAsync($"/sm/events/service-accounts/{serviceAccount.Id}");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

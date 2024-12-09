@@ -15,7 +15,8 @@ public class CreateOrganizationConnectionCommand : ICreateOrganizationConnection
         _organizationConnectionRepository = organizationConnectionRepository;
     }
 
-    public async Task<OrganizationConnection> CreateAsync<T>(OrganizationConnectionData<T> connectionData) where T : IConnectionConfig
+    public async Task<OrganizationConnection> CreateAsync<T>(OrganizationConnectionData<T> connectionData)
+        where T : IConnectionConfig
     {
         return await _organizationConnectionRepository.CreateAsync(connectionData.ToEntity());
     }

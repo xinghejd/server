@@ -12,7 +12,10 @@ public enum AccessClientType
 
 public static class AccessClientHelper
 {
-    public static AccessClientType ToAccessClient(IdentityClientType identityClientType, bool bypassAccessCheck = false)
+    public static AccessClientType ToAccessClient(
+        IdentityClientType identityClientType,
+        bool bypassAccessCheck = false
+    )
     {
         if (bypassAccessCheck)
         {

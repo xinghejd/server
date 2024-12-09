@@ -7,8 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 // ref: https://github.com/aspnet/Identity/blob/dev/src/Microsoft.AspNetCore.Identity/IdentityServiceCollectionExtensions.cs
 public static class CustomIdentityServiceCollectionExtensions
 {
-    public static IdentityBuilder AddIdentityWithoutCookieAuth<TUser, TRole>(
-        this IServiceCollection services)
+    public static IdentityBuilder AddIdentityWithoutCookieAuth<TUser, TRole>(this IServiceCollection services)
         where TUser : class
         where TRole : class
     {
@@ -17,7 +16,8 @@ public static class CustomIdentityServiceCollectionExtensions
 
     public static IdentityBuilder AddIdentityWithoutCookieAuth<TUser, TRole>(
         this IServiceCollection services,
-        Action<IdentityOptions> setupAction)
+        Action<IdentityOptions> setupAction
+    )
         where TUser : class
         where TRole : class
     {

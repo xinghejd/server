@@ -33,7 +33,8 @@ public class ProviderOrganizationsController : Controller
         IProviderRepository providerRepository,
         IProviderService providerService,
         IRemoveOrganizationFromProviderCommand removeOrganizationFromProviderCommand,
-        IUserService userService)
+        IUserService userService
+    )
     {
         _currentContext = currentContext;
         _organizationRepository = organizationRepository;
@@ -52,8 +53,12 @@ public class ProviderOrganizationsController : Controller
             throw new NotFoundException();
         }
 
-        var providerOrganizations = await _providerOrganizationRepository.GetManyDetailsByProviderAsync(providerId);
-        var responses = providerOrganizations.Select(o => new ProviderOrganizationOrganizationDetailsResponseModel(o));
+        var providerOrganizations = await _providerOrganizationRepository.GetManyDetailsByProviderAsync(
+            providerId
+        );
+        var responses = providerOrganizations.Select(o => new ProviderOrganizationOrganizationDetailsResponseModel(
+            o
+        ));
         return new ListResponseModel<ProviderOrganizationOrganizationDetailsResponseModel>(responses);
     }
 
@@ -70,7 +75,10 @@ public class ProviderOrganizationsController : Controller
 
     [HttpPost("")]
     [SelfHosted(NotSelfHostedOnly = true)]
-    public async Task<ProviderOrganizationResponseModel> Post(Guid providerId, [FromBody] ProviderOrganizationCreateRequestModel model)
+    public async Task<ProviderOrganizationResponseModel> Post(
+        Guid providerId,
+        [FromBody] ProviderOrganizationCreateRequestModel model
+    )
     {
         var user = await _userService.GetUserByPrincipalAsync(User);
         if (user == null)
@@ -85,7 +93,12 @@ public class ProviderOrganizationsController : Controller
 
         var organizationSignup = model.OrganizationCreateRequest.ToOrganizationSignup(user);
         organizationSignup.IsFromProvider = true;
-        var result = await _providerService.CreateOrganizationAsync(providerId, organizationSignup, model.ClientOwnerEmail, user);
+        var result = await _providerService.CreateOrganizationAsync(
+            providerId,
+            organizationSignup,
+            model.ClientOwnerEmail,
+            user
+        );
         return new ProviderOrganizationResponseModel(result);
     }
 
@@ -107,6 +120,7 @@ public class ProviderOrganizationsController : Controller
         await _removeOrganizationFromProviderCommand.RemoveOrganizationFromProvider(
             provider,
             providerOrganization,
-            organization);
+            organization
+        );
     }
 }

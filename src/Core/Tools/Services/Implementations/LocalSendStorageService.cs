@@ -10,11 +10,12 @@ public class LocalSendStorageService : ISendFileStorageService
     private readonly string _baseSendUrl;
 
     private string RelativeFilePath(Send send, string fileID) => $"{send.Id}/{fileID}";
+
     private string FilePath(Send send, string fileID) => $"{_baseDirPath}/{RelativeFilePath(send, fileID)}";
+
     public FileUploadType FileUploadType => FileUploadType.Direct;
 
-    public LocalSendStorageService(
-        GlobalSettings globalSettings)
+    public LocalSendStorageService(GlobalSettings globalSettings)
     {
         _baseDirPath = globalSettings.Send.BaseDirectory;
         _baseSendUrl = globalSettings.Send.BaseUrl;
@@ -82,8 +83,8 @@ public class LocalSendStorageService : ISendFileStorageService
         return Task.FromResult(0);
     }
 
-    public Task<string> GetSendFileUploadUrlAsync(Send send, string fileId)
-        => Task.FromResult($"/sends/{send.Id}/file/{fileId}");
+    public Task<string> GetSendFileUploadUrlAsync(Send send, string fileId) =>
+        Task.FromResult($"/sends/{send.Id}/file/{fileId}");
 
     public Task<(bool, long?)> ValidateFileAsync(Send send, string fileId, long expectedFileSize, long leeway)
     {

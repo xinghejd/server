@@ -19,9 +19,9 @@ public class DeleteSecretCommandTests
     public async Task DeleteSecrets_Success(SutProvider<DeleteSecretCommand> sutProvider, List<Secret> data)
     {
         await sutProvider.Sut.DeleteSecrets(data);
-        await sutProvider.GetDependency<ISecretRepository>()
+        await sutProvider
+            .GetDependency<ISecretRepository>()
             .Received(1)
             .SoftDeleteManyByIdAsync(Arg.Is(AssertHelper.AssertPropertyEqual(data.Select(d => d.Id))));
     }
 }
-

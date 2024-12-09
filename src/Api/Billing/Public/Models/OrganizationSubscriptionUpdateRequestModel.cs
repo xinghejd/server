@@ -13,7 +13,9 @@ public class OrganizationSubscriptionUpdateRequestModel : IValidatableObject
     {
         if (PasswordManager == null && SecretsManager == null)
         {
-            yield return new ValidationResult("At least one of PasswordManager or SecretsManager must be provided.");
+            yield return new ValidationResult(
+                "At least one of PasswordManager or SecretsManager must be provided."
+            );
         }
 
         yield return ValidationResult.Success;
@@ -106,7 +108,8 @@ public class SecretsManagerSubscriptionUpdateModel
         var update = new SecretsManagerSubscriptionUpdate(organization, false)
         {
             MaxAutoscaleSmSeats = MaxAutoScaleSeats ?? organization.MaxAutoscaleSmSeats,
-            MaxAutoscaleSmServiceAccounts = MaxAutoScaleServiceAccounts ?? organization.MaxAutoscaleSmServiceAccounts
+            MaxAutoscaleSmServiceAccounts =
+                MaxAutoScaleServiceAccounts ?? organization.MaxAutoscaleSmServiceAccounts,
         };
         return update;
     }
@@ -118,7 +121,6 @@ public class SecretsManagerSubscriptionUpdateModel
             if (organization.SmSeats.HasValue)
             {
                 Seats = Seats.Value - organization.SmSeats.Value;
-
             }
             update.AdjustSeats(Seats.Value);
         }

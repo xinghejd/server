@@ -16,12 +16,10 @@ namespace Bit.Infrastructure.Dapper.Auth.Repositories;
 public class EmergencyAccessRepository : Repository<EmergencyAccess, Guid>, IEmergencyAccessRepository
 {
     public EmergencyAccessRepository(GlobalSettings globalSettings)
-        : this(globalSettings.SqlServer.ConnectionString, globalSettings.SqlServer.ReadOnlyConnectionString)
-    { }
+        : this(globalSettings.SqlServer.ConnectionString, globalSettings.SqlServer.ReadOnlyConnectionString) { }
 
     public EmergencyAccessRepository(string connectionString, string readOnlyConnectionString)
-        : base(connectionString, readOnlyConnectionString)
-    { }
+        : base(connectionString, readOnlyConnectionString) { }
 
     public async Task<int> GetCountByGrantorIdEmailAsync(Guid grantorId, string email, bool onlyRegisteredUsers)
     {
@@ -29,8 +27,14 @@ public class EmergencyAccessRepository : Repository<EmergencyAccess, Guid>, IEme
         {
             var results = await connection.ExecuteScalarAsync<int>(
                 "[dbo].[EmergencyAccess_ReadCountByGrantorIdEmail]",
-                new { GrantorId = grantorId, Email = email, OnlyUsers = onlyRegisteredUsers },
-                commandType: CommandType.StoredProcedure);
+                new
+                {
+                    GrantorId = grantorId,
+                    Email = email,
+                    OnlyUsers = onlyRegisteredUsers,
+                },
+                commandType: CommandType.StoredProcedure
+            );
 
             return results;
         }
@@ -43,7 +47,8 @@ public class EmergencyAccessRepository : Repository<EmergencyAccess, Guid>, IEme
             var results = await connection.QueryAsync<EmergencyAccessDetails>(
                 "[dbo].[EmergencyAccessDetails_ReadByGrantorId]",
                 new { GrantorId = grantorId },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.ToList();
         }
@@ -56,7 +61,8 @@ public class EmergencyAccessRepository : Repository<EmergencyAccess, Guid>, IEme
             var results = await connection.QueryAsync<EmergencyAccessDetails>(
                 "[dbo].[EmergencyAccessDetails_ReadByGranteeId]",
                 new { GranteeId = granteeId },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.ToList();
         }
@@ -69,7 +75,8 @@ public class EmergencyAccessRepository : Repository<EmergencyAccess, Guid>, IEme
             var results = await connection.QueryAsync<EmergencyAccessDetails>(
                 "[dbo].[EmergencyAccessDetails_ReadByIdGrantorId]",
                 new { Id = id, GrantorId = grantorId },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.FirstOrDefault();
         }
@@ -81,7 +88,8 @@ public class EmergencyAccessRepository : Repository<EmergencyAccess, Guid>, IEme
         {
             var results = await connection.QueryAsync<EmergencyAccessNotify>(
                 "[dbo].[EmergencyAccess_ReadToNotify]",
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.ToList();
         }
@@ -93,7 +101,8 @@ public class EmergencyAccessRepository : Repository<EmergencyAccess, Guid>, IEme
         {
             var results = await connection.QueryAsync<EmergencyAccessDetails>(
                 "[dbo].[EmergencyAccessDetails_ReadExpiredRecoveries]",
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.ToList();
         }
@@ -101,12 +110,15 @@ public class EmergencyAccessRepository : Repository<EmergencyAccess, Guid>, IEme
 
     /// <inheritdoc />
     public UpdateEncryptedDataForKeyRotation UpdateForKeyRotation(
-        Guid grantorId, IEnumerable<EmergencyAccess> emergencyAccessKeys)
+        Guid grantorId,
+        IEnumerable<EmergencyAccess> emergencyAccessKeys
+    )
     {
         return async (SqlConnection connection, SqlTransaction transaction) =>
         {
             // Create temp table
-            var sqlCreateTemp = @"
+            var sqlCreateTemp =
+                @"
                             SELECT TOP 0 *
                             INTO #TempEmergencyAccess
                             FROM [dbo].[EmergencyAccess]";
@@ -131,7 +143,8 @@ public class EmergencyAccessRepository : Repository<EmergencyAccess, Guid>, IEme
             }
 
             // Update emergency access table from temp table
-            var sql = @"
+            var sql =
+                @"
                 UPDATE
                     [dbo].[EmergencyAccess]
                 SET

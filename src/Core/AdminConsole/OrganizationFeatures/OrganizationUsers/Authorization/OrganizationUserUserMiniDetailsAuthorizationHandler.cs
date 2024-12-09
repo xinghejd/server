@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Bit.Core.AdminConsole.OrganizationFeatures.OrganizationUsers.Authorization;
 
-public class OrganizationUserUserMiniDetailsAuthorizationHandler :
-    AuthorizationHandler<OrganizationUserUserMiniDetailsOperationRequirement, OrganizationScope>
+public class OrganizationUserUserMiniDetailsAuthorizationHandler
+    : AuthorizationHandler<OrganizationUserUserMiniDetailsOperationRequirement, OrganizationScope>
 {
     private readonly ICurrentContext _currentContext;
 
@@ -14,8 +14,11 @@ public class OrganizationUserUserMiniDetailsAuthorizationHandler :
         _currentContext = currentContext;
     }
 
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,
-        OrganizationUserUserMiniDetailsOperationRequirement requirement, OrganizationScope organizationScope)
+    protected override async Task HandleRequirementAsync(
+        AuthorizationHandlerContext context,
+        OrganizationUserUserMiniDetailsOperationRequirement requirement,
+        OrganizationScope organizationScope
+    )
     {
         var authorized = false;
 

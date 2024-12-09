@@ -11,11 +11,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bit.Infrastructure.EntityFramework.Auth.Repositories;
 
-public class WebAuthnCredentialRepository : Repository<Core.Auth.Entities.WebAuthnCredential, WebAuthnCredential, Guid>, IWebAuthnCredentialRepository
+public class WebAuthnCredentialRepository
+    : Repository<Core.Auth.Entities.WebAuthnCredential, WebAuthnCredential, Guid>,
+        IWebAuthnCredentialRepository
 {
     public WebAuthnCredentialRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
-        : base(serviceScopeFactory, mapper, (context) => context.WebAuthnCredentials)
-    { }
+        : base(serviceScopeFactory, mapper, (context) => context.WebAuthnCredentials) { }
 
     public async Task<Core.Auth.Entities.WebAuthnCredential?> GetByIdAsync(Guid id, Guid userId)
     {
@@ -44,9 +45,9 @@ public class WebAuthnCredentialRepository : Repository<Core.Auth.Entities.WebAut
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var cred = await dbContext.WebAuthnCredentials
-                                .FirstOrDefaultAsync(d => d.Id == credential.Id &&
-                                                          d.UserId == credential.UserId);
+            var cred = await dbContext.WebAuthnCredentials.FirstOrDefaultAsync(d =>
+                d.Id == credential.Id && d.UserId == credential.UserId
+            );
             if (cred == null)
             {
                 return false;
@@ -61,16 +62,17 @@ public class WebAuthnCredentialRepository : Repository<Core.Auth.Entities.WebAut
         }
     }
 
-    public UpdateEncryptedDataForKeyRotation UpdateKeysForRotationAsync(Guid userId, IEnumerable<WebAuthnLoginRotateKeyData> credentials)
+    public UpdateEncryptedDataForKeyRotation UpdateKeysForRotationAsync(
+        Guid userId,
+        IEnumerable<WebAuthnLoginRotateKeyData> credentials
+    )
     {
         return async (_, _) =>
         {
             var newCreds = credentials.ToList();
             using var scope = ServiceScopeFactory.CreateScope();
             var dbContext = GetDatabaseContext(scope);
-            var userWebauthnCredentials = await GetDbSet(dbContext)
-                .Where(wc => wc.Id == wc.Id)
-                .ToListAsync();
+            var userWebauthnCredentials = await GetDbSet(dbContext).Where(wc => wc.Id == wc.Id).ToListAsync();
             var validUserWebauthnCredentials = userWebauthnCredentials
                 .Where(wc => newCreds.Any(nwc => nwc.Id == wc.Id))
                 .Where(wc => wc.UserId == userId);
@@ -85,5 +87,4 @@ public class WebAuthnCredentialRepository : Repository<Core.Auth.Entities.WebAut
             await dbContext.SaveChangesAsync();
         };
     }
-
 }

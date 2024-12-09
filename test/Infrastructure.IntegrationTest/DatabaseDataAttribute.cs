@@ -63,20 +63,19 @@ public class DatabaseDataAttribute : DataAttribute
                 var globalSettings = new GlobalSettings
                 {
                     DatabaseProvider = "sqlServer",
-                    SqlServer = new GlobalSettings.SqlSettings
-                    {
-                        ConnectionString = database.ConnectionString,
-                    },
+                    SqlServer = new GlobalSettings.SqlSettings { ConnectionString = database.ConnectionString },
                 };
                 dapperSqlServerCollection.AddSingleton(globalSettings);
                 dapperSqlServerCollection.AddSingleton<IGlobalSettings>(globalSettings);
                 dapperSqlServerCollection.AddSingleton(database);
-                dapperSqlServerCollection.AddDistributedSqlServerCache((o) =>
-                {
-                    o.ConnectionString = database.ConnectionString;
-                    o.SchemaName = "dbo";
-                    o.TableName = "Cache";
-                });
+                dapperSqlServerCollection.AddDistributedSqlServerCache(
+                    (o) =>
+                    {
+                        o.ConnectionString = database.ConnectionString;
+                        o.SchemaName = "dbo";
+                        o.TableName = "Cache";
+                    }
+                );
 
                 if (!string.IsNullOrEmpty(MigrationName))
                 {
@@ -117,10 +116,16 @@ public class DatabaseDataAttribute : DataAttribute
 
     private void AddSqlMigrationTester(IServiceCollection services, string connectionString, string migrationName)
     {
-        services.AddSingleton<IMigrationTesterService, SqlMigrationTesterService>(sp => new SqlMigrationTesterService(connectionString, migrationName));
+        services.AddSingleton<IMigrationTesterService, SqlMigrationTesterService>(
+            sp => new SqlMigrationTesterService(connectionString, migrationName)
+        );
     }
 
-    private void AddEfMigrationTester(IServiceCollection services, SupportedDatabaseProviders databaseType, string migrationName)
+    private void AddEfMigrationTester(
+        IServiceCollection services,
+        SupportedDatabaseProviders databaseType,
+        string migrationName
+    )
     {
         services.AddSingleton<IMigrationTesterService, EfMigrationTesterService>(sp =>
         {

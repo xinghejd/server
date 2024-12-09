@@ -29,8 +29,10 @@ public class OrganizationUserResponseModel : ResponseModel
         ResetPasswordEnrolled = !string.IsNullOrEmpty(organizationUser.ResetPasswordKey);
     }
 
-    public OrganizationUserResponseModel(OrganizationUserUserDetails organizationUser,
-        string obj = "organizationUser")
+    public OrganizationUserResponseModel(
+        OrganizationUserUserDetails organizationUser,
+        string obj = "organizationUser"
+    )
         : base(obj)
     {
         if (organizationUser == null)
@@ -67,16 +69,19 @@ public class OrganizationUserDetailsResponseModel : OrganizationUserResponseMode
     public OrganizationUserDetailsResponseModel(
         OrganizationUser organizationUser,
         bool managedByOrganization,
-        IEnumerable<CollectionAccessSelection> collections)
+        IEnumerable<CollectionAccessSelection> collections
+    )
         : base(organizationUser, "organizationUserDetails")
     {
         ManagedByOrganization = managedByOrganization;
         Collections = collections.Select(c => new SelectionReadOnlyResponseModel(c));
     }
 
-    public OrganizationUserDetailsResponseModel(OrganizationUserUserDetails organizationUser,
+    public OrganizationUserDetailsResponseModel(
+        OrganizationUserUserDetails organizationUser,
         bool managedByOrganization,
-        IEnumerable<CollectionAccessSelection> collections)
+        IEnumerable<CollectionAccessSelection> collections
+    )
         : base(organizationUser, "organizationUserDetails")
     {
         ManagedByOrganization = managedByOrganization;
@@ -112,12 +117,17 @@ public class OrganizationUserUserMiniDetailsResponseModel : ResponseModel
     public string? Name { get; }
     public string Email { get; }
 }
+
 #nullable disable
 
 public class OrganizationUserUserDetailsResponseModel : OrganizationUserResponseModel
 {
-    public OrganizationUserUserDetailsResponseModel(OrganizationUserUserDetails organizationUser,
-        bool twoFactorEnabled, bool managedByOrganization, string obj = "organizationUserUserDetails")
+    public OrganizationUserUserDetailsResponseModel(
+        OrganizationUserUserDetails organizationUser,
+        bool twoFactorEnabled,
+        bool managedByOrganization,
+        string obj = "organizationUserUserDetails"
+    )
         : base(organizationUser, obj)
     {
         if (organizationUser == null)
@@ -142,6 +152,7 @@ public class OrganizationUserUserDetailsResponseModel : OrganizationUserResponse
     public string AvatarColor { get; set; }
     public bool TwoFactorEnabled { get; set; }
     public bool SsoBound { get; set; }
+
     /// <summary>
     /// Indicates if the organization manages the user. If a user is "managed" by an organization,
     /// the organization has greater control over their account, and some user actions are restricted.
@@ -153,8 +164,11 @@ public class OrganizationUserUserDetailsResponseModel : OrganizationUserResponse
 
 public class OrganizationUserResetPasswordDetailsResponseModel : ResponseModel
 {
-    public OrganizationUserResetPasswordDetailsResponseModel(OrganizationUserResetPasswordDetails orgUser,
-        string obj = "organizationUserResetPasswordDetails") : base(obj)
+    public OrganizationUserResetPasswordDetailsResponseModel(
+        OrganizationUserResetPasswordDetails orgUser,
+        string obj = "organizationUserResetPasswordDetails"
+    )
+        : base(obj)
     {
         if (orgUser == null)
         {
@@ -181,9 +195,13 @@ public class OrganizationUserResetPasswordDetailsResponseModel : ResponseModel
 
 public class OrganizationUserPublicKeyResponseModel : ResponseModel
 {
-    public OrganizationUserPublicKeyResponseModel(Guid id, Guid userId,
-        string key, string obj = "organizationUserPublicKeyResponseModel") :
-        base(obj)
+    public OrganizationUserPublicKeyResponseModel(
+        Guid id,
+        Guid userId,
+        string key,
+        string obj = "organizationUserPublicKeyResponseModel"
+    )
+        : base(obj)
     {
         Id = id;
         UserId = userId;
@@ -197,12 +215,17 @@ public class OrganizationUserPublicKeyResponseModel : ResponseModel
 
 public class OrganizationUserBulkResponseModel : ResponseModel
 {
-    public OrganizationUserBulkResponseModel(Guid id, string error,
-        string obj = "OrganizationBulkConfirmResponseModel") : base(obj)
+    public OrganizationUserBulkResponseModel(
+        Guid id,
+        string error,
+        string obj = "OrganizationBulkConfirmResponseModel"
+    )
+        : base(obj)
     {
         Id = id;
         Error = error;
     }
+
     public Guid Id { get; set; }
     public string Error { get; set; }
 }

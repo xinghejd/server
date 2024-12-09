@@ -37,4 +37,3 @@ public class MaxLengthStringRelay : ISpecimenBuilder
         return context.Resolve(new ConstrainedStringRequest(a.Length, a.Length));
     }
 }
-

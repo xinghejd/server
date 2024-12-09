@@ -33,30 +33,41 @@ public static class LicenseExtensions
 
         if (subscription.PeriodEndDate.HasValue && subscription.PeriodDuration > TimeSpan.FromDays(180))
         {
-            return subscription.PeriodEndDate
-                .Value
-                .AddDays(Bit.Core.Constants.OrganizationSelfHostSubscriptionGracePeriodDays);
+            return subscription.PeriodEndDate.Value.AddDays(
+                Bit.Core.Constants.OrganizationSelfHostSubscriptionGracePeriodDays
+            );
         }
 
         return org.ExpirationDate?.AddMonths(11) ?? DateTime.UtcNow.AddYears(1);
     }
 
-    public static DateTime CalculateFreshRefreshDate(this Organization org, SubscriptionInfo subscriptionInfo, DateTime expirationDate)
+    public static DateTime CalculateFreshRefreshDate(
+        this Organization org,
+        SubscriptionInfo subscriptionInfo,
+        DateTime expirationDate
+    )
     {
-        if (subscriptionInfo?.Subscription == null ||
-            subscriptionInfo.Subscription.TrialEndDate > DateTime.UtcNow ||
-            org.ExpirationDate < DateTime.UtcNow)
+        if (
+            subscriptionInfo?.Subscription == null
+            || subscriptionInfo.Subscription.TrialEndDate > DateTime.UtcNow
+            || org.ExpirationDate < DateTime.UtcNow
+        )
         {
             return expirationDate;
         }
 
-        return subscriptionInfo.Subscription.PeriodDuration > TimeSpan.FromDays(180) ||
-            DateTime.UtcNow - expirationDate > TimeSpan.FromDays(30)
+        return
+            subscriptionInfo.Subscription.PeriodDuration > TimeSpan.FromDays(180)
+            || DateTime.UtcNow - expirationDate > TimeSpan.FromDays(30)
             ? DateTime.UtcNow.AddDays(30)
             : expirationDate;
     }
 
-    public static DateTime CalculateFreshExpirationDateWithoutGracePeriod(this Organization org, SubscriptionInfo subscriptionInfo, DateTime expirationDate)
+    public static DateTime CalculateFreshExpirationDateWithoutGracePeriod(
+        this Organization org,
+        SubscriptionInfo subscriptionInfo,
+        DateTime expirationDate
+    )
     {
         if (subscriptionInfo?.Subscription is null)
         {
@@ -65,10 +76,12 @@ public static class LicenseExtensions
 
         var subscription = subscriptionInfo.Subscription;
 
-        if (subscription.TrialEndDate <= DateTime.UtcNow &&
-            org.ExpirationDate >= DateTime.UtcNow &&
-            subscription.PeriodEndDate.HasValue &&
-            subscription.PeriodDuration > TimeSpan.FromDays(180))
+        if (
+            subscription.TrialEndDate <= DateTime.UtcNow
+            && org.ExpirationDate >= DateTime.UtcNow
+            && subscription.PeriodEndDate.HasValue
+            && subscription.PeriodDuration > TimeSpan.FromDays(180)
+        )
         {
             return subscription.PeriodEndDate.Value;
         }
@@ -88,25 +101,19 @@ public static class LicenseExtensions
         // Handle Guid
         if (typeof(T) == typeof(Guid))
         {
-            return Guid.TryParse(claim.Value, out var guid)
-                ? (T)(object)guid
-                : default;
+            return Guid.TryParse(claim.Value, out var guid) ? (T)(object)guid : default;
         }
 
         // Handle DateTime
         if (typeof(T) == typeof(DateTime))
         {
-            return DateTime.TryParse(claim.Value, out var dateTime)
-                ? (T)(object)dateTime
-                : default;
+            return DateTime.TryParse(claim.Value, out var dateTime) ? (T)(object)dateTime : default;
         }
 
         // Handle TimeSpan
         if (typeof(T) == typeof(TimeSpan))
         {
-            return TimeSpan.TryParse(claim.Value, out var timeSpan)
-                ? (T)(object)timeSpan
-                : default;
+            return TimeSpan.TryParse(claim.Value, out var timeSpan) ? (T)(object)timeSpan : default;
         }
 
         // Check for Nullable Types
@@ -126,23 +133,17 @@ public static class LicenseExtensions
         // Handle other Nullable Types (e.g., int?, bool?)
         if (underlyingType == typeof(int))
         {
-            return int.TryParse(claim.Value, out var intValue)
-                ? (T)(object)intValue
-                : default;
+            return int.TryParse(claim.Value, out var intValue) ? (T)(object)intValue : default;
         }
 
         if (underlyingType == typeof(bool))
         {
-            return bool.TryParse(claim.Value, out var boolValue)
-                ? (T)(object)boolValue
-                : default;
+            return bool.TryParse(claim.Value, out var boolValue) ? (T)(object)boolValue : default;
         }
 
         if (underlyingType == typeof(double))
         {
-            return double.TryParse(claim.Value, out var doubleValue)
-                ? (T)(object)doubleValue
-                : default;
+            return double.TryParse(claim.Value, out var doubleValue) ? (T)(object)doubleValue : default;
         }
 
         // Fallback to Convert.ChangeType for other types including strings

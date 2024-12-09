@@ -11,12 +11,20 @@ namespace Bit.Test.Common.Helpers;
 
 public static class BitAutoDataAttributeHelpers
 {
-    public static IEnumerable<object?[]> GetData(MethodInfo testMethod, IFixture fixture, object?[] fixedTestParameters)
+    public static IEnumerable<object?[]> GetData(
+        MethodInfo testMethod,
+        IFixture fixture,
+        object?[] fixedTestParameters
+    )
     {
         var methodParameters = testMethod.GetParameters();
         // We aren't worried about a test method not having a class it belongs to.
-        var classCustomizations = testMethod.DeclaringType!.GetCustomAttributes<BitCustomizeAttribute>().Select(attr => attr.GetCustomization());
-        var methodCustomizations = testMethod.GetCustomAttributes<BitCustomizeAttribute>().Select(attr => attr.GetCustomization());
+        var classCustomizations = testMethod
+            .DeclaringType!.GetCustomAttributes<BitCustomizeAttribute>()
+            .Select(attr => attr.GetCustomization());
+        var methodCustomizations = testMethod
+            .GetCustomAttributes<BitCustomizeAttribute>()
+            .Select(attr => attr.GetCustomization());
 
         fixedTestParameters ??= Array.Empty<object>();
 
@@ -25,9 +33,14 @@ public static class BitAutoDataAttributeHelpers
         // The first n number of parameters should be match to the supplied parameters
         var fixedTestInputParameters = methodParameters.Take(fixedTestParameters.Length).Zip(fixedTestParameters);
 
-        var missingParameters = methodParameters.Skip(fixedTestParameters.Length).Select(p => CustomizeAndCreate(p, fixture));
+        var missingParameters = methodParameters
+            .Skip(fixedTestParameters.Length)
+            .Select(p => CustomizeAndCreate(p, fixture));
 
-        return new object?[1][] { ConvertFixedParameters(fixedTestInputParameters.ToArray()).Concat(missingParameters).ToArray() };
+        return new object?[1][]
+        {
+            ConvertFixedParameters(fixedTestInputParameters.ToArray()).Concat(missingParameters).ToArray(),
+        };
     }
 
     public static object CustomizeAndCreate(ParameterInfo p, IFixture fixture)
@@ -57,7 +70,9 @@ public static class BitAutoDataAttributeHelpers
         return newFixture;
     }
 
-    public static IEnumerable<object?> ConvertFixedParameters((ParameterInfo Parameter, object? Value)[] fixedParameters)
+    public static IEnumerable<object?> ConvertFixedParameters(
+        (ParameterInfo Parameter, object? Value)[] fixedParameters
+    )
     {
         var output = new object?[fixedParameters.Length];
         for (var i = 0; i < fixedParameters.Length; i++)
@@ -73,10 +88,19 @@ public static class BitAutoDataAttributeHelpers
             // If the value is a string and it's not a perfect match, try to convert it.
             if (value is string stringValue)
             {
-                // 
-                if (parameter.ParameterType.IsGenericType && parameter.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                //
+                if (
+                    parameter.ParameterType.IsGenericType
+                    && parameter.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>)
+                )
                 {
-                    if (TryConvertToType(stringValue, Nullable.GetUnderlyingType(parameter.ParameterType)!, out var nullableConvertedValue))
+                    if (
+                        TryConvertToType(
+                            stringValue,
+                            Nullable.GetUnderlyingType(parameter.ParameterType)!,
+                            out var nullableConvertedValue
+                        )
+                    )
                     {
                         output[i] = nullableConvertedValue;
                         continue;

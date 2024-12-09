@@ -18,7 +18,8 @@ public class OrganizationBillingServiceTests
     [Theory, BitAutoData]
     public async Task GetMetadata_OrganizationNull_ReturnsNull(
         Guid organizationId,
-        SutProvider<OrganizationBillingService> sutProvider)
+        SutProvider<OrganizationBillingService> sutProvider
+    )
     {
         var metadata = await sutProvider.Sut.GetMetadata(organizationId);
 
@@ -29,7 +30,8 @@ public class OrganizationBillingServiceTests
     public async Task GetMetadata_CustomerNull_ReturnsNull(
         Guid organizationId,
         Organization organization,
-        SutProvider<OrganizationBillingService> sutProvider)
+        SutProvider<OrganizationBillingService> sutProvider
+    )
     {
         sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId).Returns(organization);
 
@@ -42,7 +44,8 @@ public class OrganizationBillingServiceTests
     public async Task GetMetadata_SubscriptionNull_ReturnsNull(
         Guid organizationId,
         Organization organization,
-        SutProvider<OrganizationBillingService> sutProvider)
+        SutProvider<OrganizationBillingService> sutProvider
+    )
     {
         sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId).Returns(organization);
 
@@ -57,45 +60,45 @@ public class OrganizationBillingServiceTests
     public async Task GetMetadata_Succeeds(
         Guid organizationId,
         Organization organization,
-        SutProvider<OrganizationBillingService> sutProvider)
+        SutProvider<OrganizationBillingService> sutProvider
+    )
     {
         sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId).Returns(organization);
 
         var subscriberService = sutProvider.GetDependency<ISubscriberService>();
 
         subscriberService
-            .GetCustomer(organization, Arg.Is<CustomerGetOptions>(options => options.Expand.FirstOrDefault() == "discount.coupon.applies_to"))
-            .Returns(new Customer
-            {
-                Discount = new Discount
+            .GetCustomer(
+                organization,
+                Arg.Is<CustomerGetOptions>(options =>
+                    options.Expand.FirstOrDefault() == "discount.coupon.applies_to"
+                )
+            )
+            .Returns(
+                new Customer
                 {
-                    Coupon = new Coupon
+                    Discount = new Discount
                     {
-                        Id = StripeConstants.CouponIDs.SecretsManagerStandalone,
-                        AppliesTo = new CouponAppliesTo
+                        Coupon = new Coupon
                         {
-                            Products = ["product_id"]
-                        }
-                    }
+                            Id = StripeConstants.CouponIDs.SecretsManagerStandalone,
+                            AppliesTo = new CouponAppliesTo { Products = ["product_id"] },
+                        },
+                    },
                 }
-            });
+            );
 
-        subscriberService.GetSubscription(organization).Returns(new Subscription
-        {
-            Items = new StripeList<SubscriptionItem>
-            {
-                Data =
-                [
-                    new SubscriptionItem
+        subscriberService
+            .GetSubscription(organization)
+            .Returns(
+                new Subscription
+                {
+                    Items = new StripeList<SubscriptionItem>
                     {
-                        Plan = new Plan
-                        {
-                            ProductId = "product_id"
-                        }
-                    }
-                ]
-            }
-        });
+                        Data = [new SubscriptionItem { Plan = new Plan { ProductId = "product_id" } }],
+                    },
+                }
+            );
 
         var metadata = await sutProvider.Sut.GetMetadata(organizationId);
 

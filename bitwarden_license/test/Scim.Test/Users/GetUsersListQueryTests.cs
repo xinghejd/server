@@ -16,42 +16,68 @@ public class GetUsersListQueryTests
     [BitAutoData(10, 1)]
     [BitAutoData(2, 1)]
     [BitAutoData(1, 3)]
-    public async Task GetUsersList_Success(int count, int startIndex, SutProvider<GetUsersListQuery> sutProvider, Guid organizationId, IList<OrganizationUserUserDetails> organizationUserUserDetails)
+    public async Task GetUsersList_Success(
+        int count,
+        int startIndex,
+        SutProvider<GetUsersListQuery> sutProvider,
+        Guid organizationId,
+        IList<OrganizationUserUserDetails> organizationUserUserDetails
+    )
     {
         organizationUserUserDetails = SetUsersOrganizationId(organizationUserUserDetails, organizationId);
 
-        sutProvider.GetDependency<IOrganizationUserRepository>()
+        sutProvider
+            .GetDependency<IOrganizationUserRepository>()
             .GetManyDetailsByOrganizationAsync(organizationId)
             .Returns(organizationUserUserDetails);
 
-        var result = await sutProvider.Sut.GetUsersListAsync(organizationId, new GetUsersQueryParamModel { Count = count, StartIndex = startIndex });
+        var result = await sutProvider.Sut.GetUsersListAsync(
+            organizationId,
+            new GetUsersQueryParamModel { Count = count, StartIndex = startIndex }
+        );
 
-        await sutProvider.GetDependency<IOrganizationUserRepository>().Received(1).GetManyDetailsByOrganizationAsync(organizationId);
+        await sutProvider
+            .GetDependency<IOrganizationUserRepository>()
+            .Received(1)
+            .GetManyDetailsByOrganizationAsync(organizationId);
 
-        AssertHelper.AssertPropertyEqual(organizationUserUserDetails.Skip(startIndex - 1).Take(count).ToList(), result.userList);
+        AssertHelper.AssertPropertyEqual(
+            organizationUserUserDetails.Skip(startIndex - 1).Take(count).ToList(),
+            result.userList
+        );
         AssertHelper.AssertPropertyEqual(organizationUserUserDetails.Count, result.totalResults);
     }
 
     [Theory]
     [BitAutoData("user1@example.com")]
-    public async Task GetUsersList_FilterUserName_Success(string email, SutProvider<GetUsersListQuery> sutProvider, Guid organizationId, IList<OrganizationUserUserDetails> organizationUserUserDetails)
+    public async Task GetUsersList_FilterUserName_Success(
+        string email,
+        SutProvider<GetUsersListQuery> sutProvider,
+        Guid organizationId,
+        IList<OrganizationUserUserDetails> organizationUserUserDetails
+    )
     {
         organizationUserUserDetails = SetUsersOrganizationId(organizationUserUserDetails, organizationId);
         organizationUserUserDetails.First().Email = email;
         string filter = $"userName eq {email}";
 
-        var expectedUserList = organizationUserUserDetails
-            .Where(u => u.Email == email)
-            .ToList();
+        var expectedUserList = organizationUserUserDetails.Where(u => u.Email == email).ToList();
         var expectedTotalResults = expectedUserList.Count;
 
-        sutProvider.GetDependency<IOrganizationUserRepository>()
+        sutProvider
+            .GetDependency<IOrganizationUserRepository>()
             .GetManyDetailsByOrganizationAsync(organizationId)
             .Returns(organizationUserUserDetails);
 
-        var result = await sutProvider.Sut.GetUsersListAsync(organizationId, new GetUsersQueryParamModel { Filter = filter });
+        var result = await sutProvider.Sut.GetUsersListAsync(
+            organizationId,
+            new GetUsersQueryParamModel { Filter = filter }
+        );
 
-        await sutProvider.GetDependency<IOrganizationUserRepository>().Received(1).GetManyDetailsByOrganizationAsync(organizationId);
+        await sutProvider
+            .GetDependency<IOrganizationUserRepository>()
+            .Received(1)
+            .GetManyDetailsByOrganizationAsync(organizationId);
 
         AssertHelper.AssertPropertyEqual(expectedUserList, result.userList);
         AssertHelper.AssertPropertyEqual(expectedTotalResults, result.totalResults);
@@ -59,7 +85,12 @@ public class GetUsersListQueryTests
 
     [Theory]
     [BitAutoData("user1@example.com")]
-    public async Task GetUsersList_FilterUserName_Empty(string email, SutProvider<GetUsersListQuery> sutProvider, Guid organizationId, IList<OrganizationUserUserDetails> organizationUserUserDetails)
+    public async Task GetUsersList_FilterUserName_Empty(
+        string email,
+        SutProvider<GetUsersListQuery> sutProvider,
+        Guid organizationId,
+        IList<OrganizationUserUserDetails> organizationUserUserDetails
+    )
     {
         organizationUserUserDetails = SetUsersOrganizationId(organizationUserUserDetails, organizationId);
         string filter = $"userName eq {email}";
@@ -67,13 +98,20 @@ public class GetUsersListQueryTests
         var expectedUserList = new List<OrganizationUserUserDetails>();
         var expectedTotalResults = expectedUserList.Count;
 
-        sutProvider.GetDependency<IOrganizationUserRepository>()
+        sutProvider
+            .GetDependency<IOrganizationUserRepository>()
             .GetManyDetailsByOrganizationAsync(organizationId)
             .Returns(organizationUserUserDetails);
 
-        var result = await sutProvider.Sut.GetUsersListAsync(organizationId, new GetUsersQueryParamModel { Filter = filter });
+        var result = await sutProvider.Sut.GetUsersListAsync(
+            organizationId,
+            new GetUsersQueryParamModel { Filter = filter }
+        );
 
-        await sutProvider.GetDependency<IOrganizationUserRepository>().Received(1).GetManyDetailsByOrganizationAsync(organizationId);
+        await sutProvider
+            .GetDependency<IOrganizationUserRepository>()
+            .Received(1)
+            .GetManyDetailsByOrganizationAsync(organizationId);
 
         AssertHelper.AssertPropertyEqual(expectedUserList, result.userList);
         AssertHelper.AssertPropertyEqual(expectedTotalResults, result.totalResults);
@@ -81,24 +119,33 @@ public class GetUsersListQueryTests
 
     [Theory]
     [BitAutoData]
-    public async Task GetUsersList_FilterExternalId_Success(SutProvider<GetUsersListQuery> sutProvider, Guid organizationId, IList<OrganizationUserUserDetails> organizationUserUserDetails)
+    public async Task GetUsersList_FilterExternalId_Success(
+        SutProvider<GetUsersListQuery> sutProvider,
+        Guid organizationId,
+        IList<OrganizationUserUserDetails> organizationUserUserDetails
+    )
     {
         organizationUserUserDetails = SetUsersOrganizationId(organizationUserUserDetails, organizationId);
         string externalId = organizationUserUserDetails.First().ExternalId;
         string filter = $"externalId eq {externalId}";
 
-        var expectedUserList = organizationUserUserDetails
-            .Where(u => u.ExternalId == externalId)
-            .ToList();
+        var expectedUserList = organizationUserUserDetails.Where(u => u.ExternalId == externalId).ToList();
         var expectedTotalResults = expectedUserList.Count;
 
-        sutProvider.GetDependency<IOrganizationUserRepository>()
+        sutProvider
+            .GetDependency<IOrganizationUserRepository>()
             .GetManyDetailsByOrganizationAsync(organizationId)
             .Returns(organizationUserUserDetails);
 
-        var result = await sutProvider.Sut.GetUsersListAsync(organizationId, new GetUsersQueryParamModel { Filter = filter });
+        var result = await sutProvider.Sut.GetUsersListAsync(
+            organizationId,
+            new GetUsersQueryParamModel { Filter = filter }
+        );
 
-        await sutProvider.GetDependency<IOrganizationUserRepository>().Received(1).GetManyDetailsByOrganizationAsync(organizationId);
+        await sutProvider
+            .GetDependency<IOrganizationUserRepository>()
+            .Received(1)
+            .GetManyDetailsByOrganizationAsync(organizationId);
 
         AssertHelper.AssertPropertyEqual(expectedUserList, result.userList);
         AssertHelper.AssertPropertyEqual(expectedTotalResults, result.totalResults);
@@ -106,34 +153,49 @@ public class GetUsersListQueryTests
 
     [Theory]
     [BitAutoData]
-    public async Task GetUsersList_FilterExternalId_Empty(string externalId, SutProvider<GetUsersListQuery> sutProvider, Guid organizationId, IList<OrganizationUserUserDetails> organizationUserUserDetails)
+    public async Task GetUsersList_FilterExternalId_Empty(
+        string externalId,
+        SutProvider<GetUsersListQuery> sutProvider,
+        Guid organizationId,
+        IList<OrganizationUserUserDetails> organizationUserUserDetails
+    )
     {
         organizationUserUserDetails = SetUsersOrganizationId(organizationUserUserDetails, organizationId);
         string filter = $"externalId eq {externalId}";
 
-        var expectedUserList = organizationUserUserDetails
-            .Where(u => u.ExternalId == externalId)
-            .ToList();
+        var expectedUserList = organizationUserUserDetails.Where(u => u.ExternalId == externalId).ToList();
         var expectedTotalResults = expectedUserList.Count;
 
-        sutProvider.GetDependency<IOrganizationUserRepository>()
+        sutProvider
+            .GetDependency<IOrganizationUserRepository>()
             .GetManyDetailsByOrganizationAsync(organizationId)
             .Returns(organizationUserUserDetails);
 
-        var result = await sutProvider.Sut.GetUsersListAsync(organizationId, new GetUsersQueryParamModel { Filter = filter });
+        var result = await sutProvider.Sut.GetUsersListAsync(
+            organizationId,
+            new GetUsersQueryParamModel { Filter = filter }
+        );
 
-        await sutProvider.GetDependency<IOrganizationUserRepository>().Received(1).GetManyDetailsByOrganizationAsync(organizationId);
+        await sutProvider
+            .GetDependency<IOrganizationUserRepository>()
+            .Received(1)
+            .GetManyDetailsByOrganizationAsync(organizationId);
 
         AssertHelper.AssertPropertyEqual(expectedUserList, result.userList);
         AssertHelper.AssertPropertyEqual(expectedTotalResults, result.totalResults);
     }
 
-    private IList<OrganizationUserUserDetails> SetUsersOrganizationId(IList<OrganizationUserUserDetails> organizationUserUserDetails, Guid organizationId)
+    private IList<OrganizationUserUserDetails> SetUsersOrganizationId(
+        IList<OrganizationUserUserDetails> organizationUserUserDetails,
+        Guid organizationId
+    )
     {
-        return organizationUserUserDetails.Select(ouud =>
-        {
-            ouud.OrganizationId = organizationId;
-            return ouud;
-        }).ToList();
+        return organizationUserUserDetails
+            .Select(ouud =>
+            {
+                ouud.OrganizationId = organizationId;
+                return ouud;
+            })
+            .ToList();
     }
 }

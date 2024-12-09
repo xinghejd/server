@@ -1,6 +1,3 @@
 ﻿namespace Bit.Core.Billing.Models;
 
-public record SubscriptionSuspension(
-    DateTime SuspensionDate,
-    DateTime UnpaidPeriodEndDate,
-    int GracePeriod);
+public record SubscriptionSuspension(DateTime SuspensionDate, DateTime UnpaidPeriodEndDate, int GracePeriod);

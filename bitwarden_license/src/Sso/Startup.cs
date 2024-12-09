@@ -67,8 +67,7 @@ public class Startup
 
         // Authentication
         services.AddDistributedIdentityServices();
-        services.AddAuthentication()
-            .AddCookie(AuthenticationSchemes.BitwardenExternalCookieAuthenticationScheme);
+        services.AddAuthentication().AddCookie(AuthenticationSchemes.BitwardenExternalCookieAuthenticationScheme);
         services.AddSsoServices(globalSettings);
 
         // IdentityServer
@@ -93,7 +92,8 @@ public class Startup
         IWebHostEnvironment env,
         IHostApplicationLifetime appLifetime,
         GlobalSettings globalSettings,
-        ILogger<Startup> logger)
+        ILogger<Startup> logger
+    )
     {
         if (env.IsDevelopment() || globalSettings.SelfHosted)
         {
@@ -108,11 +108,13 @@ public class Startup
         if (!env.IsDevelopment())
         {
             var uri = new Uri(globalSettings.BaseServiceUri.Sso);
-            app.Use(async (ctx, next) =>
-            {
-                ctx.RequestServices.GetRequiredService<IServerUrls>().Origin = $"{uri.Scheme}://{uri.Host}";
-                await next();
-            });
+            app.Use(
+                async (ctx, next) =>
+                {
+                    ctx.RequestServices.GetRequiredService<IServerUrls>().Origin = $"{uri.Scheme}://{uri.Host}";
+                    await next();
+                }
+            );
         }
 
         if (globalSettings.SelfHosted)
@@ -140,17 +142,24 @@ public class Startup
         app.UseRouting();
 
         // Add Cors
-        app.UseCors(policy => policy.SetIsOriginAllowed(o => CoreHelpers.IsCorsOriginAllowed(o, globalSettings))
-            .AllowAnyMethod().AllowAnyHeader().AllowCredentials());
+        app.UseCors(policy =>
+            policy
+                .SetIsOriginAllowed(o => CoreHelpers.IsCorsOriginAllowed(o, globalSettings))
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials()
+        );
 
         // Add current context
         app.UseMiddleware<CurrentContextMiddleware>();
 
         // Add IdentityServer to the request pipeline.
-        app.UseIdentityServer(new IdentityServerMiddlewareOptions
-        {
-            AuthenticationMiddleware = app => app.UseMiddleware<SsoAuthenticationMiddleware>()
-        });
+        app.UseIdentityServer(
+            new IdentityServerMiddlewareOptions
+            {
+                AuthenticationMiddleware = app => app.UseMiddleware<SsoAuthenticationMiddleware>(),
+            }
+        );
 
         // Add Mvc stuff
         app.UseAuthorization();

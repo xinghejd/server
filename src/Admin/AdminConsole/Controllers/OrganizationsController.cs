@@ -83,7 +83,8 @@ public class OrganizationsController : Controller
         IProviderOrganizationRepository providerOrganizationRepository,
         IRemoveOrganizationFromProviderCommand removeOrganizationFromProviderCommand,
         IProviderBillingService providerBillingService,
-        IFeatureService featureService)
+        IFeatureService featureService
+    )
     {
         _organizationService = organizationService;
         _organizationRepository = organizationRepository;
@@ -113,8 +114,13 @@ public class OrganizationsController : Controller
     }
 
     [RequirePermission(Permission.Org_List_View)]
-    public async Task<IActionResult> Index(string name = null, string userEmail = null, bool? paid = null,
-        int page = 1, int count = 25)
+    public async Task<IActionResult> Index(
+        string name = null,
+        string userEmail = null,
+        bool? paid = null,
+        int page = 1,
+        int count = 25
+    )
     {
         if (page < 1)
         {
@@ -129,17 +135,19 @@ public class OrganizationsController : Controller
         var encodedName = WebUtility.HtmlEncode(name);
         var skip = (page - 1) * count;
         var organizations = await _organizationRepository.SearchAsync(encodedName, userEmail, paid, skip, count);
-        return View(new OrganizationsModel
-        {
-            Items = organizations as List<Organization>,
-            Name = string.IsNullOrWhiteSpace(name) ? null : name,
-            UserEmail = string.IsNullOrWhiteSpace(userEmail) ? null : userEmail,
-            Paid = paid,
-            Page = page,
-            Count = count,
-            Action = _globalSettings.SelfHosted ? "View" : "Edit",
-            SelfHosted = _globalSettings.SelfHosted
-        });
+        return View(
+            new OrganizationsModel
+            {
+                Items = organizations as List<Organization>,
+                Name = string.IsNullOrWhiteSpace(name) ? null : name,
+                UserEmail = string.IsNullOrWhiteSpace(userEmail) ? null : userEmail,
+                Paid = paid,
+                Page = page,
+                Count = count,
+                Action = _globalSettings.SelfHosted ? "View" : "Edit",
+                SelfHosted = _globalSettings.SelfHosted,
+            }
+        );
     }
 
     public async Task<IActionResult> View(Guid id)
@@ -164,15 +172,40 @@ public class OrganizationsController : Controller
             policies = await _policyRepository.GetManyByOrganizationIdAsync(id);
         }
         var users = await _organizationUserRepository.GetManyDetailsByOrganizationAsync(id);
-        var billingSyncConnection = _globalSettings.EnableCloudCommunication ? await _organizationConnectionRepository.GetByOrganizationIdTypeAsync(id, OrganizationConnectionType.CloudBillingSync) : null;
-        var secrets = organization.UseSecretsManager ? await _secretRepository.GetSecretsCountByOrganizationIdAsync(id) : -1;
-        var projects = organization.UseSecretsManager ? await _projectRepository.GetProjectCountByOrganizationIdAsync(id) : -1;
-        var serviceAccounts = organization.UseSecretsManager ? await _serviceAccountRepository.GetServiceAccountCountByOrganizationIdAsync(id) : -1;
+        var billingSyncConnection = _globalSettings.EnableCloudCommunication
+            ? await _organizationConnectionRepository.GetByOrganizationIdTypeAsync(
+                id,
+                OrganizationConnectionType.CloudBillingSync
+            )
+            : null;
+        var secrets = organization.UseSecretsManager
+            ? await _secretRepository.GetSecretsCountByOrganizationIdAsync(id)
+            : -1;
+        var projects = organization.UseSecretsManager
+            ? await _projectRepository.GetProjectCountByOrganizationIdAsync(id)
+            : -1;
+        var serviceAccounts = organization.UseSecretsManager
+            ? await _serviceAccountRepository.GetServiceAccountCountByOrganizationIdAsync(id)
+            : -1;
         var smSeats = organization.UseSecretsManager
             ? await _organizationUserRepository.GetOccupiedSmSeatCountByOrganizationIdAsync(organization.Id)
             : -1;
-        return View(new OrganizationViewModel(organization, provider, billingSyncConnection, users, ciphers, collections, groups, policies,
-            secrets, projects, serviceAccounts, smSeats));
+        return View(
+            new OrganizationViewModel(
+                organization,
+                provider,
+                billingSyncConnection,
+                users,
+                ciphers,
+                collections,
+                groups,
+                policies,
+                secrets,
+                projects,
+                serviceAccounts,
+                smSeats
+            )
+        );
     }
 
     [SelfHosted(NotSelfHostedOnly = true)]
@@ -200,31 +233,45 @@ public class OrganizationsController : Controller
         var users = await _organizationUserRepository.GetManyDetailsByOrganizationAsync(id);
         var billingInfo = await _paymentService.GetBillingAsync(organization);
         var billingHistoryInfo = await _paymentService.GetBillingHistoryAsync(organization);
-        var billingSyncConnection = _globalSettings.EnableCloudCommunication ? await _organizationConnectionRepository.GetByOrganizationIdTypeAsync(id, OrganizationConnectionType.CloudBillingSync) : null;
-        var secrets = organization.UseSecretsManager ? await _secretRepository.GetSecretsCountByOrganizationIdAsync(id) : -1;
-        var projects = organization.UseSecretsManager ? await _projectRepository.GetProjectCountByOrganizationIdAsync(id) : -1;
-        var serviceAccounts = organization.UseSecretsManager ? await _serviceAccountRepository.GetServiceAccountCountByOrganizationIdAsync(id) : -1;
+        var billingSyncConnection = _globalSettings.EnableCloudCommunication
+            ? await _organizationConnectionRepository.GetByOrganizationIdTypeAsync(
+                id,
+                OrganizationConnectionType.CloudBillingSync
+            )
+            : null;
+        var secrets = organization.UseSecretsManager
+            ? await _secretRepository.GetSecretsCountByOrganizationIdAsync(id)
+            : -1;
+        var projects = organization.UseSecretsManager
+            ? await _projectRepository.GetProjectCountByOrganizationIdAsync(id)
+            : -1;
+        var serviceAccounts = organization.UseSecretsManager
+            ? await _serviceAccountRepository.GetServiceAccountCountByOrganizationIdAsync(id)
+            : -1;
 
         var smSeats = organization.UseSecretsManager
             ? await _organizationUserRepository.GetOccupiedSmSeatCountByOrganizationIdAsync(organization.Id)
             : -1;
 
-        return View(new OrganizationEditModel(
-            organization,
-            provider,
-            users,
-            ciphers,
-            collections,
-            groups,
-            policies,
-            billingInfo,
-            billingHistoryInfo,
-            billingSyncConnection,
-            _globalSettings,
-            secrets,
-            projects,
-            serviceAccounts,
-            smSeats));
+        return View(
+            new OrganizationEditModel(
+                organization,
+                provider,
+                users,
+                ciphers,
+                collections,
+                groups,
+                policies,
+                billingInfo,
+                billingHistoryInfo,
+                billingSyncConnection,
+                _globalSettings,
+                secrets,
+                projects,
+                serviceAccounts,
+                smSeats
+            )
+        );
     }
 
     [HttpPost]
@@ -245,30 +292,29 @@ public class OrganizationsController : Controller
             Id = organization.Id,
             Status = organization.Status,
             PlanType = organization.PlanType,
-            Seats = organization.Seats
+            Seats = organization.Seats,
         };
 
         UpdateOrganization(organization, model);
 
-        if (organization.UseSecretsManager &&
-            !StaticStore.GetPlan(organization.PlanType).SupportsSecretsManager)
+        if (organization.UseSecretsManager && !StaticStore.GetPlan(organization.PlanType).SupportsSecretsManager)
         {
             TempData["Error"] = "Plan does not support Secrets Manager";
             return RedirectToAction("Edit", new { id });
         }
 
-        await HandlePotentialProviderSeatScalingAsync(
-            existingOrganizationData,
-            model);
+        await HandlePotentialProviderSeatScalingAsync(existingOrganizationData, model);
 
         await _organizationRepository.ReplaceAsync(organization);
 
         await _applicationCacheService.UpsertOrganizationAbilityAsync(organization);
-        await _referenceEventService.RaiseEventAsync(new ReferenceEvent(ReferenceEventType.OrganizationEditedByAdmin, organization, _currentContext)
-        {
-            EventRaisedByUser = _userService.GetUserName(User),
-            SalesAssistedTrialStarted = model.SalesAssistedTrialStarted,
-        });
+        await _referenceEventService.RaiseEventAsync(
+            new ReferenceEvent(ReferenceEventType.OrganizationEditedByAdmin, organization, _currentContext)
+            {
+                EventRaisedByUser = _userService.GetUserName(User),
+                SalesAssistedTrialStarted = model.SalesAssistedTrialStarted,
+            }
+        );
 
         return RedirectToAction("Edit", new { id });
     }
@@ -294,7 +340,8 @@ public class OrganizationsController : Controller
                 await _providerBillingService.ScaleSeats(
                     provider,
                     organization.PlanType,
-                    -organization.Seats ?? 0);
+                    -organization.Seats ?? 0
+                );
             }
         }
 
@@ -340,7 +387,12 @@ public class OrganizationsController : Controller
         {
             return RedirectToAction("Index");
         }
-        var connection = (await _organizationConnectionRepository.GetEnabledByOrganizationIdTypeAsync(id, OrganizationConnectionType.CloudBillingSync)).FirstOrDefault();
+        var connection = (
+            await _organizationConnectionRepository.GetEnabledByOrganizationIdTypeAsync(
+                id,
+                OrganizationConnectionType.CloudBillingSync
+            )
+        ).FirstOrDefault();
         if (connection != null)
         {
             try
@@ -353,7 +405,11 @@ public class OrganizationsController : Controller
             catch (Exception ex)
             {
                 TempData["ConnectionError"] = ex.Message;
-                _logger.LogWarning(ex, "Error while attempting to do billing sync for organization with id '{OrganizationId}'", id);
+                _logger.LogWarning(
+                    ex,
+                    "Error while attempting to do billing sync for organization with id '{OrganizationId}'",
+                    id
+                );
             }
 
             if (_globalSettings.SelfHosted)
@@ -377,7 +433,10 @@ public class OrganizationsController : Controller
             return RedirectToAction("Index");
         }
 
-        var organizationUsers = await _organizationUserRepository.GetManyByOrganizationAsync(id, OrganizationUserType.Owner);
+        var organizationUsers = await _organizationUserRepository.GetManyByOrganizationAsync(
+            id,
+            OrganizationUserType.Owner
+        );
         foreach (var organizationUser in organizationUsers)
         {
             await _organizationService.ResendInviteAsync(id, null, organizationUser.Id, true);
@@ -411,7 +470,8 @@ public class OrganizationsController : Controller
         await _removeOrganizationFromProviderCommand.RemoveOrganizationFromProvider(
             provider,
             providerOrganization,
-            organization);
+            organization
+        );
 
         return Json(null);
     }
@@ -474,10 +534,12 @@ public class OrganizationsController : Controller
 
     private async Task HandlePotentialProviderSeatScalingAsync(
         Organization organization,
-        OrganizationEditModel update)
+        OrganizationEditModel update
+    )
     {
-        var scaleMSPOnClientOrganizationUpdate =
-            _featureService.IsEnabled(FeatureFlagKeys.PM14401_ScaleMSPOnClientOrganizationUpdate);
+        var scaleMSPOnClientOrganizationUpdate = _featureService.IsEnabled(
+            FeatureFlagKeys.PM14401_ScaleMSPOnClientOrganizationUpdate
+        );
 
         if (!scaleMSPOnClientOrganizationUpdate)
         {
@@ -487,12 +549,14 @@ public class OrganizationsController : Controller
         var provider = await _providerRepository.GetByOrganizationIdAsync(organization.Id);
 
         // No scaling required
-        if (provider is not { Type: ProviderType.Msp, Status: ProviderStatusType.Billable } ||
-            organization is not { Status: OrganizationStatusType.Managed } ||
-            !organization.Seats.HasValue ||
-            update is { Seats: null, PlanType: null } ||
-            update is { PlanType: not PlanType.TeamsMonthly and not PlanType.EnterpriseMonthly } ||
-            (PlanTypesMatch() && SeatsMatch()))
+        if (
+            provider is not { Type: ProviderType.Msp, Status: ProviderStatusType.Billable }
+            || organization is not { Status: OrganizationStatusType.Managed }
+            || !organization.Seats.HasValue
+            || update is { Seats: null, PlanType: null }
+            || update is { PlanType: not PlanType.TeamsMonthly and not PlanType.EnterpriseMonthly }
+            || (PlanTypesMatch() && SeatsMatch())
+        )
         {
             return;
         }
@@ -522,10 +586,8 @@ public class OrganizationsController : Controller
 
         return;
 
-        bool PlanTypesMatch()
-            => update.PlanType.HasValue && update.PlanType.Value == organization.PlanType;
+        bool PlanTypesMatch() => update.PlanType.HasValue && update.PlanType.Value == organization.PlanType;
 
-        bool SeatsMatch()
-            => update.Seats.HasValue && update.Seats.Value == organization.Seats;
+        bool SeatsMatch() => update.Seats.HasValue && update.Seats.Value == organization.Seats;
     }
 }

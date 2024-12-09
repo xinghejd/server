@@ -9,8 +9,10 @@ public class PushSendRequestModel : IValidatableObject
     public string OrganizationId { get; set; }
     public string DeviceId { get; set; }
     public string Identifier { get; set; }
+
     [Required]
     public PushType? Type { get; set; }
+
     [Required]
     public object Payload { get; set; }
 

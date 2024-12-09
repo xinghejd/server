@@ -26,25 +26,24 @@ public class OrganizationsControllerTests
     [SutProviderCustomize]
     [Theory]
     public async Task Edit_ProviderSeatScaling_RequiredFFDisabled_NoOp(
-        SutProvider<OrganizationsController> sutProvider)
+        SutProvider<OrganizationsController> sutProvider
+    )
     {
         // Arrange
         var organizationId = new Guid();
         var update = new OrganizationEditModel { UseSecretsManager = false };
 
-        var organization = new Organization
-        {
-            Id = organizationId
-        };
+        var organization = new Organization { Id = organizationId };
 
-        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId)
-            .Returns(organization);
+        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId).Returns(organization);
 
         // Act
         _ = await sutProvider.Sut.Edit(organizationId, update);
 
         // Assert
-        await sutProvider.GetDependency<IProviderBillingService>().DidNotReceiveWithAnyArgs()
+        await sutProvider
+            .GetDependency<IProviderBillingService>()
+            .DidNotReceiveWithAnyArgs()
             .ScaleSeats(Arg.Any<Provider>(), Arg.Any<PlanType>(), Arg.Any<int>());
     }
 
@@ -52,19 +51,16 @@ public class OrganizationsControllerTests
     [SutProviderCustomize]
     [Theory]
     public async Task Edit_ProviderSeatScaling_NonBillableProvider_NoOp(
-        SutProvider<OrganizationsController> sutProvider)
+        SutProvider<OrganizationsController> sutProvider
+    )
     {
         // Arrange
         var organizationId = new Guid();
         var update = new OrganizationEditModel { UseSecretsManager = false };
 
-        var organization = new Organization
-        {
-            Id = organizationId
-        };
+        var organization = new Organization { Id = organizationId };
 
-        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId)
-            .Returns(organization);
+        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId).Returns(organization);
 
         var featureService = sutProvider.GetDependency<IFeatureService>();
 
@@ -72,13 +68,18 @@ public class OrganizationsControllerTests
 
         var provider = new Provider { Type = ProviderType.Msp, Status = ProviderStatusType.Created };
 
-        sutProvider.GetDependency<IProviderRepository>().GetByOrganizationIdAsync(organizationId).Returns(provider);
+        sutProvider
+            .GetDependency<IProviderRepository>()
+            .GetByOrganizationIdAsync(organizationId)
+            .Returns(provider);
 
         // Act
         _ = await sutProvider.Sut.Edit(organizationId, update);
 
         // Assert
-        await sutProvider.GetDependency<IProviderBillingService>().DidNotReceiveWithAnyArgs()
+        await sutProvider
+            .GetDependency<IProviderBillingService>()
+            .DidNotReceiveWithAnyArgs()
             .ScaleSeats(Arg.Any<Provider>(), Arg.Any<PlanType>(), Arg.Any<int>());
     }
 
@@ -86,20 +87,16 @@ public class OrganizationsControllerTests
     [SutProviderCustomize]
     [Theory]
     public async Task Edit_ProviderSeatScaling_UnmanagedOrganization_NoOp(
-        SutProvider<OrganizationsController> sutProvider)
+        SutProvider<OrganizationsController> sutProvider
+    )
     {
         // Arrange
         var organizationId = new Guid();
         var update = new OrganizationEditModel { UseSecretsManager = false };
 
-        var organization = new Organization
-        {
-            Id = organizationId,
-            Status = OrganizationStatusType.Created
-        };
+        var organization = new Organization { Id = organizationId, Status = OrganizationStatusType.Created };
 
-        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId)
-            .Returns(organization);
+        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId).Returns(organization);
 
         var featureService = sutProvider.GetDependency<IFeatureService>();
 
@@ -107,21 +104,25 @@ public class OrganizationsControllerTests
 
         var provider = new Provider { Type = ProviderType.Msp, Status = ProviderStatusType.Billable };
 
-        sutProvider.GetDependency<IProviderRepository>().GetByOrganizationIdAsync(organizationId).Returns(provider);
+        sutProvider
+            .GetDependency<IProviderRepository>()
+            .GetByOrganizationIdAsync(organizationId)
+            .Returns(provider);
 
         // Act
         _ = await sutProvider.Sut.Edit(organizationId, update);
 
         // Assert
-        await sutProvider.GetDependency<IProviderBillingService>().DidNotReceiveWithAnyArgs()
+        await sutProvider
+            .GetDependency<IProviderBillingService>()
+            .DidNotReceiveWithAnyArgs()
             .ScaleSeats(Arg.Any<Provider>(), Arg.Any<PlanType>(), Arg.Any<int>());
     }
 
     [BitAutoData]
     [SutProviderCustomize]
     [Theory]
-    public async Task Edit_ProviderSeatScaling_NonCBPlanType_NoOp(
-        SutProvider<OrganizationsController> sutProvider)
+    public async Task Edit_ProviderSeatScaling_NonCBPlanType_NoOp(SutProvider<OrganizationsController> sutProvider)
     {
         // Arrange
         var organizationId = new Guid();
@@ -130,18 +131,17 @@ public class OrganizationsControllerTests
         {
             UseSecretsManager = false,
             Seats = 10,
-            PlanType = PlanType.FamiliesAnnually
+            PlanType = PlanType.FamiliesAnnually,
         };
 
         var organization = new Organization
         {
             Id = organizationId,
             Status = OrganizationStatusType.Managed,
-            Seats = 10
+            Seats = 10,
         };
 
-        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId)
-            .Returns(organization);
+        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId).Returns(organization);
 
         var featureService = sutProvider.GetDependency<IFeatureService>();
 
@@ -149,13 +149,18 @@ public class OrganizationsControllerTests
 
         var provider = new Provider { Type = ProviderType.Msp, Status = ProviderStatusType.Billable };
 
-        sutProvider.GetDependency<IProviderRepository>().GetByOrganizationIdAsync(organizationId).Returns(provider);
+        sutProvider
+            .GetDependency<IProviderRepository>()
+            .GetByOrganizationIdAsync(organizationId)
+            .Returns(provider);
 
         // Act
         _ = await sutProvider.Sut.Edit(organizationId, update);
 
         // Assert
-        await sutProvider.GetDependency<IProviderBillingService>().DidNotReceiveWithAnyArgs()
+        await sutProvider
+            .GetDependency<IProviderBillingService>()
+            .DidNotReceiveWithAnyArgs()
             .ScaleSeats(Arg.Any<Provider>(), Arg.Any<PlanType>(), Arg.Any<int>());
     }
 
@@ -163,7 +168,8 @@ public class OrganizationsControllerTests
     [SutProviderCustomize]
     [Theory]
     public async Task Edit_ProviderSeatScaling_NoUpdateRequired_NoOp(
-        SutProvider<OrganizationsController> sutProvider)
+        SutProvider<OrganizationsController> sutProvider
+    )
     {
         // Arrange
         var organizationId = new Guid();
@@ -171,7 +177,7 @@ public class OrganizationsControllerTests
         {
             UseSecretsManager = false,
             Seats = 10,
-            PlanType = PlanType.EnterpriseMonthly
+            PlanType = PlanType.EnterpriseMonthly,
         };
 
         var organization = new Organization
@@ -179,11 +185,10 @@ public class OrganizationsControllerTests
             Id = organizationId,
             Status = OrganizationStatusType.Managed,
             Seats = 10,
-            PlanType = PlanType.EnterpriseMonthly
+            PlanType = PlanType.EnterpriseMonthly,
         };
 
-        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId)
-            .Returns(organization);
+        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId).Returns(organization);
 
         var featureService = sutProvider.GetDependency<IFeatureService>();
 
@@ -191,13 +196,18 @@ public class OrganizationsControllerTests
 
         var provider = new Provider { Type = ProviderType.Msp, Status = ProviderStatusType.Billable };
 
-        sutProvider.GetDependency<IProviderRepository>().GetByOrganizationIdAsync(organizationId).Returns(provider);
+        sutProvider
+            .GetDependency<IProviderRepository>()
+            .GetByOrganizationIdAsync(organizationId)
+            .Returns(provider);
 
         // Act
         _ = await sutProvider.Sut.Edit(organizationId, update);
 
         // Assert
-        await sutProvider.GetDependency<IProviderBillingService>().DidNotReceiveWithAnyArgs()
+        await sutProvider
+            .GetDependency<IProviderBillingService>()
+            .DidNotReceiveWithAnyArgs()
             .ScaleSeats(Arg.Any<Provider>(), Arg.Any<PlanType>(), Arg.Any<int>());
     }
 
@@ -205,7 +215,8 @@ public class OrganizationsControllerTests
     [SutProviderCustomize]
     [Theory]
     public async Task Edit_ProviderSeatScaling_PlanTypesUpdate_ScalesSeatsCorrectly(
-        SutProvider<OrganizationsController> sutProvider)
+        SutProvider<OrganizationsController> sutProvider
+    )
     {
         // Arrange
         var organizationId = new Guid();
@@ -213,7 +224,7 @@ public class OrganizationsControllerTests
         {
             UseSecretsManager = false,
             Seats = 10,
-            PlanType = PlanType.EnterpriseMonthly
+            PlanType = PlanType.EnterpriseMonthly,
         };
 
         var organization = new Organization
@@ -221,11 +232,10 @@ public class OrganizationsControllerTests
             Id = organizationId,
             Status = OrganizationStatusType.Managed,
             Seats = 10,
-            PlanType = PlanType.TeamsMonthly
+            PlanType = PlanType.TeamsMonthly,
         };
 
-        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId)
-            .Returns(organization);
+        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId).Returns(organization);
 
         var featureService = sutProvider.GetDependency<IFeatureService>();
 
@@ -233,7 +243,10 @@ public class OrganizationsControllerTests
 
         var provider = new Provider { Type = ProviderType.Msp, Status = ProviderStatusType.Billable };
 
-        sutProvider.GetDependency<IProviderRepository>().GetByOrganizationIdAsync(organizationId).Returns(provider);
+        sutProvider
+            .GetDependency<IProviderRepository>()
+            .GetByOrganizationIdAsync(organizationId)
+            .Returns(provider);
 
         // Act
         _ = await sutProvider.Sut.Edit(organizationId, update);
@@ -241,15 +254,20 @@ public class OrganizationsControllerTests
         // Assert
         var providerBillingService = sutProvider.GetDependency<IProviderBillingService>();
 
-        await providerBillingService.Received(1).ScaleSeats(provider, organization.PlanType, -organization.Seats.Value);
-        await providerBillingService.Received(1).ScaleSeats(provider, update.PlanType!.Value, organization.Seats.Value);
+        await providerBillingService
+            .Received(1)
+            .ScaleSeats(provider, organization.PlanType, -organization.Seats.Value);
+        await providerBillingService
+            .Received(1)
+            .ScaleSeats(provider, update.PlanType!.Value, organization.Seats.Value);
     }
 
     [BitAutoData]
     [SutProviderCustomize]
     [Theory]
     public async Task Edit_ProviderSeatScaling_SeatsUpdate_ScalesSeatsCorrectly(
-        SutProvider<OrganizationsController> sutProvider)
+        SutProvider<OrganizationsController> sutProvider
+    )
     {
         // Arrange
         var organizationId = new Guid();
@@ -257,7 +275,7 @@ public class OrganizationsControllerTests
         {
             UseSecretsManager = false,
             Seats = 15,
-            PlanType = PlanType.EnterpriseMonthly
+            PlanType = PlanType.EnterpriseMonthly,
         };
 
         var organization = new Organization
@@ -265,11 +283,10 @@ public class OrganizationsControllerTests
             Id = organizationId,
             Status = OrganizationStatusType.Managed,
             Seats = 10,
-            PlanType = PlanType.EnterpriseMonthly
+            PlanType = PlanType.EnterpriseMonthly,
         };
 
-        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId)
-            .Returns(organization);
+        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId).Returns(organization);
 
         var featureService = sutProvider.GetDependency<IFeatureService>();
 
@@ -277,7 +294,10 @@ public class OrganizationsControllerTests
 
         var provider = new Provider { Type = ProviderType.Msp, Status = ProviderStatusType.Billable };
 
-        sutProvider.GetDependency<IProviderRepository>().GetByOrganizationIdAsync(organizationId).Returns(provider);
+        sutProvider
+            .GetDependency<IProviderRepository>()
+            .GetByOrganizationIdAsync(organizationId)
+            .Returns(provider);
 
         // Act
         _ = await sutProvider.Sut.Edit(organizationId, update);
@@ -285,14 +305,17 @@ public class OrganizationsControllerTests
         // Assert
         var providerBillingService = sutProvider.GetDependency<IProviderBillingService>();
 
-        await providerBillingService.Received(1).ScaleSeats(provider, organization.PlanType, update.Seats!.Value - organization.Seats.Value);
+        await providerBillingService
+            .Received(1)
+            .ScaleSeats(provider, organization.PlanType, update.Seats!.Value - organization.Seats.Value);
     }
 
     [BitAutoData]
     [SutProviderCustomize]
     [Theory]
     public async Task Edit_ProviderSeatScaling_FullUpdate_ScalesSeatsCorrectly(
-        SutProvider<OrganizationsController> sutProvider)
+        SutProvider<OrganizationsController> sutProvider
+    )
     {
         // Arrange
         var organizationId = new Guid();
@@ -300,7 +323,7 @@ public class OrganizationsControllerTests
         {
             UseSecretsManager = false,
             Seats = 15,
-            PlanType = PlanType.EnterpriseMonthly
+            PlanType = PlanType.EnterpriseMonthly,
         };
 
         var organization = new Organization
@@ -308,11 +331,10 @@ public class OrganizationsControllerTests
             Id = organizationId,
             Status = OrganizationStatusType.Managed,
             Seats = 10,
-            PlanType = PlanType.TeamsMonthly
+            PlanType = PlanType.TeamsMonthly,
         };
 
-        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId)
-            .Returns(organization);
+        sutProvider.GetDependency<IOrganizationRepository>().GetByIdAsync(organizationId).Returns(organization);
 
         var featureService = sutProvider.GetDependency<IFeatureService>();
 
@@ -320,7 +342,10 @@ public class OrganizationsControllerTests
 
         var provider = new Provider { Type = ProviderType.Msp, Status = ProviderStatusType.Billable };
 
-        sutProvider.GetDependency<IProviderRepository>().GetByOrganizationIdAsync(organizationId).Returns(provider);
+        sutProvider
+            .GetDependency<IProviderRepository>()
+            .GetByOrganizationIdAsync(organizationId)
+            .Returns(provider);
 
         // Act
         _ = await sutProvider.Sut.Edit(organizationId, update);
@@ -328,8 +353,16 @@ public class OrganizationsControllerTests
         // Assert
         var providerBillingService = sutProvider.GetDependency<IProviderBillingService>();
 
-        await providerBillingService.Received(1).ScaleSeats(provider, organization.PlanType, -organization.Seats.Value);
-        await providerBillingService.Received(1).ScaleSeats(provider, update.PlanType!.Value, update.Seats!.Value - organization.Seats.Value + organization.Seats.Value);
+        await providerBillingService
+            .Received(1)
+            .ScaleSeats(provider, organization.PlanType, -organization.Seats.Value);
+        await providerBillingService
+            .Received(1)
+            .ScaleSeats(
+                provider,
+                update.PlanType!.Value,
+                update.Seats!.Value - organization.Seats.Value + organization.Seats.Value
+            );
     }
 
     #endregion

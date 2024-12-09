@@ -34,7 +34,8 @@ public class GroupsController : Controller
         IPatchGroupCommand patchGroupCommand,
         IPostGroupCommand postGroupCommand,
         IPutGroupCommand putGroupCommand,
-        ILogger<GroupsController> logger)
+        ILogger<GroupsController> logger
+    )
     {
         _groupRepository = groupRepository;
         _organizationRepository = organizationRepository;
@@ -62,9 +63,15 @@ public class GroupsController : Controller
         Guid organizationId,
         [FromQuery] string filter,
         [FromQuery] int? count,
-        [FromQuery] int? startIndex)
+        [FromQuery] int? startIndex
+    )
     {
-        var groupsListQueryResult = await _getGroupsListQuery.GetGroupsListAsync(organizationId, filter, count, startIndex);
+        var groupsListQueryResult = await _getGroupsListQuery.GetGroupsListAsync(
+            organizationId,
+            filter,
+            count,
+            startIndex
+        );
         var scimListResponseModel = new ScimListResponseModel<ScimGroupResponseModel>
         {
             Resources = groupsListQueryResult.groupList.Select(g => new ScimGroupResponseModel(g)).ToList(),
@@ -81,7 +88,10 @@ public class GroupsController : Controller
         var organization = await _organizationRepository.GetByIdAsync(organizationId);
         var group = await _postGroupCommand.PostGroupAsync(organization, model);
         var scimGroupResponseModel = new ScimGroupResponseModel(group);
-        return new CreatedResult(Url.Action(nameof(Get), new { group.OrganizationId, group.Id }), scimGroupResponseModel);
+        return new CreatedResult(
+            Url.Action(nameof(Get), new { group.OrganizationId, group.Id }),
+            scimGroupResponseModel
+        );
     }
 
     [HttpPut("{id}")]

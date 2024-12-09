@@ -12,9 +12,7 @@ public class MaxProjectsQuery : IMaxProjectsQuery
     private readonly IOrganizationRepository _organizationRepository;
     private readonly IProjectRepository _projectRepository;
 
-    public MaxProjectsQuery(
-        IOrganizationRepository organizationRepository,
-        IProjectRepository projectRepository)
+    public MaxProjectsQuery(IOrganizationRepository organizationRepository, IProjectRepository projectRepository)
     {
         _organizationRepository = organizationRepository;
         _projectRepository = projectRepository;
@@ -37,7 +35,11 @@ public class MaxProjectsQuery : IMaxProjectsQuery
         if (plan.Type == PlanType.Free)
         {
             var projects = await _projectRepository.GetProjectCountByOrganizationIdAsync(organizationId);
-            return ((short? max, bool? overMax))(projects + projectsToAdd > plan.SecretsManager.MaxProjects ? (plan.SecretsManager.MaxProjects, true) : (plan.SecretsManager.MaxProjects, false));
+            return ((short? max, bool? overMax))(
+                projects + projectsToAdd > plan.SecretsManager.MaxProjects
+                    ? (plan.SecretsManager.MaxProjects, true)
+                    : (plan.SecretsManager.MaxProjects, false)
+            );
         }
 
         return (null, null);

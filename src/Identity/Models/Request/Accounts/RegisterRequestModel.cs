@@ -13,13 +13,16 @@ public class RegisterRequestModel : IValidatableObject, ICaptchaProtectedModel
 {
     [StringLength(50)]
     public string Name { get; set; }
+
     [Required]
     [StrictEmailAddress]
     [StringLength(256)]
     public string Email { get; set; }
+
     [Required]
     [StringLength(1000)]
     public string MasterPasswordHash { get; set; }
+
     [StringLength(50)]
     public string MasterPasswordHint { get; set; }
     public string CaptchaResponse { get; set; }
@@ -43,7 +46,7 @@ public class RegisterRequestModel : IValidatableObject, ICaptchaProtectedModel
             Kdf = Kdf.GetValueOrDefault(KdfType.PBKDF2_SHA256),
             KdfIterations = KdfIterations.GetValueOrDefault(AuthConstants.PBKDF2_ITERATIONS.Default),
             KdfMemory = KdfMemory,
-            KdfParallelism = KdfParallelism
+            KdfParallelism = KdfParallelism,
         };
 
         if (ReferenceData != null)

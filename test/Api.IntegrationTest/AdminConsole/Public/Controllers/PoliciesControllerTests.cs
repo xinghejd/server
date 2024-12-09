@@ -39,8 +39,13 @@ public class PoliciesControllerTests : IClassFixture<ApiApplicationFactory>, IAs
         await _factory.LoginWithNewAccount(_ownerEmail);
 
         // Create the organization
-        (_organization, _) = await OrganizationTestHelpers.SignUpAsync(_factory, plan: PlanType.EnterpriseAnnually2023,
-            ownerEmail: _ownerEmail, passwordManagerSeats: 10, paymentMethod: PaymentMethodType.Card);
+        (_organization, _) = await OrganizationTestHelpers.SignUpAsync(
+            _factory,
+            plan: PlanType.EnterpriseAnnually2023,
+            ownerEmail: _ownerEmail,
+            passwordManagerSeats: 10,
+            paymentMethod: PaymentMethodType.Card
+        );
 
         // Authorize with the organization api key
         await _loginHelper.LoginWithOrganizationApiKeyAsync(_organization.Id);
@@ -59,11 +64,7 @@ public class PoliciesControllerTests : IClassFixture<ApiApplicationFactory>, IAs
         var request = new PolicyUpdateRequestModel
         {
             Enabled = true,
-            Data = new Dictionary<string, object>
-            {
-                { "minComplexity", 15},
-                { "requireLower", true}
-            }
+            Data = new Dictionary<string, object> { { "minComplexity", 15 }, { "requireLower", true } },
         };
 
         var response = await _client.PutAsync($"/public/policies/{policyType}", JsonContent.Create(request));
@@ -106,14 +107,16 @@ public class PoliciesControllerTests : IClassFixture<ApiApplicationFactory>, IAs
         {
             OrganizationId = _organization.Id,
             Enabled = true,
-            Type = policyType
+            Type = policyType,
         };
-        existingPolicy.SetDataModel(new MasterPasswordPolicyData
-        {
-            EnforceOnLogin = true,
-            MinLength = 22,
-            RequireSpecial = true
-        });
+        existingPolicy.SetDataModel(
+            new MasterPasswordPolicyData
+            {
+                EnforceOnLogin = true,
+                MinLength = 22,
+                RequireSpecial = true,
+            }
+        );
 
         var policyRepository = _factory.GetService<IPolicyRepository>();
         await policyRepository.UpsertAsync(existingPolicy);
@@ -125,11 +128,7 @@ public class PoliciesControllerTests : IClassFixture<ApiApplicationFactory>, IAs
         var request = new PolicyUpdateRequestModel
         {
             Enabled = false,
-            Data = new Dictionary<string, object>
-            {
-                { "minLength", 15},
-                { "requireUpper", true}
-            }
+            Data = new Dictionary<string, object> { { "minLength", 15 }, { "requireUpper", true } },
         };
 
         var response = await _client.PutAsync($"/public/policies/{policyType}", JsonContent.Create(request));

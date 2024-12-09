@@ -11,13 +11,14 @@ public class DatabaseRebuildlIndexesJob : BaseJob
 
     public DatabaseRebuildlIndexesJob(
         IMaintenanceRepository maintenanceRepository,
-        ILogger<DatabaseRebuildlIndexesJob> logger)
+        ILogger<DatabaseRebuildlIndexesJob> logger
+    )
         : base(logger)
     {
         _maintenanceRepository = maintenanceRepository;
     }
 
-    protected async override Task ExecuteJobAsync(IJobExecutionContext context)
+    protected override async Task ExecuteJobAsync(IJobExecutionContext context)
     {
         _logger.LogInformation(Constants.BypassFiltersEventId, "Execute job task: RebuildIndexesAsync");
         await _maintenanceRepository.RebuildIndexesAsync();

@@ -29,7 +29,7 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
         PasswordManagerSeats,
         SecretsManagerSeats,
         SecretsManagerServiceAccounts,
-        Storage
+        Storage,
     }
 
     /// <summary>
@@ -39,21 +39,20 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
     /// </summary>
     /// <param name="organization">The <see cref="Organization"/> to upgrade.</param>
     /// <param name="updatedSubscription">The updates you want to apply to the organization's subscription.</param>
-    public CompleteSubscriptionUpdate(
-        Organization organization,
-        SubscriptionData updatedSubscription)
+    public CompleteSubscriptionUpdate(Organization organization, SubscriptionData updatedSubscription)
     {
         _currentSubscription = GetSubscriptionDataFor(organization);
         _updatedSubscription = updatedSubscription;
     }
 
-    protected override List<string> PlanIds => new()
-    {
-        GetPasswordManagerPlanId(_updatedSubscription.Plan),
-        _updatedSubscription.Plan.SecretsManager.StripeSeatPlanId,
-        _updatedSubscription.Plan.SecretsManager.StripeServiceAccountPlanId,
-        _updatedSubscription.Plan.PasswordManager.StripeStoragePlanId
-    };
+    protected override List<string> PlanIds =>
+        new()
+        {
+            GetPasswordManagerPlanId(_updatedSubscription.Plan),
+            _updatedSubscription.Plan.SecretsManager.StripeSeatPlanId,
+            _updatedSubscription.Plan.SecretsManager.StripeServiceAccountPlanId,
+            _updatedSubscription.Plan.PasswordManager.StripeStoragePlanId,
+        };
 
     /// <summary>
     /// Generates the <see cref="SubscriptionItemOptions"/> necessary to revert an <see cref="Organization"/>'s
@@ -64,23 +63,34 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
     {
         var subscriptionItemOptions = new List<SubscriptionItemOptions>
         {
-            GetPasswordManagerOptions(subscription, _updatedSubscription, _currentSubscription)
+            GetPasswordManagerOptions(subscription, _updatedSubscription, _currentSubscription),
         };
 
         if (_updatedSubscription.SubscribedToSecretsManager || _currentSubscription.SubscribedToSecretsManager)
         {
-            subscriptionItemOptions.Add(GetSecretsManagerOptions(subscription, _updatedSubscription, _currentSubscription));
+            subscriptionItemOptions.Add(
+                GetSecretsManagerOptions(subscription, _updatedSubscription, _currentSubscription)
+            );
 
-            if (_updatedSubscription.PurchasedAdditionalSecretsManagerServiceAccounts != 0 ||
-                _currentSubscription.PurchasedAdditionalSecretsManagerServiceAccounts != 0)
+            if (
+                _updatedSubscription.PurchasedAdditionalSecretsManagerServiceAccounts != 0
+                || _currentSubscription.PurchasedAdditionalSecretsManagerServiceAccounts != 0
+            )
             {
-                subscriptionItemOptions.Add(GetServiceAccountsOptions(subscription, _updatedSubscription, _currentSubscription));
+                subscriptionItemOptions.Add(
+                    GetServiceAccountsOptions(subscription, _updatedSubscription, _currentSubscription)
+                );
             }
         }
 
-        if (_updatedSubscription.PurchasedAdditionalStorage != 0 || _currentSubscription.PurchasedAdditionalStorage != 0)
+        if (
+            _updatedSubscription.PurchasedAdditionalStorage != 0
+            || _currentSubscription.PurchasedAdditionalStorage != 0
+        )
         {
-            subscriptionItemOptions.Add(GetStorageOptions(subscription, _updatedSubscription, _currentSubscription));
+            subscriptionItemOptions.Add(
+                GetStorageOptions(subscription, _updatedSubscription, _currentSubscription)
+            );
         }
 
         return subscriptionItemOptions;
@@ -114,17 +124,21 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
             {
                 SubscriptionUpdateType.PasswordManagerSeats => ContainsUpdatesBetween(
                     GetPasswordManagerPlanId(_currentSubscription.Plan),
-                    subscriptionItemOptions),
+                    subscriptionItemOptions
+                ),
                 SubscriptionUpdateType.SecretsManagerSeats => ContainsUpdatesBetween(
                     _currentSubscription.Plan.SecretsManager.StripeSeatPlanId,
-                    subscriptionItemOptions),
+                    subscriptionItemOptions
+                ),
                 SubscriptionUpdateType.SecretsManagerServiceAccounts => ContainsUpdatesBetween(
                     _currentSubscription.Plan.SecretsManager.StripeServiceAccountPlanId,
-                    subscriptionItemOptions),
+                    subscriptionItemOptions
+                ),
                 SubscriptionUpdateType.Storage => ContainsUpdatesBetween(
                     _currentSubscription.Plan.PasswordManager.StripeStoragePlanId,
-                    subscriptionItemOptions),
-                _ => false
+                    subscriptionItemOptions
+                ),
+                _ => false,
             };
 
             if (updateNeeded)
@@ -139,9 +153,9 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
         {
             var subscriptionItem = FindSubscriptionItem(subscription, currentPlanId);
 
-            return (subscriptionItem.Plan.Id != options.Plan && subscriptionItem.Price.Id != options.Plan) ||
-                   subscriptionItem.Quantity != options.Quantity ||
-                   subscriptionItem.Deleted != options.Deleted;
+            return (subscriptionItem.Plan.Id != options.Plan && subscriptionItem.Price.Id != options.Plan)
+                || subscriptionItem.Quantity != options.Quantity
+                || subscriptionItem.Deleted != options.Deleted;
         }
     }
 
@@ -154,23 +168,34 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
     {
         var subscriptionItemOptions = new List<SubscriptionItemOptions>
         {
-            GetPasswordManagerOptions(subscription, _currentSubscription, _updatedSubscription)
+            GetPasswordManagerOptions(subscription, _currentSubscription, _updatedSubscription),
         };
 
         if (_currentSubscription.SubscribedToSecretsManager || _updatedSubscription.SubscribedToSecretsManager)
         {
-            subscriptionItemOptions.Add(GetSecretsManagerOptions(subscription, _currentSubscription, _updatedSubscription));
+            subscriptionItemOptions.Add(
+                GetSecretsManagerOptions(subscription, _currentSubscription, _updatedSubscription)
+            );
 
-            if (_currentSubscription.PurchasedAdditionalSecretsManagerServiceAccounts != 0 ||
-                _updatedSubscription.PurchasedAdditionalSecretsManagerServiceAccounts != 0)
+            if (
+                _currentSubscription.PurchasedAdditionalSecretsManagerServiceAccounts != 0
+                || _updatedSubscription.PurchasedAdditionalSecretsManagerServiceAccounts != 0
+            )
             {
-                subscriptionItemOptions.Add(GetServiceAccountsOptions(subscription, _currentSubscription, _updatedSubscription));
+                subscriptionItemOptions.Add(
+                    GetServiceAccountsOptions(subscription, _currentSubscription, _updatedSubscription)
+                );
             }
         }
 
-        if (_currentSubscription.PurchasedAdditionalStorage != 0 || _updatedSubscription.PurchasedAdditionalStorage != 0)
+        if (
+            _currentSubscription.PurchasedAdditionalStorage != 0
+            || _updatedSubscription.PurchasedAdditionalStorage != 0
+        )
         {
-            subscriptionItemOptions.Add(GetStorageOptions(subscription, _currentSubscription, _updatedSubscription));
+            subscriptionItemOptions.Add(
+                GetStorageOptions(subscription, _currentSubscription, _updatedSubscription)
+            );
         }
 
         return subscriptionItemOptions;
@@ -179,7 +204,8 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
     private SubscriptionItemOptions GetPasswordManagerOptions(
         Subscription subscription,
         SubscriptionData from,
-        SubscriptionData to)
+        SubscriptionData to
+    )
     {
         var currentPlanId = GetPasswordManagerPlanId(from.Plan);
 
@@ -198,14 +224,15 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
         {
             Id = subscriptionItem.Id,
             Price = updatedPlanId,
-            Quantity = IsNonSeatBasedPlan(to.Plan) ? 1 : to.PurchasedPasswordManagerSeats
+            Quantity = IsNonSeatBasedPlan(to.Plan) ? 1 : to.PurchasedPasswordManagerSeats,
         };
     }
 
     private SubscriptionItemOptions GetSecretsManagerOptions(
         Subscription subscription,
         SubscriptionData from,
-        SubscriptionData to)
+        SubscriptionData to
+    )
     {
         var currentPlanId = from.Plan?.SecretsManager?.StripeSeatPlanId;
 
@@ -222,16 +249,15 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
             Id = subscriptionItem?.Id,
             Price = updatedPlanId,
             Quantity = to.PurchasedSecretsManagerSeats,
-            Deleted = subscriptionItem?.Id != null && to.PurchasedSecretsManagerSeats == 0
-                ? true
-                : null
+            Deleted = subscriptionItem?.Id != null && to.PurchasedSecretsManagerSeats == 0 ? true : null,
         };
     }
 
     private SubscriptionItemOptions GetServiceAccountsOptions(
         Subscription subscription,
         SubscriptionData from,
-        SubscriptionData to)
+        SubscriptionData to
+    )
     {
         var currentPlanId = from.Plan?.SecretsManager?.StripeServiceAccountPlanId;
 
@@ -248,16 +274,18 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
             Id = subscriptionItem?.Id,
             Price = updatedPlanId,
             Quantity = to.PurchasedAdditionalSecretsManagerServiceAccounts,
-            Deleted = subscriptionItem?.Id != null && to.PurchasedAdditionalSecretsManagerServiceAccounts == 0
-                ? true
-                : null
+            Deleted =
+                subscriptionItem?.Id != null && to.PurchasedAdditionalSecretsManagerServiceAccounts == 0
+                    ? true
+                    : null,
         };
     }
 
     private SubscriptionItemOptions GetStorageOptions(
         Subscription subscription,
         SubscriptionData from,
-        SubscriptionData to)
+        SubscriptionData to
+    )
     {
         var currentPlanId = from.Plan.PasswordManager.StripeStoragePlanId;
 
@@ -272,9 +300,7 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
             Id = subscriptionItem?.Id,
             Price = updatedPlanId,
             Quantity = to.PurchasedAdditionalStorage,
-            Deleted = subscriptionItem?.Id != null && to.PurchasedAdditionalStorage == 0
-                ? true
-                : null
+            Deleted = subscriptionItem?.Id != null && to.PurchasedAdditionalStorage == 0 ? true : null,
         };
     }
 
@@ -296,8 +322,8 @@ public class CompleteSubscriptionUpdate : SubscriptionUpdate
                 ? organization.SmServiceAccounts - plan.SecretsManager.BaseServiceAccount
                 : 0,
             PurchasedAdditionalStorage = organization.MaxStorageGb.HasValue
-                ? organization.MaxStorageGb.Value - (plan.PasswordManager.BaseStorageGb ?? 0) :
-                0
+                ? organization.MaxStorageGb.Value - (plan.PasswordManager.BaseStorageGb ?? 0)
+                : 0,
         };
     }
 }

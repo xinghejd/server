@@ -21,7 +21,8 @@ public class PermissionsTests
         "\"manageUsers\": false,",
         "\"manageResetPassword\": false,",
         "\"manageScim\": false",
-        "}");
+        "}"
+    );
 
     [Fact]
     public void Serialization_Success()
@@ -47,7 +48,8 @@ public class PermissionsTests
 
         var actual = JsonSerializer.Serialize(
             JsonHelpers.DeserializeOrNew<Permissions>(_exampleSerializedPermissions, JsonHelpers.CamelCase),
-            JsonHelpers.CamelCase);
+            JsonHelpers.CamelCase
+        );
 
         Assert.Equal(expected, actual);
     }

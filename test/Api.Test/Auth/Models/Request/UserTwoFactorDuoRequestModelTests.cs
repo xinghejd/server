@@ -17,7 +17,7 @@ public class UserTwoFactorDuoRequestModelTests
         {
             ClientId = "clientId",
             ClientSecret = "clientSecret",
-            Host = "example.com"
+            Host = "example.com",
         };
 
         // Act
@@ -26,7 +26,10 @@ public class UserTwoFactorDuoRequestModelTests
         // Assert
         Assert.True(result.GetTwoFactorProviders().ContainsKey(TwoFactorProviderType.Duo));
         Assert.Equal("clientId", result.GetTwoFactorProviders()[TwoFactorProviderType.Duo].MetaData["ClientId"]);
-        Assert.Equal("clientSecret", result.GetTwoFactorProviders()[TwoFactorProviderType.Duo].MetaData["ClientSecret"]);
+        Assert.Equal(
+            "clientSecret",
+            result.GetTwoFactorProviders()[TwoFactorProviderType.Duo].MetaData["ClientSecret"]
+        );
         Assert.Equal("example.com", result.GetTwoFactorProviders()[TwoFactorProviderType.Duo].MetaData["Host"]);
         Assert.True(result.GetTwoFactorProviders()[TwoFactorProviderType.Duo].Enabled);
     }
@@ -36,15 +39,17 @@ public class UserTwoFactorDuoRequestModelTests
     {
         // Arrange
         var existingUser = new User();
-        existingUser.SetTwoFactorProviders(new Dictionary<TwoFactorProviderType, TwoFactorProvider>
-        {
-            { TwoFactorProviderType.Duo, new TwoFactorProvider() }
-        });
+        existingUser.SetTwoFactorProviders(
+            new Dictionary<TwoFactorProviderType, TwoFactorProvider>
+            {
+                { TwoFactorProviderType.Duo, new TwoFactorProvider() },
+            }
+        );
         var model = new UpdateTwoFactorDuoRequestModel
         {
             ClientId = "newClientId",
             ClientSecret = "newClientSecret",
-            Host = "newExample.com"
+            Host = "newExample.com",
         };
 
         // Act
@@ -52,8 +57,14 @@ public class UserTwoFactorDuoRequestModelTests
 
         // Assert
         Assert.True(result.GetTwoFactorProviders().ContainsKey(TwoFactorProviderType.Duo));
-        Assert.Equal("newClientId", result.GetTwoFactorProviders()[TwoFactorProviderType.Duo].MetaData["ClientId"]);
-        Assert.Equal("newClientSecret", result.GetTwoFactorProviders()[TwoFactorProviderType.Duo].MetaData["ClientSecret"]);
+        Assert.Equal(
+            "newClientId",
+            result.GetTwoFactorProviders()[TwoFactorProviderType.Duo].MetaData["ClientId"]
+        );
+        Assert.Equal(
+            "newClientSecret",
+            result.GetTwoFactorProviders()[TwoFactorProviderType.Duo].MetaData["ClientSecret"]
+        );
         Assert.Equal("newExample.com", result.GetTwoFactorProviders()[TwoFactorProviderType.Duo].MetaData["Host"]);
         Assert.True(result.GetTwoFactorProviders()[TwoFactorProviderType.Duo].Enabled);
     }

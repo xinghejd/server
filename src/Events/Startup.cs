@@ -39,19 +39,27 @@ public class Startup
         services.AddScoped<ICurrentContext, CurrentContext>();
 
         // Identity
-        services.AddIdentityAuthenticationServices(globalSettings, Environment, config =>
-        {
-            config.AddPolicy("Application", policy =>
+        services.AddIdentityAuthenticationServices(
+            globalSettings,
+            Environment,
+            config =>
             {
-                policy.RequireAuthenticatedUser();
-                policy.RequireClaim(JwtClaimTypes.AuthenticationMethod, "Application", "external");
-                policy.RequireClaim(JwtClaimTypes.Scope, ApiScopes.Api);
-            });
-        });
+                config.AddPolicy(
+                    "Application",
+                    policy =>
+                    {
+                        policy.RequireAuthenticatedUser();
+                        policy.RequireClaim(JwtClaimTypes.AuthenticationMethod, "Application", "external");
+                        policy.RequireClaim(JwtClaimTypes.Scope, ApiScopes.Api);
+                    }
+                );
+            }
+        );
 
         // Services
-        var usingServiceBusAppCache = CoreHelpers.SettingHasValue(globalSettings.ServiceBus.ConnectionString) &&
-            CoreHelpers.SettingHasValue(globalSettings.ServiceBus.ApplicationCacheTopicName);
+        var usingServiceBusAppCache =
+            CoreHelpers.SettingHasValue(globalSettings.ServiceBus.ConnectionString)
+            && CoreHelpers.SettingHasValue(globalSettings.ServiceBus.ApplicationCacheTopicName);
         if (usingServiceBusAppCache)
         {
             services.AddSingleton<IApplicationCacheService, InMemoryServiceBusApplicationCacheService>();
@@ -88,7 +96,8 @@ public class Startup
         IApplicationBuilder app,
         IWebHostEnvironment env,
         IHostApplicationLifetime appLifetime,
-        GlobalSettings globalSettings)
+        GlobalSettings globalSettings
+    )
     {
         app.UseSerilog(env, appLifetime, globalSettings);
 
@@ -113,8 +122,13 @@ public class Startup
         app.UseRouting();
 
         // Add Cors
-        app.UseCors(policy => policy.SetIsOriginAllowed(o => CoreHelpers.IsCorsOriginAllowed(o, globalSettings))
-            .AllowAnyMethod().AllowAnyHeader().AllowCredentials());
+        app.UseCors(policy =>
+            policy
+                .SetIsOriginAllowed(o => CoreHelpers.IsCorsOriginAllowed(o, globalSettings))
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials()
+        );
 
         // Add authentication and authorization to the request pipeline.
         app.UseAuthentication();

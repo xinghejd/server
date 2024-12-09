@@ -26,8 +26,9 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
     [Fact]
     public void ServiceAccountGrantedPoliciesOperations_OnlyPublicStatic()
     {
-        var publicStaticFields =
-            typeof(ProjectServiceAccountsAccessPoliciesOperations).GetFields(BindingFlags.Public | BindingFlags.Static);
+        var publicStaticFields = typeof(ProjectServiceAccountsAccessPoliciesOperations).GetFields(
+            BindingFlags.Public | BindingFlags.Static
+        );
         var allFields = typeof(ProjectServiceAccountsAccessPoliciesOperations).GetFields();
         Assert.Equal(publicStaticFields.Length, allFields.Length);
     }
@@ -37,13 +38,16 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
     public async Task Handler_AccessSecretsManagerFalse_DoesNotSucceed(
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal
+    )
     {
         var requirement = ProjectServiceAccountsAccessPoliciesOperations.Updates;
-        sutProvider.GetDependency<ICurrentContext>().AccessSecretsManager(resource.OrganizationId)
-            .Returns(false);
-        var authzContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement> { requirement },
-            claimsPrincipal, resource);
+        sutProvider.GetDependency<ICurrentContext>().AccessSecretsManager(resource.OrganizationId).Returns(false);
+        var authzContext = new AuthorizationHandlerContext(
+            new List<IAuthorizationRequirement> { requirement },
+            claimsPrincipal,
+            resource
+        );
 
         await sutProvider.Sut.HandleAsync(authzContext);
 
@@ -57,12 +61,16 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
         AccessClientType accessClientType,
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal
+    )
     {
         var requirement = ProjectServiceAccountsAccessPoliciesOperations.Updates;
         SetupUserSubstitutes(sutProvider, accessClientType, resource);
-        var authzContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement> { requirement },
-            claimsPrincipal, resource);
+        var authzContext = new AuthorizationHandlerContext(
+            new List<IAuthorizationRequirement> { requirement },
+            claimsPrincipal,
+            resource
+        );
 
         await sutProvider.Sut.HandleAsync(authzContext);
 
@@ -74,12 +82,16 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
     public async Task Handler_UnsupportedProjectServiceAccountsPoliciesOperationRequirement_Throws(
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal
+    )
     {
         var requirement = new ProjectServiceAccountsAccessPoliciesOperationRequirement();
         SetupUserSubstitutes(sutProvider, AccessClientType.NoAccessCheck, resource);
-        var authzContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement> { requirement },
-            claimsPrincipal, resource);
+        var authzContext = new AuthorizationHandlerContext(
+            new List<IAuthorizationRequirement> { requirement },
+            claimsPrincipal,
+            resource
+        );
 
         await Assert.ThrowsAsync<ArgumentException>(() => sutProvider.Sut.HandleAsync(authzContext));
     }
@@ -96,15 +108,20 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
         Guid userId,
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal
+    )
     {
         var requirement = ProjectServiceAccountsAccessPoliciesOperations.Updates;
         SetupUserSubstitutes(sutProvider, accessClientType, resource, userId);
-        sutProvider.GetDependency<IProjectRepository>()
+        sutProvider
+            .GetDependency<IProjectRepository>()
             .AccessToProjectAsync(resource.ProjectId, userId, accessClientType)
             .Returns((projectReadAccess, projectWriteAccess));
-        var authzContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement> { requirement },
-            claimsPrincipal, resource);
+        var authzContext = new AuthorizationHandlerContext(
+            new List<IAuthorizationRequirement> { requirement },
+            claimsPrincipal,
+            resource
+        );
 
         await sutProvider.Sut.HandleAsync(authzContext);
 
@@ -117,18 +134,24 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
         Guid userId,
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal
+    )
     {
         var requirement = ProjectServiceAccountsAccessPoliciesOperations.Updates;
         SetupUserSubstitutes(sutProvider, AccessClientType.NoAccessCheck, resource, userId);
-        sutProvider.GetDependency<IProjectRepository>()
+        sutProvider
+            .GetDependency<IProjectRepository>()
             .AccessToProjectAsync(resource.ProjectId, userId, AccessClientType.NoAccessCheck)
             .Returns((true, true));
-        sutProvider.GetDependency<IServiceAccountRepository>()
+        sutProvider
+            .GetDependency<IServiceAccountRepository>()
             .ServiceAccountsAreInOrganizationAsync(Arg.Any<List<Guid>>(), resource.OrganizationId)
             .Returns(false);
-        var authzContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement> { requirement },
-            claimsPrincipal, resource);
+        var authzContext = new AuthorizationHandlerContext(
+            new List<IAuthorizationRequirement> { requirement },
+            claimsPrincipal,
+            resource
+        );
 
         await sutProvider.Sut.HandleAsync(authzContext);
 
@@ -143,14 +166,18 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
         Guid userId,
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal
+    )
     {
         var requirement = ProjectServiceAccountsAccessPoliciesOperations.Updates;
         resource = RemoveAllCreates(resource);
         SetupServiceAccountsAccessTest(sutProvider, accessClientType, resource, userId);
 
-        var authzContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement> { requirement },
-            claimsPrincipal, resource);
+        var authzContext = new AuthorizationHandlerContext(
+            new List<IAuthorizationRequirement> { requirement },
+            claimsPrincipal,
+            resource
+        );
 
         await sutProvider.Sut.HandleAsync(authzContext);
 
@@ -165,23 +192,27 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
         Guid userId,
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal
+    )
     {
         var requirement = ProjectServiceAccountsAccessPoliciesOperations.Updates;
         resource = AddServiceAccountCreateUpdate(resource);
         SetupServiceAccountsAccessTest(sutProvider, accessClientType, resource, userId);
-        var accessResult = resource.ServiceAccountAccessPolicyUpdates
-            .Where(x => x.Operation == AccessPolicyOperation.Create)
+        var accessResult = resource
+            .ServiceAccountAccessPolicyUpdates.Where(x => x.Operation == AccessPolicyOperation.Create)
             .Select(x => x.AccessPolicy.ServiceAccountId!.Value)
             .ToDictionary(id => id, _ => (false, false));
 
-        sutProvider.GetDependency<IServiceAccountRepository>()
+        sutProvider
+            .GetDependency<IServiceAccountRepository>()
             .AccessToServiceAccountsAsync(Arg.Any<List<Guid>>(), userId, accessClientType)
             .Returns(accessResult);
 
-
-        var authzContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement> { requirement },
-            claimsPrincipal, resource);
+        var authzContext = new AuthorizationHandlerContext(
+            new List<IAuthorizationRequirement> { requirement },
+            claimsPrincipal,
+            resource
+        );
 
         await sutProvider.Sut.HandleAsync(authzContext);
 
@@ -196,26 +227,30 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
         Guid userId,
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal
+    )
     {
         var requirement = ProjectServiceAccountsAccessPoliciesOperations.Updates;
         resource = AddServiceAccountCreateUpdate(resource);
         SetupServiceAccountsAccessTest(sutProvider, accessClientType, resource, userId);
 
-        var accessResult = resource.ServiceAccountAccessPolicyUpdates
-            .Where(x => x.Operation == AccessPolicyOperation.Create)
+        var accessResult = resource
+            .ServiceAccountAccessPolicyUpdates.Where(x => x.Operation == AccessPolicyOperation.Create)
             .Select(x => x.AccessPolicy.ServiceAccountId!.Value)
             .ToDictionary(id => id, _ => (false, false));
 
         accessResult[accessResult.First().Key] = (true, true);
         accessResult.Remove(accessResult.Last().Key);
-        sutProvider.GetDependency<IServiceAccountRepository>()
+        sutProvider
+            .GetDependency<IServiceAccountRepository>()
             .AccessToServiceAccountsAsync(Arg.Any<List<Guid>>(), userId, accessClientType)
             .Returns(accessResult);
 
-
-        var authzContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement> { requirement },
-            claimsPrincipal, resource);
+        var authzContext = new AuthorizationHandlerContext(
+            new List<IAuthorizationRequirement> { requirement },
+            claimsPrincipal,
+            resource
+        );
 
         await sutProvider.Sut.HandleAsync(authzContext);
 
@@ -230,25 +265,29 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
         Guid userId,
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal
+    )
     {
         var requirement = ProjectServiceAccountsAccessPoliciesOperations.Updates;
         resource = AddServiceAccountCreateUpdate(resource);
         SetupServiceAccountsAccessTest(sutProvider, accessClientType, resource, userId);
 
-        var accessResult = resource.ServiceAccountAccessPolicyUpdates
-            .Where(x => x.Operation == AccessPolicyOperation.Create)
+        var accessResult = resource
+            .ServiceAccountAccessPolicyUpdates.Where(x => x.Operation == AccessPolicyOperation.Create)
             .Select(x => x.AccessPolicy.ServiceAccountId!.Value)
             .ToDictionary(id => id, _ => (false, false));
 
         accessResult[accessResult.First().Key] = (true, true);
-        sutProvider.GetDependency<IServiceAccountRepository>()
+        sutProvider
+            .GetDependency<IServiceAccountRepository>()
             .AccessToServiceAccountsAsync(Arg.Any<List<Guid>>(), userId, accessClientType)
             .Returns(accessResult);
 
-
-        var authzContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement> { requirement },
-            claimsPrincipal, resource);
+        var authzContext = new AuthorizationHandlerContext(
+            new List<IAuthorizationRequirement> { requirement },
+            claimsPrincipal,
+            resource
+        );
 
         await sutProvider.Sut.HandleAsync(authzContext);
 
@@ -263,24 +302,28 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
         Guid userId,
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal
+    )
     {
         var requirement = ProjectServiceAccountsAccessPoliciesOperations.Updates;
         resource = AddServiceAccountCreateUpdate(resource);
         SetupServiceAccountsAccessTest(sutProvider, accessClientType, resource, userId);
 
-        var accessResult = resource.ServiceAccountAccessPolicyUpdates
-            .Where(x => x.Operation == AccessPolicyOperation.Create)
+        var accessResult = resource
+            .ServiceAccountAccessPolicyUpdates.Where(x => x.Operation == AccessPolicyOperation.Create)
             .Select(x => x.AccessPolicy.ServiceAccountId!.Value)
             .ToDictionary(id => id, _ => (true, true));
 
-        sutProvider.GetDependency<IServiceAccountRepository>()
+        sutProvider
+            .GetDependency<IServiceAccountRepository>()
             .AccessToServiceAccountsAsync(Arg.Any<List<Guid>>(), userId, accessClientType)
             .Returns(accessResult);
 
-
-        var authzContext = new AuthorizationHandlerContext(new List<IAuthorizationRequirement> { requirement },
-            claimsPrincipal, resource);
+        var authzContext = new AuthorizationHandlerContext(
+            new List<IAuthorizationRequirement> { requirement },
+            claimsPrincipal,
+            resource
+        );
 
         await sutProvider.Sut.HandleAsync(authzContext);
 
@@ -291,11 +334,13 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         AccessClientType accessClientType,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
-        Guid userId = new())
+        Guid userId = new()
+    )
     {
-        sutProvider.GetDependency<ICurrentContext>().AccessSecretsManager(resource.OrganizationId)
-            .Returns(true);
-        sutProvider.GetDependency<IAccessClientQuery>().GetAccessClientAsync(default, resource.OrganizationId)
+        sutProvider.GetDependency<ICurrentContext>().AccessSecretsManager(resource.OrganizationId).Returns(true);
+        sutProvider
+            .GetDependency<IAccessClientQuery>()
+            .GetAccessClientAsync(default, resource.OrganizationId)
             .ReturnsForAnyArgs((accessClientType, userId));
     }
 
@@ -303,20 +348,24 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
         SutProvider<ProjectServiceAccountsAccessPoliciesAuthorizationHandler> sutProvider,
         AccessClientType accessClientType,
         ProjectServiceAccountsAccessPoliciesUpdates resource,
-        Guid userId = new())
+        Guid userId = new()
+    )
     {
         SetupUserSubstitutes(sutProvider, accessClientType, resource, userId);
 
-        sutProvider.GetDependency<IProjectRepository>()
+        sutProvider
+            .GetDependency<IProjectRepository>()
             .AccessToProjectAsync(resource.ProjectId, userId, accessClientType)
             .Returns((true, true));
-        sutProvider.GetDependency<IServiceAccountRepository>()
+        sutProvider
+            .GetDependency<IServiceAccountRepository>()
             .ServiceAccountsAreInOrganizationAsync(Arg.Any<List<Guid>>(), resource.OrganizationId)
             .Returns(true);
     }
 
     private static ProjectServiceAccountsAccessPoliciesUpdates AddServiceAccountCreateUpdate(
-        ProjectServiceAccountsAccessPoliciesUpdates resource)
+        ProjectServiceAccountsAccessPoliciesUpdates resource
+    )
     {
         resource.ServiceAccountAccessPolicyUpdates = resource.ServiceAccountAccessPolicyUpdates.Append(
             new ServiceAccountProjectAccessPolicyUpdate
@@ -326,17 +375,20 @@ public class ProjectServiceAccountsAccessPoliciesAuthorizationHandlerTests
                     ServiceAccountId = Guid.NewGuid(),
                     GrantedProjectId = resource.ProjectId,
                     Read = true,
-                    Write = true
-                }
-            });
+                    Write = true,
+                },
+            }
+        );
         return resource;
     }
 
     private static ProjectServiceAccountsAccessPoliciesUpdates RemoveAllCreates(
-        ProjectServiceAccountsAccessPoliciesUpdates resource)
+        ProjectServiceAccountsAccessPoliciesUpdates resource
+    )
     {
-        resource.ServiceAccountAccessPolicyUpdates =
-            resource.ServiceAccountAccessPolicyUpdates.Where(x => x.Operation != AccessPolicyOperation.Create);
+        resource.ServiceAccountAccessPolicyUpdates = resource.ServiceAccountAccessPolicyUpdates.Where(x =>
+            x.Operation != AccessPolicyOperation.Create
+        );
         return resource;
     }
 }

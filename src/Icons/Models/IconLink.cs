@@ -9,9 +9,28 @@ namespace Bit.Icons.Models;
 
 public class IconLink
 {
-    private static readonly HashSet<string> _iconRels = new(StringComparer.InvariantCultureIgnoreCase) { "icon", "apple-touch-icon", "shortcut icon" };
-    private static readonly HashSet<string> _blocklistedRels = new(StringComparer.InvariantCultureIgnoreCase) { "preload", "image_src", "preconnect", "canonical", "alternate", "stylesheet" };
-    private static readonly HashSet<string> _iconExtensions = new(StringComparer.InvariantCultureIgnoreCase) { ".ico", ".png", ".jpg", ".jpeg" };
+    private static readonly HashSet<string> _iconRels = new(StringComparer.InvariantCultureIgnoreCase)
+    {
+        "icon",
+        "apple-touch-icon",
+        "shortcut icon",
+    };
+    private static readonly HashSet<string> _blocklistedRels = new(StringComparer.InvariantCultureIgnoreCase)
+    {
+        "preload",
+        "image_src",
+        "preconnect",
+        "canonical",
+        "alternate",
+        "stylesheet",
+    };
+    private static readonly HashSet<string> _iconExtensions = new(StringComparer.InvariantCultureIgnoreCase)
+    {
+        ".ico",
+        ".png",
+        ".jpg",
+        ".jpeg",
+    };
     private const string _pngMediaType = "image/png";
     private static readonly byte[] _pngHeader = new byte[] { 137, 80, 78, 71 };
     private static readonly byte[] _webpHeader = Encoding.UTF8.GetBytes("RIFF");
@@ -86,8 +105,11 @@ public class IconLink
         if (!string.IsNullOrWhiteSpace(Sizes?.Value))
         {
             var sizeParts = Sizes.Value.Split('x');
-            if (sizeParts.Length == 2 && int.TryParse(sizeParts[0].Trim(), out var width) &&
-                int.TryParse(sizeParts[1].Trim(), out var height))
+            if (
+                sizeParts.Length == 2
+                && int.TryParse(sizeParts[0].Trim(), out var width)
+                && int.TryParse(sizeParts[1].Trim(), out var height)
+            )
             {
                 _width = width;
                 _height = height;
@@ -124,7 +146,11 @@ public class IconLink
     /// <summary>
     /// Fetches the icon from the Href. Will always fail unless first validated with IsUsable().
     /// </summary>
-    public async Task<Icon?> FetchAsync(ILogger<IIconFetchingService> logger, IHttpClientFactory httpClientFactory, IUriService uriService)
+    public async Task<Icon?> FetchAsync(
+        ILogger<IIconFetchingService> logger,
+        IHttpClientFactory httpClientFactory,
+        IUriService uriService
+    )
     {
         if (!_validated)
         {
@@ -171,18 +197,20 @@ public class IconLink
             return null;
         }
 
-        if (Href.Value.StartsWith("//") && Uri.TryCreate($"{ParentUri.Scheme}://{Href.Value[2..]}", UriKind.Absolute, out var uri))
+        if (
+            Href.Value.StartsWith("//")
+            && Uri.TryCreate($"{ParentUri.Scheme}://{Href.Value[2..]}", UriKind.Absolute, out var uri)
+        )
         {
             return uri;
         }
 
         if (Uri.TryCreate(Href.Value, UriKind.Relative, out uri))
         {
-            return new UriBuilder()
-            {
-                Scheme = ParentUri.Scheme,
-                Host = ParentUri.Host,
-            }.Uri.ConcatPath(BaseUrlPath, uri.OriginalString);
+            return new UriBuilder() { Scheme = ParentUri.Scheme, Host = ParentUri.Host }.Uri.ConcatPath(
+                BaseUrlPath,
+                uri.OriginalString
+            );
         }
 
         if (Uri.TryCreate(Href.Value, UriKind.Absolute, out uri))

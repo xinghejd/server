@@ -41,7 +41,8 @@ public class PaymentHistoryServiceTests
         var paymentHistoryService = new PaymentHistoryService(
             Substitute.For<IStripeAdapter>(),
             Substitute.For<ITransactionRepository>(),
-            Substitute.For<ILogger<PaymentHistoryService>>());
+            Substitute.For<ILogger<PaymentHistoryService>>()
+        );
 
         // Act
         var result = await paymentHistoryService.GetInvoiceHistoryAsync(null);
@@ -57,7 +58,9 @@ public class PaymentHistoryServiceTests
         var subscriber = new Organization { Id = Guid.NewGuid() };
         var transactions = new List<Transaction> { new() { Id = Guid.NewGuid() } };
         var transactionRepository = Substitute.For<ITransactionRepository>();
-        transactionRepository.GetManyByOrganizationIdAsync(subscriber.Id, Arg.Any<int>(), Arg.Any<DateTime?>()).Returns(transactions);
+        transactionRepository
+            .GetManyByOrganizationIdAsync(subscriber.Id, Arg.Any<int>(), Arg.Any<DateTime?>())
+            .Returns(transactions);
         var stripeAdapter = Substitute.For<IStripeAdapter>();
         var logger = Substitute.For<ILogger<PaymentHistoryService>>();
         var paymentHistoryService = new PaymentHistoryService(stripeAdapter, transactionRepository, logger);
@@ -68,7 +71,9 @@ public class PaymentHistoryServiceTests
         // Assert
         Assert.NotEmpty(result);
         Assert.Single(result);
-        await transactionRepository.Received(1).GetManyByOrganizationIdAsync(subscriber.Id, Arg.Any<int>(), Arg.Any<DateTime?>());
+        await transactionRepository
+            .Received(1)
+            .GetManyByOrganizationIdAsync(subscriber.Id, Arg.Any<int>(), Arg.Any<DateTime?>());
     }
 
     [Fact]
@@ -78,7 +83,8 @@ public class PaymentHistoryServiceTests
         var paymentHistoryService = new PaymentHistoryService(
             Substitute.For<IStripeAdapter>(),
             Substitute.For<ITransactionRepository>(),
-            Substitute.For<ILogger<PaymentHistoryService>>());
+            Substitute.For<ILogger<PaymentHistoryService>>()
+        );
 
         // Act
         var result = await paymentHistoryService.GetTransactionHistoryAsync(null);

@@ -23,7 +23,6 @@ namespace Bit.Core.Auth.UserFeatures.Registration.Implementations;
 
 public class RegisterUserCommand : IRegisterUserCommand
 {
-
     private readonly IGlobalSettings _globalSettings;
     private readonly IOrganizationUserRepository _organizationUserRepository;
     private readonly IPolicyRepository _policyRepository;
@@ -43,7 +42,8 @@ public class RegisterUserCommand : IRegisterUserCommand
 
     private readonly IDataProtectorTokenFactory<EmergencyAccessInviteTokenable> _emergencyAccessInviteTokenDataFactory;
 
-    private readonly string _disabledUserRegistrationExceptionMsg = "Open registration has been disabled by the system administrator.";
+    private readonly string _disabledUserRegistrationExceptionMsg =
+        "Open registration has been disabled by the system administrator.";
 
     public RegisterUserCommand(
         IGlobalSettings globalSettings,
@@ -58,7 +58,7 @@ public class RegisterUserCommand : IRegisterUserCommand
         IMailService mailService,
         IValidateRedemptionTokenCommand validateRedemptionTokenCommand,
         IDataProtectorTokenFactory<EmergencyAccessInviteTokenable> emergencyAccessInviteTokenDataFactory
-        )
+    )
     {
         _globalSettings = globalSettings;
         _organizationUserRepository = organizationUserRepository;
@@ -66,7 +66,8 @@ public class RegisterUserCommand : IRegisterUserCommand
         _referenceEventService = referenceEventService;
 
         _organizationServiceDataProtector = dataProtectionProvider.CreateProtector(
-            "OrganizationServiceDataProtector");
+            "OrganizationServiceDataProtector"
+        );
         _orgUserInviteTokenDataFactory = orgUserInviteTokenDataFactory;
         _registrationEmailVerificationTokenDataFactory = registrationEmailVerificationTokenDataFactory;
 
@@ -80,21 +81,26 @@ public class RegisterUserCommand : IRegisterUserCommand
         _providerServiceDataProtector = dataProtectionProvider.CreateProtector("ProviderServiceDataProtector");
     }
 
-
     public async Task<IdentityResult> RegisterUser(User user)
     {
         var result = await _userService.CreateUserAsync(user);
         if (result == IdentityResult.Success)
         {
             await _mailService.SendWelcomeEmailAsync(user);
-            await _referenceEventService.RaiseEventAsync(new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext));
+            await _referenceEventService.RaiseEventAsync(
+                new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext)
+            );
         }
 
         return result;
     }
 
-    public async Task<IdentityResult> RegisterUserViaOrganizationInviteToken(User user, string masterPasswordHash,
-        string orgInviteToken, Guid? orgUserId)
+    public async Task<IdentityResult> RegisterUserViaOrganizationInviteToken(
+        User user,
+        string masterPasswordHash,
+        string orgInviteToken,
+        Guid? orgUserId
+    )
     {
         ValidateOrgInviteToken(orgInviteToken, orgUserId, user);
         await SetUserEmail2FaIfOrgPolicyEnabledAsync(orgUserId, user);
@@ -121,15 +127,18 @@ public class RegisterUserCommand : IRegisterUserCommand
                         await _referenceEventService.RaiseEventAsync(
                             new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext)
                             {
-                                SignupInitiationPath = initiationPath
-                            });
+                                SignupInitiationPath = initiationPath,
+                            }
+                        );
 
                         return result;
                     }
                 }
             }
 
-            await _referenceEventService.RaiseEventAsync(new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext));
+            await _referenceEventService.RaiseEventAsync(
+                new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext)
+            );
         }
 
         return result;
@@ -170,13 +179,17 @@ public class RegisterUserCommand : IRegisterUserCommand
         // if we have an org invite token but no org user id, then throw an exception as we can't validate the token
         if (orgInviteTokenProvided && !orgUserId.HasValue)
         {
-            throw new BadRequestException("Organization invite token cannot be validated without an organization user id.");
+            throw new BadRequestException(
+                "Organization invite token cannot be validated without an organization user id."
+            );
         }
 
         // if we have an org user id but no org invite token, then throw an exception as that isn't a supported flow
         if (orgUserId.HasValue && string.IsNullOrWhiteSpace(orgInviteToken))
         {
-            throw new BadRequestException("Organization user id cannot be provided without an organization invite token.");
+            throw new BadRequestException(
+                "Organization user id cannot be provided without an organization invite token."
+            );
         }
 
         // If both orgInviteToken && orgUserId are missing, then proceed with open registration
@@ -186,12 +199,21 @@ public class RegisterUserCommand : IRegisterUserCommand
     {
         // TODO: PM-4142 - remove old token validation logic once 3 releases of backwards compatibility are complete
         var newOrgInviteTokenValid = OrgUserInviteTokenable.ValidateOrgUserInviteStringToken(
-            _orgUserInviteTokenDataFactory, orgInviteToken, orgUserId, userEmail);
+            _orgUserInviteTokenDataFactory,
+            orgInviteToken,
+            orgUserId,
+            userEmail
+        );
 
-        return newOrgInviteTokenValid || CoreHelpers.UserInviteTokenIsValid(
-            _organizationServiceDataProtector, orgInviteToken, userEmail, orgUserId, _globalSettings);
+        return newOrgInviteTokenValid
+            || CoreHelpers.UserInviteTokenIsValid(
+                _organizationServiceDataProtector,
+                orgInviteToken,
+                userEmail,
+                orgUserId,
+                _globalSettings
+            );
     }
-
 
     /// <summary>
     /// Handles initializing the user with Email 2FA enabled if they are subject to an enabled 2FA organizational policy.
@@ -208,24 +230,29 @@ public class RegisterUserCommand : IRegisterUserCommand
         var orgUser = await _organizationUserRepository.GetByIdAsync(orgUserId.Value);
         if (orgUser != null)
         {
-            var twoFactorPolicy = await _policyRepository.GetByOrganizationIdTypeAsync(orgUser.OrganizationId,
-                PolicyType.TwoFactorAuthentication);
+            var twoFactorPolicy = await _policyRepository.GetByOrganizationIdTypeAsync(
+                orgUser.OrganizationId,
+                PolicyType.TwoFactorAuthentication
+            );
             if (twoFactorPolicy != null && twoFactorPolicy.Enabled)
             {
-                user.SetTwoFactorProviders(new Dictionary<TwoFactorProviderType, TwoFactorProvider>
-                {
-
-                    [TwoFactorProviderType.Email] = new TwoFactorProvider
+                user.SetTwoFactorProviders(
+                    new Dictionary<TwoFactorProviderType, TwoFactorProvider>
                     {
-                        MetaData = new Dictionary<string, object> { ["Email"] = user.Email.ToLowerInvariant() },
-                        Enabled = true
+                        [TwoFactorProviderType.Email] = new TwoFactorProvider
+                        {
+                            MetaData = new Dictionary<string, object>
+                            {
+                                ["Email"] = user.Email.ToLowerInvariant(),
+                            },
+                            Enabled = true,
+                        },
                     }
-                });
+                );
                 _userService.SetTwoFactorProvider(user, TwoFactorProviderType.Email);
             }
         }
     }
-
 
     private async Task SendAppropriateWelcomeEmailAsync(User user, string initiationPath)
     {
@@ -241,10 +268,12 @@ public class RegisterUserCommand : IRegisterUserCommand
         }
     }
 
-    public async Task<IdentityResult> RegisterUserViaEmailVerificationToken(User user, string masterPasswordHash,
-        string emailVerificationToken)
+    public async Task<IdentityResult> RegisterUserViaEmailVerificationToken(
+        User user,
+        string masterPasswordHash,
+        string emailVerificationToken
+    )
     {
-
         ValidateOpenRegistrationAllowed();
 
         var tokenable = ValidateRegistrationEmailVerificationTokenable(emailVerificationToken, user.Email);
@@ -257,17 +286,22 @@ public class RegisterUserCommand : IRegisterUserCommand
         if (result == IdentityResult.Success)
         {
             await _mailService.SendWelcomeEmailAsync(user);
-            await _referenceEventService.RaiseEventAsync(new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext)
-            {
-                ReceiveMarketingEmails = tokenable.ReceiveMarketingEmails
-            });
+            await _referenceEventService.RaiseEventAsync(
+                new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext)
+                {
+                    ReceiveMarketingEmails = tokenable.ReceiveMarketingEmails,
+                }
+            );
         }
 
         return result;
     }
 
-    public async Task<IdentityResult> RegisterUserViaOrganizationSponsoredFreeFamilyPlanInviteToken(User user, string masterPasswordHash,
-        string orgSponsoredFreeFamilyPlanInviteToken)
+    public async Task<IdentityResult> RegisterUserViaOrganizationSponsoredFreeFamilyPlanInviteToken(
+        User user,
+        string masterPasswordHash,
+        string orgSponsoredFreeFamilyPlanInviteToken
+    )
     {
         ValidateOpenRegistrationAllowed();
         await ValidateOrgSponsoredFreeFamilyPlanInviteToken(orgSponsoredFreeFamilyPlanInviteToken, user.Email);
@@ -279,19 +313,28 @@ public class RegisterUserCommand : IRegisterUserCommand
         if (result == IdentityResult.Success)
         {
             await _mailService.SendWelcomeEmailAsync(user);
-            await _referenceEventService.RaiseEventAsync(new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext));
+            await _referenceEventService.RaiseEventAsync(
+                new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext)
+            );
         }
 
         return result;
     }
 
-
     // TODO: in future, consider how we can consolidate base registration logic to reduce code duplication
-    public async Task<IdentityResult> RegisterUserViaAcceptEmergencyAccessInviteToken(User user, string masterPasswordHash,
-        string acceptEmergencyAccessInviteToken, Guid acceptEmergencyAccessId)
+    public async Task<IdentityResult> RegisterUserViaAcceptEmergencyAccessInviteToken(
+        User user,
+        string masterPasswordHash,
+        string acceptEmergencyAccessInviteToken,
+        Guid acceptEmergencyAccessId
+    )
     {
         ValidateOpenRegistrationAllowed();
-        ValidateAcceptEmergencyAccessInviteToken(acceptEmergencyAccessInviteToken, acceptEmergencyAccessId, user.Email);
+        ValidateAcceptEmergencyAccessInviteToken(
+            acceptEmergencyAccessInviteToken,
+            acceptEmergencyAccessId,
+            user.Email
+        );
 
         user.EmailVerified = true;
         user.ApiKey = CoreHelpers.SecureRandomString(30); // API key can't be null.
@@ -300,14 +343,20 @@ public class RegisterUserCommand : IRegisterUserCommand
         if (result == IdentityResult.Success)
         {
             await _mailService.SendWelcomeEmailAsync(user);
-            await _referenceEventService.RaiseEventAsync(new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext));
+            await _referenceEventService.RaiseEventAsync(
+                new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext)
+            );
         }
 
         return result;
     }
 
-    public async Task<IdentityResult> RegisterUserViaProviderInviteToken(User user, string masterPasswordHash,
-        string providerInviteToken, Guid providerUserId)
+    public async Task<IdentityResult> RegisterUserViaProviderInviteToken(
+        User user,
+        string masterPasswordHash,
+        string providerInviteToken,
+        Guid providerUserId
+    )
     {
         ValidateOpenRegistrationAllowed();
         ValidateProviderInviteToken(providerInviteToken, providerUserId, user.Email);
@@ -319,7 +368,9 @@ public class RegisterUserCommand : IRegisterUserCommand
         if (result == IdentityResult.Success)
         {
             await _mailService.SendWelcomeEmailAsync(user);
-            await _referenceEventService.RaiseEventAsync(new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext));
+            await _referenceEventService.RaiseEventAsync(
+                new ReferenceEvent(ReferenceEventType.Signup, user, _currentContext)
+            );
         }
 
         return result;
@@ -336,9 +387,15 @@ public class RegisterUserCommand : IRegisterUserCommand
         }
     }
 
-    private async Task ValidateOrgSponsoredFreeFamilyPlanInviteToken(string orgSponsoredFreeFamilyPlanInviteToken, string userEmail)
+    private async Task ValidateOrgSponsoredFreeFamilyPlanInviteToken(
+        string orgSponsoredFreeFamilyPlanInviteToken,
+        string userEmail
+    )
     {
-        var (valid, sponsorship) = await _validateRedemptionTokenCommand.ValidateRedemptionTokenAsync(orgSponsoredFreeFamilyPlanInviteToken, userEmail);
+        var (valid, sponsorship) = await _validateRedemptionTokenCommand.ValidateRedemptionTokenAsync(
+            orgSponsoredFreeFamilyPlanInviteToken,
+            userEmail
+        );
 
         if (!valid)
         {
@@ -346,7 +403,11 @@ public class RegisterUserCommand : IRegisterUserCommand
         }
     }
 
-    private void ValidateAcceptEmergencyAccessInviteToken(string acceptEmergencyAccessInviteToken, Guid acceptEmergencyAccessId, string userEmail)
+    private void ValidateAcceptEmergencyAccessInviteToken(
+        string acceptEmergencyAccessInviteToken,
+        Guid acceptEmergencyAccessId,
+        string userEmail
+    )
     {
         _emergencyAccessInviteTokenDataFactory.TryUnprotect(acceptEmergencyAccessInviteToken, out var tokenable);
         if (tokenable == null || !tokenable.Valid || !tokenable.IsValid(acceptEmergencyAccessId, userEmail))
@@ -357,15 +418,25 @@ public class RegisterUserCommand : IRegisterUserCommand
 
     private void ValidateProviderInviteToken(string providerInviteToken, Guid providerUserId, string userEmail)
     {
-        if (!CoreHelpers.TokenIsValid("ProviderUserInvite", _providerServiceDataProtector, providerInviteToken, userEmail, providerUserId,
-                _globalSettings.OrganizationInviteExpirationHours))
+        if (
+            !CoreHelpers.TokenIsValid(
+                "ProviderUserInvite",
+                _providerServiceDataProtector,
+                providerInviteToken,
+                userEmail,
+                providerUserId,
+                _globalSettings.OrganizationInviteExpirationHours
+            )
+        )
         {
             throw new BadRequestException("Invalid provider invite token.");
         }
     }
 
-
-    private RegistrationEmailVerificationTokenable ValidateRegistrationEmailVerificationTokenable(string emailVerificationToken, string userEmail)
+    private RegistrationEmailVerificationTokenable ValidateRegistrationEmailVerificationTokenable(
+        string emailVerificationToken,
+        string userEmail
+    )
     {
         _registrationEmailVerificationTokenDataFactory.TryUnprotect(emailVerificationToken, out var tokenable);
         if (tokenable == null || !tokenable.Valid || !tokenable.TokenIsValid(userEmail))

@@ -13,7 +13,10 @@ public class GetUsersListQuery : IGetUsersListQuery
         _organizationUserRepository = organizationUserRepository;
     }
 
-    public async Task<(IEnumerable<OrganizationUserUserDetails> userList, int totalResults)> GetUsersListAsync(Guid organizationId, GetUsersQueryParamModel userQueryParams)
+    public async Task<(IEnumerable<OrganizationUserUserDetails> userList, int totalResults)> GetUsersListAsync(
+        Guid organizationId,
+        GetUsersQueryParamModel userQueryParams
+    )
     {
         string emailFilter = null;
         string usernameFilter = null;
@@ -63,10 +66,7 @@ public class GetUsersListQuery : IGetUsersListQuery
         }
         else if (string.IsNullOrWhiteSpace(filter))
         {
-            userList = orgUsers.OrderBy(ou => ou.Email)
-                .Skip(startIndex - 1)
-                .Take(count)
-                .ToList();
+            userList = orgUsers.OrderBy(ou => ou.Email).Skip(startIndex - 1).Take(count).ToList();
             totalResults = orgUsers.Count;
         }
 

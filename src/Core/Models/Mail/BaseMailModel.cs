@@ -18,9 +18,6 @@ public class BaseMailModel
     }
     public string CurrentYear
     {
-        get
-        {
-            return DateTime.UtcNow.Year.ToString();
-        }
+        get { return DateTime.UtcNow.Year.ToString(); }
     }
 }

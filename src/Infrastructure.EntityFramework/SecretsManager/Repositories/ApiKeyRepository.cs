@@ -11,9 +11,7 @@ namespace Bit.Infrastructure.EntityFramework.SecretsManager.Repositories;
 public class ApiKeyRepository : Repository<Core.SecretsManager.Entities.ApiKey, ApiKey, Guid>, IApiKeyRepository
 {
     public ApiKeyRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
-        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.ApiKeys)
-    {
-    }
+        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.ApiKeys) { }
 
     public async Task<ApiKeyDetails> GetDetailsByIdAsync(Guid id)
     {

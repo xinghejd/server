@@ -6,5 +6,8 @@ public class OrganizationUserUserMiniDetailsOperationRequirement : OperationAuth
 
 public static class OrganizationUserUserMiniDetailsOperations
 {
-    public static readonly OrganizationUserUserMiniDetailsOperationRequirement ReadAll = new() { Name = nameof(ReadAll) };
+    public static readonly OrganizationUserUserMiniDetailsOperationRequirement ReadAll = new()
+    {
+        Name = nameof(ReadAll),
+    };
 }

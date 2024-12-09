@@ -10,21 +10,21 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bit.Infrastructure.EntityFramework.Repositories;
 
-public class OrganizationDomainRepository : Repository<Core.Entities.OrganizationDomain, OrganizationDomain, Guid>, IOrganizationDomainRepository
+public class OrganizationDomainRepository
+    : Repository<Core.Entities.OrganizationDomain, OrganizationDomain, Guid>,
+        IOrganizationDomainRepository
 {
     public OrganizationDomainRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
-        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.OrganizationDomains)
-    {
-    }
+        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.OrganizationDomains) { }
 
     public async Task<ICollection<Core.Entities.OrganizationDomain>> GetClaimedDomainsByDomainNameAsync(
-        string domainName)
+        string domainName
+    )
     {
         using var scope = ServiceScopeFactory.CreateScope();
         var dbContext = GetDatabaseContext(scope);
-        var claimedDomains = await dbContext.OrganizationDomains
-            .Where(x => x.DomainName == domainName
-                        && x.VerifiedDate != null)
+        var claimedDomains = await dbContext
+            .OrganizationDomains.Where(x => x.DomainName == domainName && x.VerifiedDate != null)
             .AsNoTracking()
             .ToListAsync();
         return Mapper.Map<List<Core.Entities.OrganizationDomain>>(claimedDomains);
@@ -34,8 +34,8 @@ public class OrganizationDomainRepository : Repository<Core.Entities.Organizatio
     {
         using var scope = ServiceScopeFactory.CreateScope();
         var dbContext = GetDatabaseContext(scope);
-        var domains = await dbContext.OrganizationDomains
-            .Where(x => x.OrganizationId == orgId)
+        var domains = await dbContext
+            .OrganizationDomains.Where(x => x.OrganizationId == orgId)
             .AsNoTracking()
             .ToListAsync();
         return Mapper.Map<List<Core.Entities.OrganizationDomain>>(domains);
@@ -46,22 +46,22 @@ public class OrganizationDomainRepository : Repository<Core.Entities.Organizatio
         using var scope = ServiceScopeFactory.CreateScope();
         var dbContext = GetDatabaseContext(scope);
 
-        var domains = await dbContext.OrganizationDomains
-            .Where(x => x.VerifiedDate == null
-                        && x.JobRunCount != 3
-                        && x.NextRunDate.Year == date.Year
-                        && x.NextRunDate.Month == date.Month
-                        && x.NextRunDate.Day == date.Day
-                        && x.NextRunDate.Hour == date.Hour)
+        var domains = await dbContext
+            .OrganizationDomains.Where(x =>
+                x.VerifiedDate == null
+                && x.JobRunCount != 3
+                && x.NextRunDate.Year == date.Year
+                && x.NextRunDate.Month == date.Month
+                && x.NextRunDate.Day == date.Day
+                && x.NextRunDate.Hour == date.Hour
+            )
             .AsNoTracking()
             .ToListAsync();
 
         //Get records that have ignored/failed by the background service
-        var pastDomains = dbContext.OrganizationDomains
-            .AsEnumerable()
-            .Where(x => (date - x.NextRunDate).TotalHours > 36
-                        && x.VerifiedDate == null
-                        && x.JobRunCount != 3)
+        var pastDomains = dbContext
+            .OrganizationDomains.AsEnumerable()
+            .Where(x => (date - x.NextRunDate).TotalHours > 36 && x.VerifiedDate == null && x.JobRunCount != 3)
             .ToList();
 
         var results = domains.Union(pastDomains);
@@ -75,45 +75,42 @@ public class OrganizationDomainRepository : Repository<Core.Entities.Organizatio
 
         using var scope = ServiceScopeFactory.CreateScope();
         var dbContext = GetDatabaseContext(scope);
-        var ssoDetails = await (from o in dbContext.Organizations
-                                from od in o.Domains
-                                join s in dbContext.SsoConfigs on o.Id equals s.OrganizationId into sJoin
-                                from s in sJoin.DefaultIfEmpty()
-                                where od.DomainName == domainName && o.Enabled
-                                select new OrganizationDomainSsoDetailsData
-                                {
-                                    OrganizationId = o.Id,
-                                    OrganizationName = o.Name,
-                                    SsoAvailable = o.SsoConfigs.Any(sc => sc.Enabled),
-                                    OrganizationIdentifier = o.Identifier,
-                                    VerifiedDate = od.VerifiedDate,
-                                    DomainName = od.DomainName
-                                })
-            .AsNoTracking()
-            .SingleOrDefaultAsync();
+        var ssoDetails = await (
+            from o in dbContext.Organizations
+            from od in o.Domains
+            join s in dbContext.SsoConfigs on o.Id equals s.OrganizationId into sJoin
+            from s in sJoin.DefaultIfEmpty()
+            where od.DomainName == domainName && o.Enabled
+            select new OrganizationDomainSsoDetailsData
+            {
+                OrganizationId = o.Id,
+                OrganizationName = o.Name,
+                SsoAvailable = o.SsoConfigs.Any(sc => sc.Enabled),
+                OrganizationIdentifier = o.Identifier,
+                VerifiedDate = od.VerifiedDate,
+                DomainName = od.DomainName,
+            }
+        ).AsNoTracking().SingleOrDefaultAsync();
 
         return ssoDetails;
     }
 
-    public async Task<IEnumerable<VerifiedOrganizationDomainSsoDetail>> GetVerifiedOrganizationDomainSsoDetailsAsync(string email)
+    public async Task<
+        IEnumerable<VerifiedOrganizationDomainSsoDetail>
+    > GetVerifiedOrganizationDomainSsoDetailsAsync(string email)
     {
         var domainName = new MailAddress(email).Host;
 
         using var scope = ServiceScopeFactory.CreateScope();
         var dbContext = GetDatabaseContext(scope);
-        return await (from o in dbContext.Organizations
-                      from od in o.Domains
-                      join s in dbContext.SsoConfigs on o.Id equals s.OrganizationId into sJoin
-                      from s in sJoin.DefaultIfEmpty()
-                      where od.DomainName == domainName
-                            && o.Enabled
-                            && s.Enabled
-                            && od.VerifiedDate != null
-                      select new VerifiedOrganizationDomainSsoDetail(
-                          o.Id,
-                          o.Name,
-                          od.DomainName,
-                          o.Identifier))
+        return await (
+            from o in dbContext.Organizations
+            from od in o.Domains
+            join s in dbContext.SsoConfigs on o.Id equals s.OrganizationId into sJoin
+            from s in sJoin.DefaultIfEmpty()
+            where od.DomainName == domainName && o.Enabled && s.Enabled && od.VerifiedDate != null
+            select new VerifiedOrganizationDomainSsoDetail(o.Id, o.Name, od.DomainName, o.Identifier)
+        )
             .AsNoTracking()
             .ToListAsync();
     }
@@ -122,20 +119,23 @@ public class OrganizationDomainRepository : Repository<Core.Entities.Organizatio
     {
         using var scope = ServiceScopeFactory.CreateScope();
         var dbContext = GetDatabaseContext(scope);
-        var domain = await dbContext.OrganizationDomains
-            .Where(x => x.Id == id && x.OrganizationId == orgId)
+        var domain = await dbContext
+            .OrganizationDomains.Where(x => x.Id == id && x.OrganizationId == orgId)
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
         return Mapper.Map<Core.Entities.OrganizationDomain>(domain);
     }
 
-    public async Task<Core.Entities.OrganizationDomain?> GetDomainByOrgIdAndDomainNameAsync(Guid orgId, string domainName)
+    public async Task<Core.Entities.OrganizationDomain?> GetDomainByOrgIdAndDomainNameAsync(
+        Guid orgId,
+        string domainName
+    )
     {
         using var scope = ServiceScopeFactory.CreateScope();
         var dbContext = GetDatabaseContext(scope);
-        var domain = await dbContext.OrganizationDomains
-            .Where(x => x.OrganizationId == orgId && x.DomainName == domainName)
+        var domain = await dbContext
+            .OrganizationDomains.Where(x => x.OrganizationId == orgId && x.DomainName == domainName)
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
@@ -148,9 +148,8 @@ public class OrganizationDomainRepository : Repository<Core.Entities.Organizatio
         var dbContext = GetDatabaseContext(scope);
 
         //Get domains that have not been verified after 72 hours
-        var domains = await dbContext.OrganizationDomains
-            .Where(x => (DateTime.UtcNow - x.CreationDate).Days == 4
-                        && x.VerifiedDate == null)
+        var domains = await dbContext
+            .OrganizationDomains.Where(x => (DateTime.UtcNow - x.CreationDate).Days == 4 && x.VerifiedDate == null)
             .AsNoTracking()
             .ToListAsync();
 
@@ -162,8 +161,8 @@ public class OrganizationDomainRepository : Repository<Core.Entities.Organizatio
         using var scope = ServiceScopeFactory.CreateScope();
         var dbContext = GetDatabaseContext(scope);
 
-        var expiredDomains = await dbContext.OrganizationDomains
-            .Where(x => x.LastCheckedDate < DateTime.UtcNow.AddDays(-expirationPeriod))
+        var expiredDomains = await dbContext
+            .OrganizationDomains.Where(x => x.LastCheckedDate < DateTime.UtcNow.AddDays(-expirationPeriod))
             .ToListAsync();
         dbContext.OrganizationDomains.RemoveRange(expiredDomains);
         return await dbContext.SaveChangesAsync() > 0;

@@ -15,8 +15,10 @@ public class CreateOrganizationApiKeyCommand : ICreateOrganizationApiKeyCommand
         _organizationApiKeyRepository = organizationApiKeyRepository;
     }
 
-    public async Task<OrganizationApiKey> CreateAsync(Guid organizationId,
-        OrganizationApiKeyType organizationApiKeyType)
+    public async Task<OrganizationApiKey> CreateAsync(
+        Guid organizationId,
+        OrganizationApiKeyType organizationApiKeyType
+    )
     {
         var apiKey = new OrganizationApiKey
         {

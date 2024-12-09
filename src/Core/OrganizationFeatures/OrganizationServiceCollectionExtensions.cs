@@ -68,7 +68,10 @@ public static class OrganizationServiceCollectionExtensions
         services.AddScoped<IUpdateOrganizationConnectionCommand, UpdateOrganizationConnectionCommand>();
     }
 
-    private static void AddOrganizationSponsorshipCommands(this IServiceCollection services, IGlobalSettings globalSettings)
+    private static void AddOrganizationSponsorshipCommands(
+        this IServiceCollection services,
+        IGlobalSettings globalSettings
+    )
     {
         services.AddScoped<ICreateSponsorshipCommand, CreateSponsorshipCommand>();
         services.AddScoped<IRemoveSponsorshipCommand, RemoveSponsorshipCommand>();
@@ -96,10 +99,16 @@ public static class OrganizationServiceCollectionExtensions
     private static void AddOrganizationUserCommands(this IServiceCollection services)
     {
         services.AddScoped<IRemoveOrganizationUserCommand, RemoveOrganizationUserCommand>();
-        services.AddScoped<IRevokeNonCompliantOrganizationUserCommand, RevokeNonCompliantOrganizationUserCommand>();
+        services.AddScoped<
+            IRevokeNonCompliantOrganizationUserCommand,
+            RevokeNonCompliantOrganizationUserCommand
+        >();
         services.AddScoped<IUpdateOrganizationUserCommand, UpdateOrganizationUserCommand>();
         services.AddScoped<IUpdateOrganizationUserGroupsCommand, UpdateOrganizationUserGroupsCommand>();
-        services.AddScoped<IDeleteManagedOrganizationUserAccountCommand, DeleteManagedOrganizationUserAccountCommand>();
+        services.AddScoped<
+            IDeleteManagedOrganizationUserAccountCommand,
+            DeleteManagedOrganizationUserAccountCommand
+        >();
     }
 
     private static void AddOrganizationApiKeyCommandsQueries(this IServiceCollection services)
@@ -133,8 +142,14 @@ public static class OrganizationServiceCollectionExtensions
     {
         services.AddScoped<ICreateOrganizationDomainCommand, CreateOrganizationDomainCommand>();
         services.AddScoped<IVerifyOrganizationDomainCommand, VerifyOrganizationDomainCommand>();
-        services.AddScoped<IGetOrganizationDomainByIdOrganizationIdQuery, GetOrganizationDomainByIdOrganizationIdQuery>();
-        services.AddScoped<IGetOrganizationDomainByOrganizationIdQuery, GetOrganizationDomainByOrganizationIdQuery>();
+        services.AddScoped<
+            IGetOrganizationDomainByIdOrganizationIdQuery,
+            GetOrganizationDomainByIdOrganizationIdQuery
+        >();
+        services.AddScoped<
+            IGetOrganizationDomainByOrganizationIdQuery,
+            GetOrganizationDomainByOrganizationIdQuery
+        >();
         services.AddScoped<IDeleteOrganizationDomainCommand, DeleteOrganizationDomainCommand>();
         services.AddScoped<IOrganizationHasVerifiedDomainsQuery, OrganizationHasVerifiedDomainsQuery>();
     }
@@ -149,7 +164,10 @@ public static class OrganizationServiceCollectionExtensions
         services.AddScoped<ICountNewSmSeatsRequiredQuery, CountNewSmSeatsRequiredQuery>();
         services.AddScoped<IAcceptOrgUserCommand, AcceptOrgUserCommand>();
         services.AddScoped<IOrganizationUserUserDetailsQuery, OrganizationUserUserDetailsQuery>();
-        services.AddScoped<IGetOrganizationUsersManagementStatusQuery, GetOrganizationUsersManagementStatusQuery>();
+        services.AddScoped<
+            IGetOrganizationUsersManagementStatusQuery,
+            GetOrganizationUsersManagementStatusQuery
+        >();
 
         services.AddScoped<IAuthorizationHandler, OrganizationUserUserMiniDetailsAuthorizationHandler>();
         services.AddScoped<IAuthorizationHandler, OrganizationUserUserDetailsAuthorizationHandler>();
@@ -165,12 +183,15 @@ public static class OrganizationServiceCollectionExtensions
 
     private static void AddTokenizers(this IServiceCollection services)
     {
-        services.AddSingleton<IDataProtectorTokenFactory<OrganizationSponsorshipOfferTokenable>>(serviceProvider =>
-            new DataProtectorTokenFactory<OrganizationSponsorshipOfferTokenable>(
+        services.AddSingleton<IDataProtectorTokenFactory<OrganizationSponsorshipOfferTokenable>>(
+            serviceProvider => new DataProtectorTokenFactory<OrganizationSponsorshipOfferTokenable>(
                 OrganizationSponsorshipOfferTokenable.ClearTextPrefix,
                 OrganizationSponsorshipOfferTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<OrganizationSponsorshipOfferTokenable>>>())
+                serviceProvider.GetRequiredService<
+                    ILogger<DataProtectorTokenFactory<OrganizationSponsorshipOfferTokenable>>
+                >()
+            )
         );
     }
 }

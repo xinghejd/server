@@ -28,8 +28,7 @@ public class TwoFactorAuthenticatorUserVerificationTokenable : ExpiringTokenable
     public Guid UserId { get; set; }
     public string Key { get; set; }
 
-    public override bool Valid => Identifier == TokenIdentifier &&
-                                  UserId != default;
+    public override bool Valid => Identifier == TokenIdentifier && UserId != default;
 
     [JsonConstructor]
     public TwoFactorAuthenticatorUserVerificationTokenable()
@@ -37,7 +36,8 @@ public class TwoFactorAuthenticatorUserVerificationTokenable : ExpiringTokenable
         ExpirationDate = DateTime.UtcNow.Add(_tokenLifetime);
     }
 
-    public TwoFactorAuthenticatorUserVerificationTokenable(User user, string key) : this()
+    public TwoFactorAuthenticatorUserVerificationTokenable(User user, string key)
+        : this()
     {
         UserId = user?.Id ?? default;
         Key = key;
@@ -45,9 +45,7 @@ public class TwoFactorAuthenticatorUserVerificationTokenable : ExpiringTokenable
 
     public bool TokenIsValid(User user, string key)
     {
-        if (UserId == default
-            || user == null
-            || string.IsNullOrWhiteSpace(key))
+        if (UserId == default || user == null || string.IsNullOrWhiteSpace(key))
         {
             return false;
         }
@@ -56,7 +54,5 @@ public class TwoFactorAuthenticatorUserVerificationTokenable : ExpiringTokenable
     }
 
     protected override bool TokenIsValid() =>
-        Identifier == TokenIdentifier
-        && UserId != default
-        && !string.IsNullOrWhiteSpace(Key);
+        Identifier == TokenIdentifier && UserId != default && !string.IsNullOrWhiteSpace(Key);
 }

@@ -5,6 +5,5 @@ namespace Bit.Core.OrganizationFeatures.OrganizationSponsorships.FamiliesForEnte
 
 public interface ISetUpSponsorshipCommand
 {
-    Task SetUpSponsorshipAsync(OrganizationSponsorship sponsorship,
-        Organization sponsoredOrganization);
+    Task SetUpSponsorshipAsync(OrganizationSponsorship sponsorship, Organization sponsoredOrganization);
 }

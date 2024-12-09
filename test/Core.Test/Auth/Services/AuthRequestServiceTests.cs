@@ -28,11 +28,10 @@ public class AuthRequestServiceTests
         SutProvider<AuthRequestService> sutProvider,
         AuthRequest authRequest,
         Guid authRequestId,
-        Guid userId)
+        Guid userId
+    )
     {
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequestId)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequestId).Returns(authRequest);
 
         var foundAuthRequest = await sutProvider.Sut.GetAuthRequestAsync(authRequestId, userId);
 
@@ -43,11 +42,10 @@ public class AuthRequestServiceTests
     public async Task GetAuthRequestAsync_IfSameUser_ReturnsAuthRequest(
         SutProvider<AuthRequestService> sutProvider,
         AuthRequest authRequest,
-        Guid authRequestId)
+        Guid authRequestId
+    )
     {
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequestId)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequestId).Returns(authRequest);
 
         var foundAuthRequest = await sutProvider.Sut.GetAuthRequestAsync(authRequestId, authRequest.UserId);
 
@@ -58,13 +56,12 @@ public class AuthRequestServiceTests
     public async Task GetValidatedAuthRequestAsync_IfCodeNotValid_ReturnsNull(
         SutProvider<AuthRequestService> sutProvider,
         AuthRequest authRequest,
-        string accessCode)
+        string accessCode
+    )
     {
         authRequest.CreationDate = DateTime.UtcNow;
 
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequest.Id)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequest.Id).Returns(authRequest);
 
         var foundAuthRequest = await sutProvider.Sut.GetValidatedAuthRequestAsync(authRequest.Id, accessCode);
 
@@ -83,17 +80,19 @@ public class AuthRequestServiceTests
         AuthRequestType authRequestType,
         TimeSpan creationTimeBeforeNow,
         SutProvider<AuthRequestService> sutProvider,
-        AuthRequest authRequest)
+        AuthRequest authRequest
+    )
     {
         authRequest.Type = authRequestType;
         authRequest.CreationDate = DateTime.UtcNow.Add(creationTimeBeforeNow);
         authRequest.Approved = false;
 
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequest.Id)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequest.Id).Returns(authRequest);
 
-        var foundAuthRequest = await sutProvider.Sut.GetValidatedAuthRequestAsync(authRequest.Id, authRequest.AccessCode);
+        var foundAuthRequest = await sutProvider.Sut.GetValidatedAuthRequestAsync(
+            authRequest.Id,
+            authRequest.AccessCode
+        );
 
         Assert.Null(foundAuthRequest);
     }
@@ -106,17 +105,19 @@ public class AuthRequestServiceTests
     [BitAutoData]
     public async Task GetValidatedAuthRequestAsync_AdminApprovalApproved_HasLongerExpiration_ReturnsRequest(
         SutProvider<AuthRequestService> sutProvider,
-        AuthRequest authRequest)
+        AuthRequest authRequest
+    )
     {
         authRequest.Type = AuthRequestType.AdminApproval;
         authRequest.Approved = true;
         authRequest.ResponseDate = DateTime.UtcNow.Add(TimeSpan.FromHours(-13));
 
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequest.Id)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequest.Id).Returns(authRequest);
 
-        var validatedAuthRequest = await sutProvider.Sut.GetValidatedAuthRequestAsync(authRequest.Id, authRequest.AccessCode);
+        var validatedAuthRequest = await sutProvider.Sut.GetValidatedAuthRequestAsync(
+            authRequest.Id,
+            authRequest.AccessCode
+        );
 
         Assert.Null(validatedAuthRequest);
     }
@@ -124,19 +125,21 @@ public class AuthRequestServiceTests
     [Theory, BitAutoData]
     public async Task GetValidatedAuthRequestAsync_IfValid_ReturnsAuthRequest(
         SutProvider<AuthRequestService> sutProvider,
-        AuthRequest authRequest)
+        AuthRequest authRequest
+    )
     {
         authRequest.CreationDate = DateTime.UtcNow.AddMinutes(-2);
 
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequest.Id)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequest.Id).Returns(authRequest);
 
-        sutProvider.GetDependency<IGlobalSettings>()
-            .PasswordlessAuth
-            .Returns(new Settings.GlobalSettings.PasswordlessAuthSettings());
+        sutProvider
+            .GetDependency<IGlobalSettings>()
+            .PasswordlessAuth.Returns(new Settings.GlobalSettings.PasswordlessAuthSettings());
 
-        var foundAuthRequest = await sutProvider.Sut.GetValidatedAuthRequestAsync(authRequest.Id, authRequest.AccessCode);
+        var foundAuthRequest = await sutProvider.Sut.GetValidatedAuthRequestAsync(
+            authRequest.Id,
+            authRequest.AccessCode
+        );
 
         Assert.NotNull(foundAuthRequest);
     }
@@ -144,15 +147,12 @@ public class AuthRequestServiceTests
     [Theory, BitAutoData]
     public async Task CreateAuthRequestAsync_NoUser_ThrowsBadRequest(
         SutProvider<AuthRequestService> sutProvider,
-        AuthRequestCreateRequestModel createModel)
+        AuthRequestCreateRequestModel createModel
+    )
     {
-        sutProvider.GetDependency<ICurrentContext>()
-            .DeviceType
-            .Returns(DeviceType.Android);
+        sutProvider.GetDependency<ICurrentContext>().DeviceType.Returns(DeviceType.Android);
 
-        sutProvider.GetDependency<IUserRepository>()
-            .GetByEmailAsync(createModel.Email)
-            .Returns((User?)null);
+        sutProvider.GetDependency<IUserRepository>().GetByEmailAsync(createModel.Email).Returns((User?)null);
 
         await Assert.ThrowsAsync<BadRequestException>(() => sutProvider.Sut.CreateAuthRequestAsync(createModel));
     }
@@ -161,21 +161,16 @@ public class AuthRequestServiceTests
     public async Task CreateAuthRequestAsync_NoKnownDevice_ThrowsBadRequest(
         SutProvider<AuthRequestService> sutProvider,
         AuthRequestCreateRequestModel createModel,
-        User user)
+        User user
+    )
     {
         user.Email = createModel.Email;
 
-        sutProvider.GetDependency<IUserRepository>()
-            .GetByEmailAsync(createModel.Email)
-            .Returns(user);
+        sutProvider.GetDependency<IUserRepository>().GetByEmailAsync(createModel.Email).Returns(user);
 
-        sutProvider.GetDependency<ICurrentContext>()
-            .DeviceType
-            .Returns(DeviceType.Android);
+        sutProvider.GetDependency<ICurrentContext>().DeviceType.Returns(DeviceType.Android);
 
-        sutProvider.GetDependency<IGlobalSettings>()
-            .PasswordlessAuth.KnownDevicesOnly
-            .Returns(true);
+        sutProvider.GetDependency<IGlobalSettings>().PasswordlessAuth.KnownDevicesOnly.Returns(true);
 
         await Assert.ThrowsAsync<BadRequestException>(() => sutProvider.Sut.CreateAuthRequestAsync(createModel));
     }
@@ -192,40 +187,33 @@ public class AuthRequestServiceTests
         AuthRequestType? authRequestType,
         SutProvider<AuthRequestService> sutProvider,
         AuthRequestCreateRequestModel createModel,
-        User user)
+        User user
+    )
     {
         user.Email = createModel.Email;
         createModel.Type = authRequestType;
 
-        sutProvider.GetDependency<IUserRepository>()
-            .GetByEmailAsync(createModel.Email)
-            .Returns(user);
+        sutProvider.GetDependency<IUserRepository>().GetByEmailAsync(createModel.Email).Returns(user);
 
-        sutProvider.GetDependency<ICurrentContext>()
-            .DeviceType
-            .Returns(DeviceType.Android);
+        sutProvider.GetDependency<ICurrentContext>().DeviceType.Returns(DeviceType.Android);
 
-        sutProvider.GetDependency<ICurrentContext>()
-            .IpAddress
-            .Returns("1.1.1.1");
+        sutProvider.GetDependency<ICurrentContext>().IpAddress.Returns("1.1.1.1");
 
-        sutProvider.GetDependency<IGlobalSettings>()
-            .PasswordlessAuth.KnownDevicesOnly
-            .Returns(false);
+        sutProvider.GetDependency<IGlobalSettings>().PasswordlessAuth.KnownDevicesOnly.Returns(false);
 
-        sutProvider.GetDependency<IAuthRequestRepository>()
+        sutProvider
+            .GetDependency<IAuthRequestRepository>()
             .CreateAsync(Arg.Any<AuthRequest>())
             .Returns(c => c.ArgAt<AuthRequest>(0));
 
         var createdAuthRequest = await sutProvider.Sut.CreateAuthRequestAsync(createModel);
 
-        await sutProvider.GetDependency<IPushNotificationService>()
+        await sutProvider
+            .GetDependency<IPushNotificationService>()
             .Received()
             .PushAuthRequestAsync(createdAuthRequest);
 
-        await sutProvider.GetDependency<IAuthRequestRepository>()
-            .Received()
-            .CreateAsync(createdAuthRequest);
+        await sutProvider.GetDependency<IAuthRequestRepository>().Received().CreateAsync(createdAuthRequest);
     }
 
     /// <summary>
@@ -239,18 +227,15 @@ public class AuthRequestServiceTests
         AuthRequestType authRequestType,
         SutProvider<AuthRequestService> sutProvider,
         AuthRequestCreateRequestModel createModel,
-        User user)
+        User user
+    )
     {
         user.Email = createModel.Email;
         createModel.Type = authRequestType;
 
-        sutProvider.GetDependency<IUserRepository>()
-            .GetByEmailAsync(createModel.Email)
-            .Returns(user);
+        sutProvider.GetDependency<IUserRepository>().GetByEmailAsync(createModel.Email).Returns(user);
 
-        sutProvider.GetDependency<ICurrentContext>()
-            .DeviceType
-            .Returns((DeviceType?)null);
+        sutProvider.GetDependency<ICurrentContext>().DeviceType.Returns((DeviceType?)null);
 
         await Assert.ThrowsAsync<BadRequestException>(() => sutProvider.Sut.CreateAuthRequestAsync(createModel));
     }
@@ -265,39 +250,29 @@ public class AuthRequestServiceTests
         AuthRequestCreateRequestModel createModel,
         User user,
         OrganizationUser organizationUser1,
-        OrganizationUser organizationUser2)
+        OrganizationUser organizationUser2
+    )
     {
         createModel.Type = AuthRequestType.AdminApproval;
         user.Email = createModel.Email;
         organizationUser1.UserId = user.Id;
         organizationUser2.UserId = user.Id;
 
-        sutProvider.GetDependency<IUserRepository>()
-            .GetByEmailAsync(user.Email)
-            .Returns(user);
+        sutProvider.GetDependency<IUserRepository>().GetByEmailAsync(user.Email).Returns(user);
 
-        sutProvider.GetDependency<ICurrentContext>()
-            .DeviceType
-            .Returns(DeviceType.ChromeExtension);
+        sutProvider.GetDependency<ICurrentContext>().DeviceType.Returns(DeviceType.ChromeExtension);
 
-        sutProvider.GetDependency<ICurrentContext>()
-            .UserId
-            .Returns(user.Id);
+        sutProvider.GetDependency<ICurrentContext>().UserId.Returns(user.Id);
 
-        sutProvider.GetDependency<IGlobalSettings>()
-            .PasswordlessAuth.KnownDevicesOnly
-            .Returns(false);
+        sutProvider.GetDependency<IGlobalSettings>().PasswordlessAuth.KnownDevicesOnly.Returns(false);
 
-
-        sutProvider.GetDependency<IOrganizationUserRepository>()
+        sutProvider
+            .GetDependency<IOrganizationUserRepository>()
             .GetManyByUserAsync(user.Id)
-            .Returns(new List<OrganizationUser>
-            {
-                organizationUser1,
-                organizationUser2,
-            });
+            .Returns(new List<OrganizationUser> { organizationUser1, organizationUser2 });
 
-        sutProvider.GetDependency<IAuthRequestRepository>()
+        sutProvider
+            .GetDependency<IAuthRequestRepository>()
             .CreateAsync(Arg.Any<AuthRequest>())
             .Returns(c => c.ArgAt<AuthRequest>(0));
 
@@ -305,19 +280,20 @@ public class AuthRequestServiceTests
 
         Assert.Equal(organizationUser1.OrganizationId, authRequest.OrganizationId);
 
-        await sutProvider.GetDependency<IAuthRequestRepository>()
+        await sutProvider
+            .GetDependency<IAuthRequestRepository>()
             .Received(1)
             .CreateAsync(Arg.Is<AuthRequest>(o => o.OrganizationId == organizationUser1.OrganizationId));
 
-        await sutProvider.GetDependency<IAuthRequestRepository>()
+        await sutProvider
+            .GetDependency<IAuthRequestRepository>()
             .Received(1)
             .CreateAsync(Arg.Is<AuthRequest>(o => o.OrganizationId == organizationUser2.OrganizationId));
 
-        await sutProvider.GetDependency<IAuthRequestRepository>()
-            .Received(2)
-            .CreateAsync(Arg.Any<AuthRequest>());
+        await sutProvider.GetDependency<IAuthRequestRepository>().Received(2).CreateAsync(Arg.Any<AuthRequest>());
 
-        await sutProvider.GetDependency<IEventService>()
+        await sutProvider
+            .GetDependency<IEventService>()
             .Received(1)
             .LogUserEventAsync(user.Id, EventType.User_RequestedDeviceApproval);
     }
@@ -335,38 +311,37 @@ public class AuthRequestServiceTests
         AuthRequestType authRequestType,
         Guid? organizationId,
         SutProvider<AuthRequestService> sutProvider,
-        AuthRequest authRequest)
+        AuthRequest authRequest
+    )
     {
         authRequest.CreationDate = DateTime.UtcNow.AddMinutes(-10);
         authRequest.Approved = null;
         authRequest.OrganizationId = organizationId;
         authRequest.Type = authRequestType;
 
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequest.Id)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequest.Id).Returns(authRequest);
 
-        var device = new Device
-        {
-            Id = Guid.NewGuid(),
-            Identifier = "test_identifier",
-        };
+        var device = new Device { Id = Guid.NewGuid(), Identifier = "test_identifier" };
 
-        sutProvider.GetDependency<IDeviceRepository>()
+        sutProvider
+            .GetDependency<IDeviceRepository>()
             .GetByIdentifierAsync(device.Identifier, authRequest.UserId)
             .Returns(device);
 
-        sutProvider.GetDependency<IOrganizationUserRepository>()
+        sutProvider
+            .GetDependency<IOrganizationUserRepository>()
             .GetByOrganizationAsync(Arg.Any<Guid>(), Arg.Any<Guid>())
-            .Returns(new OrganizationUser
-            {
-                UserId = authRequest.UserId,
-                OrganizationId = organizationId.GetValueOrDefault(),
-            });
+            .Returns(
+                new OrganizationUser
+                {
+                    UserId = authRequest.UserId,
+                    OrganizationId = organizationId.GetValueOrDefault(),
+                }
+            );
 
-        sutProvider.GetDependency<IGlobalSettings>()
-            .PasswordlessAuth
-            .Returns(new Settings.GlobalSettings.PasswordlessAuthSettings());
+        sutProvider
+            .GetDependency<IGlobalSettings>()
+            .PasswordlessAuth.Returns(new Settings.GlobalSettings.PasswordlessAuthSettings());
 
         var updateModel = new AuthRequestUpdateRequestModel
         {
@@ -376,7 +351,11 @@ public class AuthRequestServiceTests
             MasterPasswordHash = "my_hash",
         };
 
-        var udpatedAuthRequest = await sutProvider.Sut.UpdateAuthRequestAsync(authRequest.Id, authRequest.UserId, updateModel);
+        var udpatedAuthRequest = await sutProvider.Sut.UpdateAuthRequestAsync(
+            authRequest.Id,
+            authRequest.UserId,
+            updateModel
+        );
 
         Assert.Equal("my_hash", udpatedAuthRequest.MasterPasswordHash);
 
@@ -384,20 +363,23 @@ public class AuthRequestServiceTests
         Assert.NotNull(udpatedAuthRequest.ResponseDate);
         AssertHelper.AssertRecent(udpatedAuthRequest.ResponseDate!.Value);
 
-        await sutProvider.GetDependency<IAuthRequestRepository>()
-            .Received(1)
-            .ReplaceAsync(udpatedAuthRequest);
+        await sutProvider.GetDependency<IAuthRequestRepository>().Received(1).ReplaceAsync(udpatedAuthRequest);
 
-        await sutProvider.GetDependency<IPushNotificationService>()
+        await sutProvider
+            .GetDependency<IPushNotificationService>()
             .Received(1)
             .PushAuthRequestResponseAsync(udpatedAuthRequest);
 
         var expectedNumberOfCalls = organizationId.HasValue ? 1 : 0;
-        await sutProvider.GetDependency<IEventService>()
+        await sutProvider
+            .GetDependency<IEventService>()
             .Received(expectedNumberOfCalls)
             .LogOrganizationUserEventAsync(
-                Arg.Is<OrganizationUser>(ou => ou.UserId == authRequest.UserId && ou.OrganizationId == organizationId),
-                EventType.OrganizationUser_ApprovedAuthRequest);
+                Arg.Is<OrganizationUser>(ou =>
+                    ou.UserId == authRequest.UserId && ou.OrganizationId == organizationId
+                ),
+                EventType.OrganizationUser_ApprovedAuthRequest
+            );
     }
 
     /// <summary>
@@ -413,7 +395,8 @@ public class AuthRequestServiceTests
         AuthRequestType authRequestType,
         Guid? organizationId,
         SutProvider<AuthRequestService> sutProvider,
-        AuthRequest authRequest)
+        AuthRequest authRequest
+    )
     {
         // Give it a recent creation time which is valid for all types of AuthRequests
         authRequest.CreationDate = DateTime.UtcNow.AddMinutes(-10);
@@ -422,32 +405,30 @@ public class AuthRequestServiceTests
         authRequest.Approved = null;
         authRequest.OrganizationId = organizationId;
 
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequest.Id)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequest.Id).Returns(authRequest);
 
         // Setup a device for all requests even though it will not be called for verification in a AdminApproval
-        var device = new Device
-        {
-            Id = Guid.NewGuid(),
-            Identifier = "test_identifier",
-        };
+        var device = new Device { Id = Guid.NewGuid(), Identifier = "test_identifier" };
 
-        sutProvider.GetDependency<IGlobalSettings>()
-            .PasswordlessAuth
-            .Returns(new Settings.GlobalSettings.PasswordlessAuthSettings());
+        sutProvider
+            .GetDependency<IGlobalSettings>()
+            .PasswordlessAuth.Returns(new Settings.GlobalSettings.PasswordlessAuthSettings());
 
-        sutProvider.GetDependency<IDeviceRepository>()
+        sutProvider
+            .GetDependency<IDeviceRepository>()
             .GetByIdentifierAsync(device.Identifier, authRequest.UserId)
             .Returns(device);
 
-        sutProvider.GetDependency<IOrganizationUserRepository>()
+        sutProvider
+            .GetDependency<IOrganizationUserRepository>()
             .GetByOrganizationAsync(Arg.Any<Guid>(), Arg.Any<Guid>())
-            .Returns(new OrganizationUser
-            {
-                UserId = authRequest.UserId,
-                OrganizationId = organizationId.GetValueOrDefault(),
-            });
+            .Returns(
+                new OrganizationUser
+                {
+                    UserId = authRequest.UserId,
+                    OrganizationId = organizationId.GetValueOrDefault(),
+                }
+            );
 
         var updateModel = new AuthRequestUpdateRequestModel
         {
@@ -457,28 +438,35 @@ public class AuthRequestServiceTests
             MasterPasswordHash = "my_hash",
         };
 
-        var udpatedAuthRequest = await sutProvider.Sut.UpdateAuthRequestAsync(authRequest.Id, authRequest.UserId, updateModel);
+        var udpatedAuthRequest = await sutProvider.Sut.UpdateAuthRequestAsync(
+            authRequest.Id,
+            authRequest.UserId,
+            updateModel
+        );
 
         Assert.Equal(udpatedAuthRequest.MasterPasswordHash, authRequest.MasterPasswordHash);
         Assert.False(udpatedAuthRequest.Approved);
         Assert.NotNull(udpatedAuthRequest.ResponseDate);
         AssertHelper.AssertRecent(udpatedAuthRequest.ResponseDate!.Value);
 
-        await sutProvider.GetDependency<IAuthRequestRepository>()
-            .Received()
-            .ReplaceAsync(udpatedAuthRequest);
+        await sutProvider.GetDependency<IAuthRequestRepository>().Received().ReplaceAsync(udpatedAuthRequest);
 
-        await sutProvider.GetDependency<IPushNotificationService>()
+        await sutProvider
+            .GetDependency<IPushNotificationService>()
             .DidNotReceiveWithAnyArgs()
             .PushAuthRequestResponseAsync(udpatedAuthRequest);
 
         var expectedNumberOfCalls = organizationId.HasValue ? 1 : 0;
 
-        await sutProvider.GetDependency<IEventService>()
+        await sutProvider
+            .GetDependency<IEventService>()
             .Received(expectedNumberOfCalls)
             .LogOrganizationUserEventAsync(
-                Arg.Is<OrganizationUser>(ou => ou.UserId == authRequest.UserId && ou.OrganizationId == organizationId),
-                EventType.OrganizationUser_RejectedAuthRequest);
+                Arg.Is<OrganizationUser>(ou =>
+                    ou.UserId == authRequest.UserId && ou.OrganizationId == organizationId
+                ),
+                EventType.OrganizationUser_RejectedAuthRequest
+            );
     }
 
     /// <summary>
@@ -494,7 +482,8 @@ public class AuthRequestServiceTests
         AuthRequestType authRequestType,
         SutProvider<AuthRequestService> sutProvider,
         AuthRequest authRequest,
-        Guid authenticatedUserId)
+        Guid authenticatedUserId
+    )
     {
         // Give it a recent creation date so that it is valid
         authRequest.CreationDate = DateTime.UtcNow.AddMinutes(-10);
@@ -504,9 +493,7 @@ public class AuthRequestServiceTests
         authRequest.Type = authRequestType;
 
         // Auth request should not be null
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequest.Id)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequest.Id).Returns(authRequest);
 
         var updateModel = new AuthRequestUpdateRequestModel
         {
@@ -518,7 +505,9 @@ public class AuthRequestServiceTests
 
         // Give it a randomly generated userId such that it won't be valid for the AuthRequest
         await Assert.ThrowsAsync<NotFoundException>(
-            async () => await sutProvider.Sut.UpdateAuthRequestAsync(authRequest.Id, authenticatedUserId, updateModel));
+            async () =>
+                await sutProvider.Sut.UpdateAuthRequestAsync(authRequest.Id, authenticatedUserId, updateModel)
+        );
     }
 
     /// <summary>
@@ -536,7 +525,8 @@ public class AuthRequestServiceTests
         AuthRequestType authRequestType,
         TimeSpan timeBeforeCreation,
         SutProvider<AuthRequestService> sutProvider,
-        AuthRequest authRequest)
+        AuthRequest authRequest
+    )
     {
         // AuthRequest's have a default valid lifetime of only 15 minutes, make it older than that
         authRequest.CreationDate = DateTime.UtcNow.Add(timeBeforeCreation);
@@ -546,9 +536,7 @@ public class AuthRequestServiceTests
         authRequest.Type = authRequestType;
 
         // The item should still exist in the database
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequest.Id)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequest.Id).Returns(authRequest);
 
         // Represents the user finally clicking approve.
         var updateModel = new AuthRequestUpdateRequestModel
@@ -560,7 +548,9 @@ public class AuthRequestServiceTests
         };
 
         await Assert.ThrowsAsync<NotFoundException>(
-            async () => await sutProvider.Sut.UpdateAuthRequestAsync(authRequest.Id, authRequest.UserId, updateModel));
+            async () =>
+                await sutProvider.Sut.UpdateAuthRequestAsync(authRequest.Id, authRequest.UserId, updateModel)
+        );
     }
 
     /// <summary>
@@ -573,23 +563,23 @@ public class AuthRequestServiceTests
     public async Task UpdateAuthRequestAsync_InvalidDeviceIdentifier_ThrowsBadRequest(
         AuthRequestType authRequestType,
         SutProvider<AuthRequestService> sutProvider,
-        AuthRequest authRequest)
+        AuthRequest authRequest
+    )
     {
         authRequest.CreationDate = DateTime.UtcNow.AddMinutes(-10);
         authRequest.Approved = null;
         authRequest.Type = authRequestType;
 
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequest.Id)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequest.Id).Returns(authRequest);
 
-        sutProvider.GetDependency<IDeviceRepository>()
+        sutProvider
+            .GetDependency<IDeviceRepository>()
             .GetByIdentifierAsync("invalid_identifier", authRequest.UserId)
             .Returns((Device?)null);
 
-        sutProvider.GetDependency<IGlobalSettings>()
-            .PasswordlessAuth
-            .Returns(new Settings.GlobalSettings.PasswordlessAuthSettings());
+        sutProvider
+            .GetDependency<IGlobalSettings>()
+            .PasswordlessAuth.Returns(new Settings.GlobalSettings.PasswordlessAuthSettings());
 
         var updateModel = new AuthRequestUpdateRequestModel
         {
@@ -600,7 +590,9 @@ public class AuthRequestServiceTests
         };
 
         await Assert.ThrowsAsync<BadRequestException>(
-            async () => await sutProvider.Sut.UpdateAuthRequestAsync(authRequest.Id, authRequest.UserId, updateModel));
+            async () =>
+                await sutProvider.Sut.UpdateAuthRequestAsync(authRequest.Id, authRequest.UserId, updateModel)
+        );
     }
 
     /// <summary>
@@ -610,13 +602,12 @@ public class AuthRequestServiceTests
     [Theory, BitAutoData]
     public async Task UpdateAuthRequestAsync_AlreadyApprovedOrRejected_ThrowsDuplicateAuthRequestException(
         SutProvider<AuthRequestService> sutProvider,
-        AuthRequest authRequest)
+        AuthRequest authRequest
+    )
     {
         authRequest.Approved = true;
 
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequest.Id)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequest.Id).Returns(authRequest);
 
         var updateModel = new AuthRequestUpdateRequestModel
         {
@@ -627,7 +618,9 @@ public class AuthRequestServiceTests
         };
 
         await Assert.ThrowsAsync<DuplicateAuthRequestException>(
-            async () => await sutProvider.Sut.UpdateAuthRequestAsync(authRequest.Id, authRequest.UserId, updateModel));
+            async () =>
+                await sutProvider.Sut.UpdateAuthRequestAsync(authRequest.Id, authRequest.UserId, updateModel)
+        );
     }
 
     /// <summary>
@@ -639,24 +632,24 @@ public class AuthRequestServiceTests
     public async Task UpdateAuthRequestAsync_AdminApproved_LogsEvent(
         SutProvider<AuthRequestService> sutProvider,
         AuthRequest authRequest,
-        OrganizationUser organizationUser)
+        OrganizationUser organizationUser
+    )
     {
         authRequest.CreationDate = DateTime.UtcNow.AddMinutes(-10);
         authRequest.Type = AuthRequestType.AdminApproval;
         authRequest.OrganizationId = organizationUser.OrganizationId;
         authRequest.Approved = null;
 
-        sutProvider.GetDependency<IAuthRequestRepository>()
-            .GetByIdAsync(authRequest.Id)
-            .Returns(authRequest);
+        sutProvider.GetDependency<IAuthRequestRepository>().GetByIdAsync(authRequest.Id).Returns(authRequest);
 
-        sutProvider.GetDependency<IOrganizationUserRepository>()
+        sutProvider
+            .GetDependency<IOrganizationUserRepository>()
             .GetByOrganizationAsync(authRequest.OrganizationId!.Value, authRequest.UserId)
             .Returns(organizationUser);
 
-        sutProvider.GetDependency<IGlobalSettings>()
-            .PasswordlessAuth
-            .Returns(new Settings.GlobalSettings.PasswordlessAuthSettings());
+        sutProvider
+            .GetDependency<IGlobalSettings>()
+            .PasswordlessAuth.Returns(new Settings.GlobalSettings.PasswordlessAuthSettings());
 
         var updateModel = new AuthRequestUpdateRequestModel
         {
@@ -665,7 +658,11 @@ public class AuthRequestServiceTests
             MasterPasswordHash = "my_hash",
         };
 
-        var updatedAuthRequest = await sutProvider.Sut.UpdateAuthRequestAsync(authRequest.Id, authRequest.UserId, updateModel);
+        var updatedAuthRequest = await sutProvider.Sut.UpdateAuthRequestAsync(
+            authRequest.Id,
+            authRequest.UserId,
+            updateModel
+        );
 
         Assert.Equal("my_hash", updatedAuthRequest.MasterPasswordHash);
         Assert.Equal("test_key", updatedAuthRequest.Key);
@@ -673,12 +670,16 @@ public class AuthRequestServiceTests
         Assert.NotNull(updatedAuthRequest.ResponseDate);
         AssertHelper.AssertRecent(updatedAuthRequest.ResponseDate!.Value);
 
-        await sutProvider.GetDependency<IEventService>()
+        await sutProvider
+            .GetDependency<IEventService>()
             .Received(1)
             .LogOrganizationUserEventAsync(
-                Arg.Is(organizationUser), Arg.Is(EventType.OrganizationUser_ApprovedAuthRequest));
+                Arg.Is(organizationUser),
+                Arg.Is(EventType.OrganizationUser_ApprovedAuthRequest)
+            );
 
-        await sutProvider.GetDependency<IPushNotificationService>()
+        await sutProvider
+            .GetDependency<IPushNotificationService>()
             .Received(1)
             .PushAuthRequestResponseAsync(authRequest);
     }
@@ -686,13 +687,21 @@ public class AuthRequestServiceTests
     [Theory, BitAutoData]
     public async Task UpdateAuthRequestAsync_BadId_ThrowsNotFound(
         SutProvider<AuthRequestService> sutProvider,
-        Guid authRequestId)
+        Guid authRequestId
+    )
     {
-        sutProvider.GetDependency<IAuthRequestRepository>()
+        sutProvider
+            .GetDependency<IAuthRequestRepository>()
             .GetByIdAsync(authRequestId)
             .Returns((AuthRequest?)null);
 
-        await Assert.ThrowsAsync<NotFoundException>(async () => await sutProvider.Sut.UpdateAuthRequestAsync(
-            authRequestId, Guid.NewGuid(), new AuthRequestUpdateRequestModel()));
+        await Assert.ThrowsAsync<NotFoundException>(
+            async () =>
+                await sutProvider.Sut.UpdateAuthRequestAsync(
+                    authRequestId,
+                    Guid.NewGuid(),
+                    new AuthRequestUpdateRequestModel()
+                )
+        );
     }
 }

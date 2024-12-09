@@ -9,9 +9,14 @@ public interface IStripeAdapter
     Task<Stripe.Customer> CustomerGetAsync(string id, Stripe.CustomerGetOptions options = null);
     Task<Stripe.Customer> CustomerUpdateAsync(string id, Stripe.CustomerUpdateOptions options = null);
     Task<Stripe.Customer> CustomerDeleteAsync(string id);
-    Task<List<PaymentMethod>> CustomerListPaymentMethods(string id, CustomerListPaymentMethodsOptions options = null);
-    Task<CustomerBalanceTransaction> CustomerBalanceTransactionCreate(string customerId,
-        CustomerBalanceTransactionCreateOptions options);
+    Task<List<PaymentMethod>> CustomerListPaymentMethods(
+        string id,
+        CustomerListPaymentMethodsOptions options = null
+    );
+    Task<CustomerBalanceTransaction> CustomerBalanceTransactionCreate(
+        string customerId,
+        CustomerBalanceTransactionCreateOptions options
+    );
     Task<Stripe.Subscription> SubscriptionCreateAsync(Stripe.SubscriptionCreateOptions subscriptionCreateOptions);
     Task<Stripe.Subscription> SubscriptionGetAsync(string id, Stripe.SubscriptionGetOptions options = null);
 
@@ -23,7 +28,11 @@ public interface IStripeAdapter
     /// <param name="options">Additional options.</param>
     /// <returns>The subscription object.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the subscription doesn't belong to the provider.</exception>
-    Task<Stripe.Subscription> ProviderSubscriptionGetAsync(string id, Guid providerId, Stripe.SubscriptionGetOptions options = null);
+    Task<Stripe.Subscription> ProviderSubscriptionGetAsync(
+        string id,
+        Guid providerId,
+        Stripe.SubscriptionGetOptions options = null
+    );
 
     Task<List<Stripe.Subscription>> SubscriptionListAsync(StripeSubscriptionListOptions subscriptionSearchOptions);
     Task<Stripe.Subscription> SubscriptionUpdateAsync(string id, Stripe.SubscriptionUpdateOptions options = null);
@@ -39,18 +48,37 @@ public interface IStripeAdapter
     Task<Stripe.Invoice> InvoiceDeleteAsync(string id, Stripe.InvoiceDeleteOptions options = null);
     Task<Stripe.Invoice> InvoiceVoidInvoiceAsync(string id, Stripe.InvoiceVoidOptions options = null);
     IEnumerable<Stripe.PaymentMethod> PaymentMethodListAutoPaging(Stripe.PaymentMethodListOptions options);
-    IAsyncEnumerable<Stripe.PaymentMethod> PaymentMethodListAutoPagingAsync(Stripe.PaymentMethodListOptions options);
-    Task<Stripe.PaymentMethod> PaymentMethodAttachAsync(string id, Stripe.PaymentMethodAttachOptions options = null);
-    Task<Stripe.PaymentMethod> PaymentMethodDetachAsync(string id, Stripe.PaymentMethodDetachOptions options = null);
+    IAsyncEnumerable<Stripe.PaymentMethod> PaymentMethodListAutoPagingAsync(
+        Stripe.PaymentMethodListOptions options
+    );
+    Task<Stripe.PaymentMethod> PaymentMethodAttachAsync(
+        string id,
+        Stripe.PaymentMethodAttachOptions options = null
+    );
+    Task<Stripe.PaymentMethod> PaymentMethodDetachAsync(
+        string id,
+        Stripe.PaymentMethodDetachOptions options = null
+    );
     Task<Stripe.TaxRate> TaxRateCreateAsync(Stripe.TaxRateCreateOptions options);
     Task<Stripe.TaxRate> TaxRateUpdateAsync(string id, Stripe.TaxRateUpdateOptions options);
     Task<Stripe.TaxId> TaxIdCreateAsync(string id, Stripe.TaxIdCreateOptions options);
-    Task<Stripe.TaxId> TaxIdDeleteAsync(string customerId, string taxIdId, Stripe.TaxIdDeleteOptions options = null);
+    Task<Stripe.TaxId> TaxIdDeleteAsync(
+        string customerId,
+        string taxIdId,
+        Stripe.TaxIdDeleteOptions options = null
+    );
     Task<Stripe.StripeList<Stripe.Charge>> ChargeListAsync(Stripe.ChargeListOptions options);
     Task<Stripe.Refund> RefundCreateAsync(Stripe.RefundCreateOptions options);
     Task<Stripe.Card> CardDeleteAsync(string customerId, string cardId, Stripe.CardDeleteOptions options = null);
-    Task<Stripe.BankAccount> BankAccountCreateAsync(string customerId, Stripe.BankAccountCreateOptions options = null);
-    Task<Stripe.BankAccount> BankAccountDeleteAsync(string customerId, string bankAccount, Stripe.BankAccountDeleteOptions options = null);
+    Task<Stripe.BankAccount> BankAccountCreateAsync(
+        string customerId,
+        Stripe.BankAccountCreateOptions options = null
+    );
+    Task<Stripe.BankAccount> BankAccountDeleteAsync(
+        string customerId,
+        string bankAccount,
+        Stripe.BankAccountDeleteOptions options = null
+    );
     Task<Stripe.StripeList<Stripe.Price>> PriceListAsync(Stripe.PriceListOptions options = null);
     Task<SetupIntent> SetupIntentCreate(SetupIntentCreateOptions options);
     Task<List<SetupIntent>> SetupIntentList(SetupIntentListOptions options);

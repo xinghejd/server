@@ -26,27 +26,47 @@ public static class AssertHelper
             throw new Exception("Actual object is null but expected is not");
         }
 
-        foreach (var expectedPropInfo in expected.GetType().GetProperties().Where(pi => !relevantExcludedProperties.Contains(pi.Name) && !pi.GetIndexParameters().Any()))
+        foreach (
+            var expectedPropInfo in expected
+                .GetType()
+                .GetProperties()
+                .Where(pi => !relevantExcludedProperties.Contains(pi.Name) && !pi.GetIndexParameters().Any())
+        )
         {
             var actualPropInfo = actual.GetType().GetProperty(expectedPropInfo.Name);
 
             if (actualPropInfo == null)
             {
-                throw new Exception(string.Concat($"Expected actual object to contain a property named {expectedPropInfo.Name}, but it does not\n",
-                $"Expected:\n{JsonSerializer.Serialize(expected, JsonHelpers.Indented)}\n",
-                $"Actual:\n{JsonSerializer.Serialize(actual, JsonHelpers.Indented)}"));
+                throw new Exception(
+                    string.Concat(
+                        $"Expected actual object to contain a property named {expectedPropInfo.Name}, but it does not\n",
+                        $"Expected:\n{JsonSerializer.Serialize(expected, JsonHelpers.Indented)}\n",
+                        $"Actual:\n{JsonSerializer.Serialize(actual, JsonHelpers.Indented)}"
+                    )
+                );
             }
 
-            if (typeof(IComparable).IsAssignableFrom(expectedPropInfo.PropertyType) || expectedPropInfo.PropertyType.IsPrimitive || expectedPropInfo.PropertyType.IsValueType)
+            if (
+                typeof(IComparable).IsAssignableFrom(expectedPropInfo.PropertyType)
+                || expectedPropInfo.PropertyType.IsPrimitive
+                || expectedPropInfo.PropertyType.IsValueType
+            )
             {
                 Assert.Equal(expectedPropInfo.GetValue(expected), actualPropInfo.GetValue(actual));
             }
-            else if (expectedPropInfo.PropertyType == typeof(JsonDocument) && actualPropInfo.PropertyType == typeof(JsonDocument))
+            else if (
+                expectedPropInfo.PropertyType == typeof(JsonDocument)
+                && actualPropInfo.PropertyType == typeof(JsonDocument)
+            )
             {
-                static string JsonDocString(PropertyInfo info, object obj) => JsonSerializer.Serialize(info.GetValue(obj));
+                static string JsonDocString(PropertyInfo info, object obj) =>
+                    JsonSerializer.Serialize(info.GetValue(obj));
                 Assert.Equal(JsonDocString(expectedPropInfo, expected), JsonDocString(actualPropInfo, actual));
             }
-            else if (typeof(IEnumerable).IsAssignableFrom(expectedPropInfo.PropertyType) && typeof(IEnumerable).IsAssignableFrom(actualPropInfo.PropertyType))
+            else if (
+                typeof(IEnumerable).IsAssignableFrom(expectedPropInfo.PropertyType)
+                && typeof(IEnumerable).IsAssignableFrom(actualPropInfo.PropertyType)
+            )
             {
                 var expectedItems = ((IEnumerable)expectedPropInfo.GetValue(expected)).Cast<object>();
                 var actualItems = ((IEnumerable)actualPropInfo.GetValue(actual)).Cast<object>();
@@ -56,55 +76,82 @@ public static class AssertHelper
             else
             {
                 var prefix = $"{expectedPropInfo.PropertyType.Name}.";
-                var nextExcludedProperties = excludedPropertyStrings.Where(name => name.StartsWith(prefix))
-                    .Select(name => name[prefix.Length..]).ToArray();
-                AssertPropertyEqual(expectedPropInfo.GetValue(expected), actualPropInfo.GetValue(actual), nextExcludedProperties);
+                var nextExcludedProperties = excludedPropertyStrings
+                    .Where(name => name.StartsWith(prefix))
+                    .Select(name => name[prefix.Length..])
+                    .ToArray();
+                AssertPropertyEqual(
+                    expectedPropInfo.GetValue(expected),
+                    actualPropInfo.GetValue(actual),
+                    nextExcludedProperties
+                );
             }
         }
     }
 
-    private static Predicate<T> AssertPropertyEqualPredicate<T>(T expected, params string[] excludedPropertyStrings) => (actual) =>
-    {
-        AssertPropertyEqual(expected, actual, excludedPropertyStrings);
-        return true;
-    };
-
-    public static Expression<Predicate<T>> AssertPropertyEqual<T>(T expected, params string[] excludedPropertyStrings) =>
-        (T actual) => AssertPropertyEqualPredicate(expected, excludedPropertyStrings)(actual);
-
-    private static Predicate<IEnumerable<T>> AssertPropertyEqualPredicate<T>(IEnumerable<T> expected, params string[] excludedPropertyStrings) => (actual) =>
-    {
-        // IEnumerable.Zip doesn't account for different lengths, we need to check this ourselves
-        if (actual.Count() != expected.Count())
+    private static Predicate<T> AssertPropertyEqualPredicate<T>(
+        T expected,
+        params string[] excludedPropertyStrings
+    ) =>
+        (actual) =>
         {
-            throw new Exception(string.Concat($"Actual IEnumerable does not have the expected length.\n",
-            $"Expected: {expected.Count()}\n",
-            $"Actual: {actual.Count()}"));
-        }
+            AssertPropertyEqual(expected, actual, excludedPropertyStrings);
+            return true;
+        };
 
-        var elements = expected.Zip(actual);
-        foreach (var (expectedEl, actualEl) in elements)
+    public static Expression<Predicate<T>> AssertPropertyEqual<T>(
+        T expected,
+        params string[] excludedPropertyStrings
+    ) => (T actual) => AssertPropertyEqualPredicate(expected, excludedPropertyStrings)(actual);
+
+    private static Predicate<IEnumerable<T>> AssertPropertyEqualPredicate<T>(
+        IEnumerable<T> expected,
+        params string[] excludedPropertyStrings
+    ) =>
+        (actual) =>
         {
-            AssertPropertyEqual(expectedEl, actualEl, excludedPropertyStrings);
-        }
+            // IEnumerable.Zip doesn't account for different lengths, we need to check this ourselves
+            if (actual.Count() != expected.Count())
+            {
+                throw new Exception(
+                    string.Concat(
+                        $"Actual IEnumerable does not have the expected length.\n",
+                        $"Expected: {expected.Count()}\n",
+                        $"Actual: {actual.Count()}"
+                    )
+                );
+            }
 
-        return true;
-    };
+            var elements = expected.Zip(actual);
+            foreach (var (expectedEl, actualEl) in elements)
+            {
+                AssertPropertyEqual(expectedEl, actualEl, excludedPropertyStrings);
+            }
 
-    public static Expression<Predicate<IEnumerable<T>>> AssertPropertyEqual<T>(IEnumerable<T> expected, params string[] excludedPropertyStrings) =>
-        (actual) => AssertPropertyEqualPredicate(expected, excludedPropertyStrings)(actual);
+            return true;
+        };
 
-    private static Predicate<T> AssertEqualExpectedPredicate<T>(T expected) => (actual) =>
-    {
-        Assert.Equal(expected, actual);
-        return true;
-    };
+    public static Expression<Predicate<IEnumerable<T>>> AssertPropertyEqual<T>(
+        IEnumerable<T> expected,
+        params string[] excludedPropertyStrings
+    ) => (actual) => AssertPropertyEqualPredicate(expected, excludedPropertyStrings)(actual);
+
+    private static Predicate<T> AssertEqualExpectedPredicate<T>(T expected) =>
+        (actual) =>
+        {
+            Assert.Equal(expected, actual);
+            return true;
+        };
 
     public static Expression<Predicate<T>> AssertEqualExpected<T>(T expected) =>
         (T actual) => AssertEqualExpectedPredicate(expected)(actual);
 
     [StackTraceHidden]
-    public static JsonElement AssertJsonProperty(JsonElement element, string propertyName, JsonValueKind jsonValueKind)
+    public static JsonElement AssertJsonProperty(
+        JsonElement element,
+        string propertyName,
+        JsonValueKind jsonValueKind
+    )
     {
         if (!element.TryGetProperty(propertyName, out var subElement))
         {
@@ -220,13 +267,13 @@ public static class AssertHelper
         }
     }
 
-    public async static Task<T> AssertResponseTypeIs<T>(HttpContext context)
+    public static async Task<T> AssertResponseTypeIs<T>(HttpContext context)
     {
         return await JsonSerializer.DeserializeAsync<T>(context.Response.Body);
     }
 
-    public static TimeSpan AssertRecent(DateTime dateTime, int skewSeconds = 2)
-        => AssertRecent(dateTime, TimeSpan.FromSeconds(skewSeconds));
+    public static TimeSpan AssertRecent(DateTime dateTime, int skewSeconds = 2) =>
+        AssertRecent(dateTime, TimeSpan.FromSeconds(skewSeconds));
 
     public static TimeSpan AssertRecent(DateTime dateTime, TimeSpan skew)
     {

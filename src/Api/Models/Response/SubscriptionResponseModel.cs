@@ -10,9 +10,12 @@ public class SubscriptionResponseModel : ResponseModel
     public SubscriptionResponseModel(User user, SubscriptionInfo subscription, UserLicense license)
         : base("subscription")
     {
-        Subscription = subscription.Subscription != null ? new BillingSubscription(subscription.Subscription) : null;
-        UpcomingInvoice = subscription.UpcomingInvoice != null ?
-            new BillingSubscriptionUpcomingInvoice(subscription.UpcomingInvoice) : null;
+        Subscription =
+            subscription.Subscription != null ? new BillingSubscription(subscription.Subscription) : null;
+        UpcomingInvoice =
+            subscription.UpcomingInvoice != null
+                ? new BillingSubscriptionUpcomingInvoice(subscription.UpcomingInvoice)
+                : null;
         StorageName = user.Storage.HasValue ? CoreHelpers.ReadableBytesSize(user.Storage.Value) : null;
         StorageGb = user.Storage.HasValue ? Math.Round(user.Storage.Value / 1073741824D, 2) : 0; // 1 GB
         MaxStorageGb = user.MaxStorageGb;

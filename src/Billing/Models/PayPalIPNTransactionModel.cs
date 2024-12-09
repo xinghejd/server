@@ -25,11 +25,8 @@ public class PayPalIPNTransactionModel
         var queryString = HttpUtility.ParseQueryString(formData);
 
         var data = queryString
-            .AllKeys
-            .Where(key => !string.IsNullOrWhiteSpace(key))
-            .ToDictionary(key =>
-                key.Trim('\r'),
-                key => queryString[key]?.Trim('\r'));
+            .AllKeys.Where(key => !string.IsNullOrWhiteSpace(key))
+            .ToDictionary(key => key.Trim('\r'), key => queryString[key]?.Trim('\r'));
 
         TransactionId = Extract(data, "txn_id");
         TransactionType = Extract(data, "txn_type");
@@ -56,25 +53,29 @@ public class PayPalIPNTransactionModel
             return;
         }
 
-        var metadata = custom.Split(',')
+        var metadata = custom
+            .Split(',')
             .Where(field => !string.IsNullOrEmpty(field) && field.Contains(':'))
             .Select(field => field.Split(':'))
             .ToDictionary(parts => parts[0], parts => parts[1]);
 
-        if (metadata.TryGetValue("user_id", out var userIdStr) &&
-            Guid.TryParse(userIdStr, out var userId))
+        if (metadata.TryGetValue("user_id", out var userIdStr) && Guid.TryParse(userIdStr, out var userId))
         {
             UserId = userId;
         }
 
-        if (metadata.TryGetValue("organization_id", out var organizationIdStr) &&
-            Guid.TryParse(organizationIdStr, out var organizationId))
+        if (
+            metadata.TryGetValue("organization_id", out var organizationIdStr)
+            && Guid.TryParse(organizationIdStr, out var organizationId)
+        )
         {
             OrganizationId = organizationId;
         }
 
-        if (metadata.TryGetValue("provider_id", out var providerIdStr) &&
-            Guid.TryParse(providerIdStr, out var providerId))
+        if (
+            metadata.TryGetValue("provider_id", out var providerIdStr)
+            && Guid.TryParse(providerIdStr, out var providerId)
+        )
         {
             ProviderId = providerId;
         }
@@ -95,7 +96,8 @@ public class PayPalIPNTransactionModel
             return default;
         }
 
-        var success = DateTime.TryParseExact(input,
+        var success = DateTime.TryParseExact(
+            input,
             new[]
             {
                 "HH:mm:ss dd MMM yyyy PDT",
@@ -103,8 +105,12 @@ public class PayPalIPNTransactionModel
                 "HH:mm:ss dd MMM, yyyy PST",
                 "HH:mm:ss dd MMM, yyyy PDT",
                 "HH:mm:ss MMM dd, yyyy PST",
-                "HH:mm:ss MMM dd, yyyy PDT"
-            }, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTime);
+                "HH:mm:ss MMM dd, yyyy PDT",
+            },
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out var dateTime
+        );
 
         if (!success)
         {

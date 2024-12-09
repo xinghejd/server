@@ -6,7 +6,8 @@ using Bit.Core.Exceptions;
 
 namespace Bit.Api.KeyManagement.Validators;
 
-public class WebAuthnLoginKeyRotationValidator : IRotationValidator<IEnumerable<WebAuthnLoginRotateKeyRequestModel>, IEnumerable<WebAuthnLoginRotateKeyData>>
+public class WebAuthnLoginKeyRotationValidator
+    : IRotationValidator<IEnumerable<WebAuthnLoginRotateKeyRequestModel>, IEnumerable<WebAuthnLoginRotateKeyData>>
 {
     private readonly IWebAuthnCredentialRepository _webAuthnCredentialRepository;
 
@@ -15,7 +16,10 @@ public class WebAuthnLoginKeyRotationValidator : IRotationValidator<IEnumerable<
         _webAuthnCredentialRepository = webAuthnCredentialRepository;
     }
 
-    public async Task<IEnumerable<WebAuthnLoginRotateKeyData>> ValidateAsync(User user, IEnumerable<WebAuthnLoginRotateKeyRequestModel> keysToRotate)
+    public async Task<IEnumerable<WebAuthnLoginRotateKeyData>> ValidateAsync(
+        User user,
+        IEnumerable<WebAuthnLoginRotateKeyRequestModel> keysToRotate
+    )
     {
         // 2024-06: Remove after 3 releases, for backward compatibility
         if (keysToRotate == null)

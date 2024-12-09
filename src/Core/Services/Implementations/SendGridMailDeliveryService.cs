@@ -20,11 +20,10 @@ public class SendGridMailDeliveryService : IMailDeliveryService, IDisposable
     public SendGridMailDeliveryService(
         GlobalSettings globalSettings,
         IWebHostEnvironment hostingEnvironment,
-        ILogger<SendGridMailDeliveryService> logger)
-        : this(new SendGridClient(globalSettings.Mail.SendGridApiKey),
-             globalSettings, hostingEnvironment, logger)
-    {
-    }
+        ILogger<SendGridMailDeliveryService> logger
+    )
+        : this(new SendGridClient(globalSettings.Mail.SendGridApiKey), globalSettings, hostingEnvironment, logger)
+    { }
 
     public void Dispose()
     {
@@ -35,7 +34,8 @@ public class SendGridMailDeliveryService : IMailDeliveryService, IDisposable
         ISendGridClient client,
         GlobalSettings globalSettings,
         IWebHostEnvironment hostingEnvironment,
-        ILogger<SendGridMailDeliveryService> logger)
+        ILogger<SendGridMailDeliveryService> logger
+    )
     {
         if (string.IsNullOrWhiteSpace(globalSettings.Mail?.SendGridApiKey))
         {
@@ -71,9 +71,11 @@ public class SendGridMailDeliveryService : IMailDeliveryService, IDisposable
         msg.SetClickTracking(false, false);
         msg.SetOpenTracking(false);
 
-        if (message.MetaData != null &&
-            message.MetaData.ContainsKey("SendGridBypassListManagement") &&
-            Convert.ToBoolean(message.MetaData["SendGridBypassListManagement"]))
+        if (
+            message.MetaData != null
+            && message.MetaData.ContainsKey("SendGridBypassListManagement")
+            && Convert.ToBoolean(message.MetaData["SendGridBypassListManagement"])
+        )
         {
             msg.SetBypassListManagement(true);
         }

@@ -61,7 +61,8 @@ public class ProvidersController : Controller
         IFeatureService featureService,
         IProviderPlanRepository providerPlanRepository,
         IProviderBillingService providerBillingService,
-        IWebHostEnvironment webHostEnvironment)
+        IWebHostEnvironment webHostEnvironment
+    )
     {
         _organizationRepository = organizationRepository;
         _organizationService = organizationService;
@@ -82,7 +83,12 @@ public class ProvidersController : Controller
     }
 
     [RequirePermission(Permission.Provider_List_View)]
-    public async Task<IActionResult> Index(string name = null, string userEmail = null, int page = 1, int count = 25)
+    public async Task<IActionResult> Index(
+        string name = null,
+        string userEmail = null,
+        int page = 1,
+        int count = 25
+    )
     {
         if (page < 1)
         {
@@ -96,16 +102,18 @@ public class ProvidersController : Controller
 
         var skip = (page - 1) * count;
         var providers = await _providerRepository.SearchAsync(name, userEmail, skip, count);
-        return View(new ProvidersModel
-        {
-            Items = providers as List<Provider>,
-            Name = string.IsNullOrWhiteSpace(name) ? null : name,
-            UserEmail = string.IsNullOrWhiteSpace(userEmail) ? null : userEmail,
-            Page = page,
-            Count = count,
-            Action = _globalSettings.SelfHosted ? "View" : "Edit",
-            SelfHosted = _globalSettings.SelfHosted
-        });
+        return View(
+            new ProvidersModel
+            {
+                Items = providers as List<Provider>,
+                Name = string.IsNullOrWhiteSpace(name) ? null : name,
+                UserEmail = string.IsNullOrWhiteSpace(userEmail) ? null : userEmail,
+                Page = page,
+                Count = count,
+                Action = _globalSettings.SelfHosted ? "View" : "Edit",
+                SelfHosted = _globalSettings.SelfHosted,
+            }
+        );
     }
 
     public IActionResult Create()
@@ -116,12 +124,14 @@ public class ProvidersController : Controller
     [HttpGet("providers/create/msp")]
     public IActionResult CreateMsp(int teamsMinimumSeats, int enterpriseMinimumSeats, string ownerEmail = null)
     {
-        return View(new CreateMspProviderModel
-        {
-            OwnerEmail = ownerEmail,
-            TeamsMonthlySeatMinimum = teamsMinimumSeats,
-            EnterpriseMonthlySeatMinimum = enterpriseMinimumSeats
-        });
+        return View(
+            new CreateMspProviderModel
+            {
+                OwnerEmail = ownerEmail,
+                TeamsMonthlySeatMinimum = teamsMinimumSeats,
+                EnterpriseMonthlySeatMinimum = enterpriseMinimumSeats,
+            }
+        );
     }
 
     [HttpGet("providers/create/reseller")]
@@ -138,11 +148,13 @@ public class ProvidersController : Controller
             return RedirectToAction("Create");
         }
 
-        return View(new CreateMultiOrganizationEnterpriseProviderModel
-        {
-            OwnerEmail = ownerEmail,
-            EnterpriseSeatMinimum = enterpriseMinimumSeats
-        });
+        return View(
+            new CreateMultiOrganizationEnterpriseProviderModel
+            {
+                OwnerEmail = ownerEmail,
+                EnterpriseSeatMinimum = enterpriseMinimumSeats,
+            }
+        );
     }
 
     [HttpPost]
@@ -160,7 +172,7 @@ public class ProvidersController : Controller
             ProviderType.Msp => RedirectToAction("CreateMsp"),
             ProviderType.Reseller => RedirectToAction("CreateReseller"),
             ProviderType.MultiOrganizationEnterprise => RedirectToAction("CreateMultiOrganizationEnterprise"),
-            _ => View(model)
+            _ => View(model),
         };
     }
 
@@ -180,7 +192,8 @@ public class ProvidersController : Controller
             provider,
             model.OwnerEmail,
             model.TeamsMonthlySeatMinimum,
-            model.EnterpriseMonthlySeatMinimum);
+            model.EnterpriseMonthlySeatMinimum
+        );
 
         return RedirectToAction("Edit", new { id = provider.Id });
     }
@@ -203,7 +216,9 @@ public class ProvidersController : Controller
     [HttpPost("providers/create/multi-organization-enterprise")]
     [ValidateAntiForgeryToken]
     [RequirePermission(Permission.Provider_Create)]
-    public async Task<IActionResult> CreateMultiOrganizationEnterprise(CreateMultiOrganizationEnterpriseProviderModel model)
+    public async Task<IActionResult> CreateMultiOrganizationEnterprise(
+        CreateMultiOrganizationEnterpriseProviderModel model
+    )
     {
         if (!ModelState.IsValid)
         {
@@ -219,7 +234,8 @@ public class ProvidersController : Controller
             provider,
             model.OwnerEmail,
             model.Plan.Value,
-            model.EnterpriseSeatMinimum);
+            model.EnterpriseSeatMinimum
+        );
 
         return RedirectToAction("Edit", new { id = provider.Id });
     }
@@ -297,31 +313,32 @@ public class ProvidersController : Controller
                     provider.GatewaySubscriptionId,
                     [
                         (Plan: PlanType.TeamsMonthly, SeatsMinimum: model.TeamsMonthlySeatMinimum),
-                        (Plan: PlanType.EnterpriseMonthly, SeatsMinimum: model.EnterpriseMonthlySeatMinimum)
-                    ]);
+                        (Plan: PlanType.EnterpriseMonthly, SeatsMinimum: model.EnterpriseMonthlySeatMinimum),
+                    ]
+                );
                 await _providerBillingService.UpdateSeatMinimums(updateMspSeatMinimumsCommand);
                 break;
             case ProviderType.MultiOrganizationEnterprise:
-                {
-                    var existingMoePlan = providerPlans.Single();
+            {
+                var existingMoePlan = providerPlans.Single();
 
-                    // 1. Change the plan and take over any old values.
-                    var changeMoePlanCommand = new ChangeProviderPlanCommand(
-                        existingMoePlan.Id,
-                        model.Plan!.Value,
-                        provider.GatewaySubscriptionId);
-                    await _providerBillingService.ChangePlan(changeMoePlanCommand);
+                // 1. Change the plan and take over any old values.
+                var changeMoePlanCommand = new ChangeProviderPlanCommand(
+                    existingMoePlan.Id,
+                    model.Plan!.Value,
+                    provider.GatewaySubscriptionId
+                );
+                await _providerBillingService.ChangePlan(changeMoePlanCommand);
 
-                    // 2. Update the seat minimums.
-                    var updateMoeSeatMinimumsCommand = new UpdateProviderSeatMinimumsCommand(
-                        provider.Id,
-                        provider.GatewaySubscriptionId,
-                        [
-                            (Plan: model.Plan!.Value, SeatsMinimum: model.EnterpriseMinimumSeats!.Value)
-                        ]);
-                    await _providerBillingService.UpdateSeatMinimums(updateMoeSeatMinimumsCommand);
-                    break;
-                }
+                // 2. Update the seat minimums.
+                var updateMoeSeatMinimumsCommand = new UpdateProviderSeatMinimumsCommand(
+                    provider.Id,
+                    provider.GatewaySubscriptionId,
+                    [(Plan: model.Plan!.Value, SeatsMinimum: model.EnterpriseMinimumSeats!.Value)]
+                );
+                await _providerBillingService.UpdateSeatMinimums(updateMoeSeatMinimumsCommand);
+                break;
+            }
         }
 
         return RedirectToAction("Edit", new { id });
@@ -346,8 +363,13 @@ public class ProvidersController : Controller
         var providerPlans = await _providerPlanRepository.GetByProviderId(id);
 
         return new ProviderEditModel(
-            provider, users, providerOrganizations,
-            providerPlans.ToList(), GetGatewayCustomerUrl(provider), GetGatewaySubscriptionUrl(provider));
+            provider,
+            users,
+            providerOrganizations,
+            providerPlans.ToList(),
+            GetGatewayCustomerUrl(provider),
+            GetGatewaySubscriptionUrl(provider)
+        );
     }
 
     [RequirePermission(Permission.Provider_ResendEmailInvite)]
@@ -359,7 +381,13 @@ public class ProvidersController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> AddExistingOrganization(Guid id, string name = null, string ownerEmail = null, int page = 1, int count = 25)
+    public async Task<IActionResult> AddExistingOrganization(
+        Guid id,
+        string name = null,
+        string ownerEmail = null,
+        int page = 1,
+        int count = 25
+    )
     {
         if (page < 1)
         {
@@ -373,26 +401,36 @@ public class ProvidersController : Controller
 
         var encodedName = WebUtility.HtmlEncode(name);
         var skip = (page - 1) * count;
-        var unassignedOrganizations = await _organizationRepository.SearchUnassignedToProviderAsync(encodedName, ownerEmail, skip, count);
+        var unassignedOrganizations = await _organizationRepository.SearchUnassignedToProviderAsync(
+            encodedName,
+            ownerEmail,
+            skip,
+            count
+        );
         var viewModel = new OrganizationUnassignedToProviderSearchViewModel
         {
             OrganizationName = string.IsNullOrWhiteSpace(name) ? null : name,
             OrganizationOwnerEmail = string.IsNullOrWhiteSpace(ownerEmail) ? null : ownerEmail,
             Page = page,
             Count = count,
-            Items = unassignedOrganizations.Select(uo => new OrganizationSelectableViewModel
-            {
-                Id = uo.Id,
-                Name = uo.DisplayName(),
-                PlanType = uo.PlanType
-            }).ToList()
+            Items = unassignedOrganizations
+                .Select(uo => new OrganizationSelectableViewModel
+                {
+                    Id = uo.Id,
+                    Name = uo.DisplayName(),
+                    PlanType = uo.PlanType,
+                })
+                .ToList(),
         };
 
         return View(viewModel);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddExistingOrganization(Guid id, OrganizationUnassignedToProviderSearchViewModel model)
+    public async Task<IActionResult> AddExistingOrganization(
+        Guid id,
+        OrganizationUnassignedToProviderSearchViewModel model
+    )
     {
         var organizationIds = model.Items.Where(o => o.Selected).Select(o => o.Id).ToArray();
         if (organizationIds.Any())
@@ -425,7 +463,13 @@ public class ProvidersController : Controller
         }
 
         var organization = model.CreateOrganization(provider);
-        await _organizationService.CreatePendingOrganization(organization, model.Owners, User, _userService, model.SalesAssistedTrialStarted);
+        await _organizationService.CreatePendingOrganization(
+            organization,
+            model.Owners,
+            User,
+            _userService,
+            model.SalesAssistedTrialStarted
+        );
         await _providerService.AddOrganization(providerId, organization.Id, null);
 
         return RedirectToAction("Edit", "Providers", new { id = providerId });
@@ -502,7 +546,7 @@ public class ProvidersController : Controller
         {
             GatewayType.Stripe => $"{_stripeUrl}/customers/{provider.GatewayCustomerId}",
             GatewayType.PayPal => $"{_braintreeMerchantUrl}/{_braintreeMerchantId}/${provider.GatewayCustomerId}",
-            _ => null
+            _ => null,
         };
     }
 
@@ -516,8 +560,9 @@ public class ProvidersController : Controller
         return provider.Gateway switch
         {
             GatewayType.Stripe => $"{_stripeUrl}/subscriptions/{provider.GatewaySubscriptionId}",
-            GatewayType.PayPal => $"{_braintreeMerchantUrl}/{_braintreeMerchantId}/subscriptions/${provider.GatewaySubscriptionId}",
-            _ => null
+            GatewayType.PayPal =>
+                $"{_braintreeMerchantUrl}/{_braintreeMerchantId}/subscriptions/${provider.GatewaySubscriptionId}",
+            _ => null,
         };
     }
 }

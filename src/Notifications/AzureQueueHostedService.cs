@@ -20,7 +20,8 @@ public class AzureQueueHostedService : IHostedService, IDisposable
         ILogger<AzureQueueHostedService> logger,
         IHubContext<NotificationsHub> hubContext,
         IHubContext<AnonymousNotificationsHub> anonymousHubContext,
-        GlobalSettings globalSettings)
+        GlobalSettings globalSettings
+    )
     {
         _logger = logger;
         _hubContext = hubContext;
@@ -47,8 +48,7 @@ public class AzureQueueHostedService : IHostedService, IDisposable
         cancellationToken.ThrowIfCancellationRequested();
     }
 
-    public void Dispose()
-    { }
+    public void Dispose() { }
 
     private async Task ExecuteAsync(CancellationToken cancellationToken)
     {
@@ -65,13 +65,22 @@ public class AzureQueueHostedService : IHostedService, IDisposable
                         try
                         {
                             await HubHelpers.SendNotificationToHubAsync(
-                                message.DecodeMessageText(), _hubContext, _anonymousHubContext, _logger, cancellationToken);
+                                message.DecodeMessageText(),
+                                _hubContext,
+                                _anonymousHubContext,
+                                _logger,
+                                cancellationToken
+                            );
                             await _queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt);
                         }
                         catch (Exception e)
                         {
-                            _logger.LogError(e, "Error processing dequeued message: {MessageId} x{DequeueCount}.",
-                                message.MessageId, message.DequeueCount);
+                            _logger.LogError(
+                                e,
+                                "Error processing dequeued message: {MessageId} x{DequeueCount}.",
+                                message.MessageId,
+                                message.DequeueCount
+                            );
                             if (message.DequeueCount > 2)
                             {
                                 await _queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt);

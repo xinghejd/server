@@ -11,8 +11,7 @@ public class InstallationDeviceRepository : IInstallationDeviceRepository
     private readonly TableClient _tableClient;
 
     public InstallationDeviceRepository(GlobalSettings globalSettings)
-        : this(globalSettings.Events.ConnectionString)
-    { }
+        : this(globalSettings.Events.ConnectionString) { }
 
     public InstallationDeviceRepository(string storageConnectionString)
     {

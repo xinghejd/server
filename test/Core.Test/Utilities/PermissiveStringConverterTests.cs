@@ -18,7 +18,13 @@ public class PermissiveStringConverterTests
     private const string objectJsonOne = "{ \"StringProp\": { \"Message\": \"Hi\"}, \"EnumerableStringProp\": []}";
     private const string objectJsonTwo = "{ \"StringProp\": \"Hi\", \"EnumerableStringProp\": {}}";
     private readonly string bigNumbersJson =
-    "{ \"StringProp\":" + decimal.MinValue + ", \"EnumerableStringProp\": [" + ulong.MaxValue + ", " + long.MinValue + "]}";
+        "{ \"StringProp\":"
+        + decimal.MinValue
+        + ", \"EnumerableStringProp\": ["
+        + ulong.MaxValue
+        + ", "
+        + long.MinValue
+        + "]}";
 
     [Theory]
     [InlineData(numberJson)]
@@ -99,15 +105,13 @@ public class PermissiveStringConverterTests
     [Fact]
     public void Write_Success()
     {
-        var json = JsonSerializer.Serialize(new TestObject
-        {
-            StringProp = "1",
-            EnumerableStringProp = new List<string>
+        var json = JsonSerializer.Serialize(
+            new TestObject
             {
-                "2",
-                "3",
-            },
-        });
+                StringProp = "1",
+                EnumerableStringProp = new List<string> { "2", "3" },
+            }
+        );
 
         var jsonElement = JsonDocument.Parse(json).RootElement;
 
@@ -127,11 +131,7 @@ public class PermissiveStringConverterTests
     public void Write_Null()
     {
         // When the values are null the converters aren't actually ran and it automatically serializes null
-        var json = JsonSerializer.Serialize(new TestObject
-        {
-            StringProp = null,
-            EnumerableStringProp = null,
-        });
+        var json = JsonSerializer.Serialize(new TestObject { StringProp = null, EnumerableStringProp = null });
 
         var jsonElement = JsonDocument.Parse(json).RootElement;
 
@@ -143,15 +143,15 @@ public class PermissiveStringConverterTests
     public void Write_Empty()
     {
         // When the values are null the converters aren't actually ran and it automatically serializes null
-        var json = JsonSerializer.Serialize(new TestObject
-        {
-            StringProp = "",
-            EnumerableStringProp = Enumerable.Empty<string>(),
-        });
+        var json = JsonSerializer.Serialize(
+            new TestObject { StringProp = "", EnumerableStringProp = Enumerable.Empty<string>() }
+        );
 
         var jsonElement = JsonDocument.Parse(json).RootElement;
 
-        var stringVal = AssertHelper.AssertJsonProperty(jsonElement, "StringProp", JsonValueKind.String).GetString();
+        var stringVal = AssertHelper
+            .AssertJsonProperty(jsonElement, "StringProp", JsonValueKind.String)
+            .GetString();
         Assert.Equal("", stringVal);
         var array = AssertHelper.AssertJsonProperty(jsonElement, "EnumerableStringProp", JsonValueKind.Array);
         Assert.Equal(0, array.GetArrayLength());

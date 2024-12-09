@@ -86,7 +86,6 @@ public class DataProtectorTokenFactoryTests
         Assert.False(result);
     }
 
-
     [Theory, BitAutoData]
     public void TokenValid_FalseIfTokenInvalid(TestTokenable tokenable)
     {
@@ -123,5 +122,4 @@ public class DataProtectorTokenFactoryTests
 
         Assert.True(result);
     }
-
 }

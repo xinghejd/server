@@ -16,8 +16,11 @@ public class OrganizationUserUserDetailsAuthorizationHandler
         _currentContext = currentContext;
     }
 
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,
-        OrganizationUserUserDetailsOperationRequirement requirement, OrganizationScope organizationScope)
+    protected override async Task HandleRequirementAsync(
+        AuthorizationHandlerContext context,
+        OrganizationUserUserDetailsOperationRequirement requirement,
+        OrganizationScope organizationScope
+    )
     {
         var authorized = false;
 
@@ -38,10 +41,12 @@ public class OrganizationUserUserDetailsAuthorizationHandler
     {
         // Admins can access this for general user management
         var organization = _currentContext.GetOrganization(organizationId);
-        if (organization is
-        { Type: OrganizationUserType.Owner } or
-        { Type: OrganizationUserType.Admin } or
-        { Permissions.ManageUsers: true })
+        if (
+            organization
+            is { Type: OrganizationUserType.Owner }
+                or { Type: OrganizationUserType.Admin }
+                or { Permissions.ManageUsers: true }
+        )
         {
             return true;
         }

@@ -11,8 +11,7 @@ namespace Bit.Infrastructure.EntityFramework.Repositories;
 public class DeviceRepository : Repository<Core.Entities.Device, Device, Guid>, IDeviceRepository
 {
     public DeviceRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
-        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.Devices)
-    { }
+        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.Devices) { }
 
     public async Task ClearPushTokenAsync(Guid id)
     {

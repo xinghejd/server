@@ -20,7 +20,11 @@ namespace Bit.Core.Test.Auth.UserFeatures.WebAuthnLogin;
 public class AssertWebAuthnLoginCredentialCommandTests
 {
     [Theory, BitAutoData]
-    internal async Task InvalidUserHandle_ThrowsBadRequestException(SutProvider<AssertWebAuthnLoginCredentialCommand> sutProvider, AssertionOptions options, AuthenticatorAssertionRawResponse response)
+    internal async Task InvalidUserHandle_ThrowsBadRequestException(
+        SutProvider<AssertWebAuthnLoginCredentialCommand> sutProvider,
+        AssertionOptions options,
+        AuthenticatorAssertionRawResponse response
+    )
     {
         // Arrange
         response.Response.UserHandle = Encoding.UTF8.GetBytes("invalid-user-handle");
@@ -33,7 +37,12 @@ public class AssertWebAuthnLoginCredentialCommandTests
     }
 
     [Theory, BitAutoData]
-    internal async Task UserNotFound_ThrowsBadRequestException(SutProvider<AssertWebAuthnLoginCredentialCommand> sutProvider, User user, AssertionOptions options, AuthenticatorAssertionRawResponse response)
+    internal async Task UserNotFound_ThrowsBadRequestException(
+        SutProvider<AssertWebAuthnLoginCredentialCommand> sutProvider,
+        User user,
+        AssertionOptions options,
+        AuthenticatorAssertionRawResponse response
+    )
     {
         // Arrange
         response.Response.UserHandle = user.Id.ToByteArray();
@@ -47,12 +56,20 @@ public class AssertWebAuthnLoginCredentialCommandTests
     }
 
     [Theory, BitAutoData]
-    internal async Task NoMatchingCredentialExists_ThrowsBadRequestException(SutProvider<AssertWebAuthnLoginCredentialCommand> sutProvider, User user, AssertionOptions options, AuthenticatorAssertionRawResponse response)
+    internal async Task NoMatchingCredentialExists_ThrowsBadRequestException(
+        SutProvider<AssertWebAuthnLoginCredentialCommand> sutProvider,
+        User user,
+        AssertionOptions options,
+        AuthenticatorAssertionRawResponse response
+    )
     {
         // Arrange
         response.Response.UserHandle = user.Id.ToByteArray();
         sutProvider.GetDependency<IUserRepository>().GetByIdAsync(user.Id).Returns(user);
-        sutProvider.GetDependency<IWebAuthnCredentialRepository>().GetManyByUserIdAsync(user.Id).Returns(new WebAuthnCredential[] { });
+        sutProvider
+            .GetDependency<IWebAuthnCredentialRepository>()
+            .GetManyByUserIdAsync(user.Id)
+            .Returns(new WebAuthnCredential[] { });
 
         // Act
         var result = async () => await sutProvider.Sut.AssertWebAuthnLoginCredential(options, response);
@@ -62,7 +79,14 @@ public class AssertWebAuthnLoginCredentialCommandTests
     }
 
     [Theory, BitAutoData]
-    internal async Task AssertionFails_ThrowsBadRequestException(SutProvider<AssertWebAuthnLoginCredentialCommand> sutProvider, User user, AssertionOptions options, AuthenticatorAssertionRawResponse response, WebAuthnCredential credential, AssertionVerificationResult assertionResult)
+    internal async Task AssertionFails_ThrowsBadRequestException(
+        SutProvider<AssertWebAuthnLoginCredentialCommand> sutProvider,
+        User user,
+        AssertionOptions options,
+        AuthenticatorAssertionRawResponse response,
+        WebAuthnCredential credential,
+        AssertionVerificationResult assertionResult
+    )
     {
         // Arrange
         var credentialId = Guid.NewGuid().ToByteArray();
@@ -71,8 +95,19 @@ public class AssertWebAuthnLoginCredentialCommandTests
         response.Response.UserHandle = user.Id.ToByteArray();
         assertionResult.Status = "Not ok";
         sutProvider.GetDependency<IUserRepository>().GetByIdAsync(user.Id).Returns(user);
-        sutProvider.GetDependency<IWebAuthnCredentialRepository>().GetManyByUserIdAsync(user.Id).Returns(new WebAuthnCredential[] { credential });
-        sutProvider.GetDependency<IFido2>().MakeAssertionAsync(response, options, Arg.Any<byte[]>(), Arg.Any<uint>(), Arg.Any<IsUserHandleOwnerOfCredentialIdAsync>())
+        sutProvider
+            .GetDependency<IWebAuthnCredentialRepository>()
+            .GetManyByUserIdAsync(user.Id)
+            .Returns(new WebAuthnCredential[] { credential });
+        sutProvider
+            .GetDependency<IFido2>()
+            .MakeAssertionAsync(
+                response,
+                options,
+                Arg.Any<byte[]>(),
+                Arg.Any<uint>(),
+                Arg.Any<IsUserHandleOwnerOfCredentialIdAsync>()
+            )
             .Returns(assertionResult);
 
         // Act
@@ -83,7 +118,14 @@ public class AssertWebAuthnLoginCredentialCommandTests
     }
 
     [Theory, BitAutoData]
-    internal async Task AssertionSucceeds_ReturnsUserAndCredential(SutProvider<AssertWebAuthnLoginCredentialCommand> sutProvider, User user, AssertionOptions options, AuthenticatorAssertionRawResponse response, WebAuthnCredential credential, AssertionVerificationResult assertionResult)
+    internal async Task AssertionSucceeds_ReturnsUserAndCredential(
+        SutProvider<AssertWebAuthnLoginCredentialCommand> sutProvider,
+        User user,
+        AssertionOptions options,
+        AuthenticatorAssertionRawResponse response,
+        WebAuthnCredential credential,
+        AssertionVerificationResult assertionResult
+    )
     {
         // Arrange
         var credentialId = Guid.NewGuid().ToByteArray();
@@ -92,8 +134,19 @@ public class AssertWebAuthnLoginCredentialCommandTests
         response.Response.UserHandle = user.Id.ToByteArray();
         assertionResult.Status = "ok";
         sutProvider.GetDependency<IUserRepository>().GetByIdAsync(user.Id).Returns(user);
-        sutProvider.GetDependency<IWebAuthnCredentialRepository>().GetManyByUserIdAsync(user.Id).Returns(new WebAuthnCredential[] { credential });
-        sutProvider.GetDependency<IFido2>().MakeAssertionAsync(response, options, Arg.Any<byte[]>(), Arg.Any<uint>(), Arg.Any<IsUserHandleOwnerOfCredentialIdAsync>())
+        sutProvider
+            .GetDependency<IWebAuthnCredentialRepository>()
+            .GetManyByUserIdAsync(user.Id)
+            .Returns(new WebAuthnCredential[] { credential });
+        sutProvider
+            .GetDependency<IFido2>()
+            .MakeAssertionAsync(
+                response,
+                options,
+                Arg.Any<byte[]>(),
+                Arg.Any<uint>(),
+                Arg.Any<IsUserHandleOwnerOfCredentialIdAsync>()
+            )
             .Returns(assertionResult);
 
         // Act

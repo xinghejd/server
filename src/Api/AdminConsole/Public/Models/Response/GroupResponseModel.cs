@@ -29,12 +29,14 @@ public class GroupResponseModel : GroupBaseModel, IResponseModel
     /// <example>group</example>
     [Required]
     public string Object => "group";
+
     /// <summary>
     /// The group's unique identifier.
     /// </summary>
     /// <example>539a36c5-e0d2-4cf9-979e-51ecf5cf6593</example>
     [Required]
     public Guid Id { get; set; }
+
     /// <summary>
     /// The associated collections that this group can access.
     /// </summary>

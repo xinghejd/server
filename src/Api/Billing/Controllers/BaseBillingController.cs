@@ -17,14 +17,15 @@ public abstract class BaseBillingController : Controller
         public static NotFound<ErrorResponseModel> NotFound() =>
             TypedResults.NotFound(new ErrorResponseModel("Resource not found."));
 
-        public static JsonHttpResult<ErrorResponseModel> ServerError(string message = "Something went wrong with your request. Please contact support.") =>
+        public static JsonHttpResult<ErrorResponseModel> ServerError(
+            string message = "Something went wrong with your request. Please contact support."
+        ) =>
             TypedResults.Json(
                 new ErrorResponseModel(message),
-                statusCode: StatusCodes.Status500InternalServerError);
+                statusCode: StatusCodes.Status500InternalServerError
+            );
 
         public static JsonHttpResult<ErrorResponseModel> Unauthorized(string message = "Unauthorized.") =>
-            TypedResults.Json(
-                new ErrorResponseModel(message),
-                statusCode: StatusCodes.Status401Unauthorized);
+            TypedResults.Json(new ErrorResponseModel(message), statusCode: StatusCodes.Status401Unauthorized);
     }
 }

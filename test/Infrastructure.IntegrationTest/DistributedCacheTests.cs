@@ -20,10 +20,11 @@ public class DistributedCacheTests
 
         var fakeTimeProvider = (FakeTimeProvider)timeProvider;
 
-        cache.Set("test-key", "some-value"u8.ToArray(), new DistributedCacheEntryOptions
-        {
-            SlidingExpiration = TimeSpan.FromMinutes(20),
-        });
+        cache.Set(
+            "test-key",
+            "some-value"u8.ToArray(),
+            new DistributedCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(20) }
+        );
 
         // Should have expired and not be returned
         var firstValue = cache.Get("test-key");
@@ -47,19 +48,29 @@ public class DistributedCacheTests
     {
         var fakeTimeProvider = (FakeTimeProvider)timeProvider;
 
-        await Parallel.ForEachAsync(Enumerable.Range(1, 100), async (index, _) =>
-        {
-            await cache.SetAsync($"test-{index}", "some-value"u8.ToArray(), new DistributedCacheEntryOptions
+        await Parallel.ForEachAsync(
+            Enumerable.Range(1, 100),
+            async (index, _) =>
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(index),
-            });
-        });
+                await cache.SetAsync(
+                    $"test-{index}",
+                    "some-value"u8.ToArray(),
+                    new DistributedCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(index),
+                    }
+                );
+            }
+        );
 
-        await Parallel.ForEachAsync(Enumerable.Range(1, 100), async (index, _) =>
-        {
-            var value = await cache.GetAsync($"test-{index}");
-            Assert.NotNull(value);
-        });
+        await Parallel.ForEachAsync(
+            Enumerable.Range(1, 100),
+            async (index, _) =>
+            {
+                var value = await cache.GetAsync($"test-{index}");
+                Assert.NotNull(value);
+            }
+        );
     }
 
     [DatabaseTheory, DatabaseData]

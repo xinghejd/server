@@ -42,7 +42,8 @@ public class ClientStore : IClientStore
         IOrganizationUserRepository organizationUserRepository,
         IProviderUserRepository providerUserRepository,
         IOrganizationApiKeyRepository organizationApiKeyRepository,
-        IApiKeyRepository apiKeyRepository)
+        IApiKeyRepository apiKeyRepository
+    )
     {
         _installationRepository = installationRepository;
         _organizationRepository = organizationRepository;
@@ -64,8 +65,11 @@ public class ClientStore : IClientStore
             return await CreateInstallationClientAsync(clientId);
         }
 
-        if (_globalSettings.SelfHosted && clientId.StartsWith("internal.") &&
-            CoreHelpers.SettingHasValue(_globalSettings.InternalIdentityKey))
+        if (
+            _globalSettings.SelfHosted
+            && clientId.StartsWith("internal.")
+            && CoreHelpers.SettingHasValue(_globalSettings.InternalIdentityKey)
+        )
         {
             return CreateInternalClient(clientId);
         }
@@ -122,9 +126,7 @@ public class ClientStore : IClientStore
             AllowedGrantTypes = GrantTypes.ClientCredentials,
             AccessTokenLifetime = 3600 * 1,
             ClientClaimsPrefix = null,
-            Properties = new Dictionary<string, string> {
-                {"encryptedPayload", apiKey.EncryptedPayload},
-            },
+            Properties = new Dictionary<string, string> { { "encryptedPayload", apiKey.EncryptedPayload } },
             Claims = new List<ClientClaim>
             {
                 new(JwtClaimTypes.Subject, apiKey.ServiceAccountId.ToString()),
@@ -135,7 +137,9 @@ public class ClientStore : IClientStore
         switch (apiKey)
         {
             case ServiceAccountApiKeyDetails key:
-                client.Claims.Add(new ClientClaim(Claims.Organization, key.ServiceAccountOrganizationId.ToString()));
+                client.Claims.Add(
+                    new ClientClaim(Claims.Organization, key.ServiceAccountOrganizationId.ToString())
+                );
                 break;
         }
 
@@ -169,9 +173,10 @@ public class ClientStore : IClientStore
         {
             var upperValue = claim.Value.ToUpperInvariant();
             var isBool = upperValue is "TRUE" or "FALSE";
-            claims.Add(isBool
-                ? new ClientClaim(claim.Key, claim.Value, ClaimValueTypes.Boolean)
-                : new ClientClaim(claim.Key, claim.Value)
+            claims.Add(
+                isBool
+                    ? new ClientClaim(claim.Key, claim.Value, ClaimValueTypes.Boolean)
+                    : new ClientClaim(claim.Key, claim.Value)
             );
         }
 
@@ -202,9 +207,12 @@ public class ClientStore : IClientStore
             return null;
         }
 
-        var orgApiKey = (await _organizationApiKeyRepository
-            .GetManyByOrganizationIdTypeAsync(org.Id, OrganizationApiKeyType.Default))
-            .First();
+        var orgApiKey = (
+            await _organizationApiKeyRepository.GetManyByOrganizationIdTypeAsync(
+                org.Id,
+                OrganizationApiKeyType.Default
+            )
+        ).First();
 
         return new Client
         {
@@ -246,10 +254,7 @@ public class ClientStore : IClientStore
             AllowedGrantTypes = GrantTypes.ClientCredentials,
             AccessTokenLifetime = 3600 * 24,
             Enabled = true,
-            Claims = new List<ClientClaim>
-            {
-                new(JwtClaimTypes.Subject, id),
-            },
+            Claims = new List<ClientClaim> { new(JwtClaimTypes.Subject, id) },
         };
     }
 
@@ -272,19 +277,11 @@ public class ClientStore : IClientStore
             ClientId = $"installation.{installation.Id}",
             RequireClientSecret = true,
             ClientSecrets = { new Secret(installation.Key.Sha256()) },
-            AllowedScopes = new[]
-            {
-                ApiScopes.ApiPush,
-                ApiScopes.ApiLicensing,
-                ApiScopes.ApiInstallation,
-            },
+            AllowedScopes = new[] { ApiScopes.ApiPush, ApiScopes.ApiLicensing, ApiScopes.ApiInstallation },
             AllowedGrantTypes = GrantTypes.ClientCredentials,
             AccessTokenLifetime = 3600 * 24,
             Enabled = installation.Enabled,
-            Claims = new List<ClientClaim>
-            {
-                new(JwtClaimTypes.Subject, installation.Id.ToString()),
-            },
+            Claims = new List<ClientClaim> { new(JwtClaimTypes.Subject, installation.Id.ToString()) },
         };
     }
 }

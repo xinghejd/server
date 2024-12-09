@@ -13,14 +13,19 @@ public interface IOrganizationCiphersQuery
     /// Returns ciphers belonging to the organization that the user has been assigned to via collections.
     /// </summary>
     /// <exception cref="FeatureUnavailableException"></exception>
-    public Task<IEnumerable<CipherDetailsWithCollections>> GetOrganizationCiphersForUser(Guid organizationId, Guid userId);
+    public Task<IEnumerable<CipherDetailsWithCollections>> GetOrganizationCiphersForUser(
+        Guid organizationId,
+        Guid userId
+    );
 
     /// <summary>
     /// Returns all ciphers belonging to the organization.
     /// </summary>
     /// <param name="organizationId"></param>
     /// <exception cref="FeatureUnavailableException"></exception>
-    public Task<IEnumerable<CipherOrganizationDetailsWithCollections>> GetAllOrganizationCiphers(Guid organizationId);
+    public Task<IEnumerable<CipherOrganizationDetailsWithCollections>> GetAllOrganizationCiphers(
+        Guid organizationId
+    );
 
     /// <summary>
     /// Returns ciphers belonging to the organization that are not assigned to any collection.
@@ -36,5 +41,7 @@ public interface IOrganizationCiphersQuery
     /// the cipher belongs to even if it is not in the <paramref name="collectionIds"/> parameter.
     /// </remarks>
     public Task<IEnumerable<CipherOrganizationDetailsWithCollections>> GetOrganizationCiphersByCollectionIds(
-        Guid organizationId, IEnumerable<Guid> collectionIds);
+        Guid organizationId,
+        IEnumerable<Guid> collectionIds
+    );
 }

@@ -14,10 +14,12 @@ public class UpdateTwoFactorAuthenticatorRequestModel : SecretVerificationReques
     [Required]
     [StringLength(50)]
     public string Token { get; set; }
+
     [Required]
     [StringLength(50)]
     public string Key { get; set; }
     public string UserVerificationToken { get; set; }
+
     public User ToUser(User existingUser)
     {
         var providers = existingUser.GetTwoFactorProviders();
@@ -30,11 +32,14 @@ public class UpdateTwoFactorAuthenticatorRequestModel : SecretVerificationReques
             providers.Remove(TwoFactorProviderType.Authenticator);
         }
 
-        providers.Add(TwoFactorProviderType.Authenticator, new TwoFactorProvider
-        {
-            MetaData = new Dictionary<string, object> { ["Key"] = Key },
-            Enabled = true
-        });
+        providers.Add(
+            TwoFactorProviderType.Authenticator,
+            new TwoFactorProvider
+            {
+                MetaData = new Dictionary<string, object> { ["Key"] = Key },
+                Enabled = true,
+            }
+        );
         existingUser.SetTwoFactorProviders(providers);
         return existingUser;
     }
@@ -49,9 +54,11 @@ public class UpdateTwoFactorDuoRequestModel : SecretVerificationRequestModel, IV
     [Required]
     [StringLength(20, MinimumLength = 20, ErrorMessage = "Client Id must be exactly 20 characters.")]
     public string ClientId { get; set; }
+
     [Required]
     [StringLength(40, MinimumLength = 40, ErrorMessage = "Client Secret must be exactly 40 characters.")]
     public string ClientSecret { get; set; }
+
     [Required]
     public string Host { get; set; }
 
@@ -67,16 +74,19 @@ public class UpdateTwoFactorDuoRequestModel : SecretVerificationRequestModel, IV
             providers.Remove(TwoFactorProviderType.Duo);
         }
 
-        providers.Add(TwoFactorProviderType.Duo, new TwoFactorProvider
-        {
-            MetaData = new Dictionary<string, object>
+        providers.Add(
+            TwoFactorProviderType.Duo,
+            new TwoFactorProvider
             {
-                ["ClientSecret"] = ClientSecret,
-                ["ClientId"] = ClientId,
-                ["Host"] = Host
-            },
-            Enabled = true
-        });
+                MetaData = new Dictionary<string, object>
+                {
+                    ["ClientSecret"] = ClientSecret,
+                    ["ClientId"] = ClientId,
+                    ["Host"] = Host,
+                },
+                Enabled = true,
+            }
+        );
         existingUser.SetTwoFactorProviders(providers);
         return existingUser;
     }
@@ -93,16 +103,19 @@ public class UpdateTwoFactorDuoRequestModel : SecretVerificationRequestModel, IV
             providers.Remove(TwoFactorProviderType.OrganizationDuo);
         }
 
-        providers.Add(TwoFactorProviderType.OrganizationDuo, new TwoFactorProvider
-        {
-            MetaData = new Dictionary<string, object>
+        providers.Add(
+            TwoFactorProviderType.OrganizationDuo,
+            new TwoFactorProvider
             {
-                ["ClientSecret"] = ClientSecret,
-                ["ClientId"] = ClientId,
-                ["Host"] = Host
-            },
-            Enabled = true
-        });
+                MetaData = new Dictionary<string, object>
+                {
+                    ["ClientSecret"] = ClientSecret,
+                    ["ClientId"] = ClientId,
+                    ["Host"] = Host,
+                },
+                Enabled = true,
+            }
+        );
         existingOrg.SetTwoFactorProviders(providers);
         return existingOrg;
     }
@@ -135,6 +148,7 @@ public class UpdateTwoFactorYubicoOtpRequestModel : SecretVerificationRequestMod
     public string Key3 { get; set; }
     public string Key4 { get; set; }
     public string Key5 { get; set; }
+
     [Required]
     public bool? Nfc { get; set; }
 
@@ -150,19 +164,22 @@ public class UpdateTwoFactorYubicoOtpRequestModel : SecretVerificationRequestMod
             providers.Remove(TwoFactorProviderType.YubiKey);
         }
 
-        providers.Add(TwoFactorProviderType.YubiKey, new TwoFactorProvider
-        {
-            MetaData = new Dictionary<string, object>
+        providers.Add(
+            TwoFactorProviderType.YubiKey,
+            new TwoFactorProvider
             {
-                ["Key1"] = FormatKey(Key1),
-                ["Key2"] = FormatKey(Key2),
-                ["Key3"] = FormatKey(Key3),
-                ["Key4"] = FormatKey(Key4),
-                ["Key5"] = FormatKey(Key5),
-                ["Nfc"] = Nfc.Value
-            },
-            Enabled = true
-        });
+                MetaData = new Dictionary<string, object>
+                {
+                    ["Key1"] = FormatKey(Key1),
+                    ["Key2"] = FormatKey(Key2),
+                    ["Key3"] = FormatKey(Key3),
+                    ["Key4"] = FormatKey(Key4),
+                    ["Key5"] = FormatKey(Key5),
+                    ["Nfc"] = Nfc.Value,
+                },
+                Enabled = true,
+            }
+        );
         existingUser.SetTwoFactorProviders(providers);
         return existingUser;
     }
@@ -179,8 +196,13 @@ public class UpdateTwoFactorYubicoOtpRequestModel : SecretVerificationRequestMod
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (string.IsNullOrWhiteSpace(Key1) && string.IsNullOrWhiteSpace(Key2) && string.IsNullOrWhiteSpace(Key3) &&
-            string.IsNullOrWhiteSpace(Key4) && string.IsNullOrWhiteSpace(Key5))
+        if (
+            string.IsNullOrWhiteSpace(Key1)
+            && string.IsNullOrWhiteSpace(Key2)
+            && string.IsNullOrWhiteSpace(Key3)
+            && string.IsNullOrWhiteSpace(Key4)
+            && string.IsNullOrWhiteSpace(Key5)
+        )
         {
             yield return new ValidationResult("A key is required.", new string[] { nameof(Key1) });
         }
@@ -219,8 +241,10 @@ public class TwoFactorEmailRequestModel : SecretVerificationRequestModel
     [StringLength(256)]
     public string Email { get; set; }
     public string AuthRequestId { get; set; }
+
     // An auth session token used for obtaining email and as an authN factor for the sending of emailed 2FA OTPs.
     public string SsoEmail2FaSessionToken { get; set; }
+
     public User ToUser(User existingUser)
     {
         var providers = existingUser.GetTwoFactorProviders();
@@ -233,20 +257,29 @@ public class TwoFactorEmailRequestModel : SecretVerificationRequestModel
             providers.Remove(TwoFactorProviderType.Email);
         }
 
-        providers.Add(TwoFactorProviderType.Email, new TwoFactorProvider
-        {
-            MetaData = new Dictionary<string, object> { ["Email"] = Email.ToLowerInvariant() },
-            Enabled = true
-        });
+        providers.Add(
+            TwoFactorProviderType.Email,
+            new TwoFactorProvider
+            {
+                MetaData = new Dictionary<string, object> { ["Email"] = Email.ToLowerInvariant() },
+                Enabled = true,
+            }
+        );
         existingUser.SetTwoFactorProviders(providers);
         return existingUser;
     }
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (string.IsNullOrEmpty(Secret) && string.IsNullOrEmpty(AuthRequestAccessCode) && string.IsNullOrEmpty((SsoEmail2FaSessionToken)))
+        if (
+            string.IsNullOrEmpty(Secret)
+            && string.IsNullOrEmpty(AuthRequestAccessCode)
+            && string.IsNullOrEmpty((SsoEmail2FaSessionToken))
+        )
         {
-            yield return new ValidationResult("MasterPasswordHash, OTP, AccessCode, or SsoEmail2faSessionToken must be supplied.");
+            yield return new ValidationResult(
+                "MasterPasswordHash, OTP, AccessCode, or SsoEmail2faSessionToken must be supplied."
+            );
         }
     }
 }
@@ -301,6 +334,7 @@ public class TwoFactorAuthenticatorDisableRequestModel : TwoFactorProviderReques
 {
     [Required]
     public string UserVerificationToken { get; set; }
+
     [Required]
     public string Key { get; set; }
 }

@@ -24,7 +24,6 @@ public class SmSeatSubscriptionUpdateTests
     [BitAutoData(PlanType.TeamsAnnually2020)]
     [BitAutoData(PlanType.TeamsAnnually)]
     [BitAutoData(PlanType.TeamsStarter)]
-
     public void UpgradeItemsOptions_ReturnsCorrectOptions(PlanType planType, Organization organization)
     {
         var plan = StaticStore.GetPlan(planType);
@@ -36,14 +35,14 @@ public class SmSeatSubscriptionUpdateTests
             {
                 Data = new List<SubscriptionItem>
                 {
-                    new ()
+                    new()
                     {
                         Id = "subscription_item",
                         Price = new Price { Id = plan.SecretsManager.StripeSeatPlanId },
-                        Quantity = quantity
-                    }
-                }
-            }
+                        Quantity = quantity,
+                    },
+                },
+            },
         };
         var update = new SmSeatSubscriptionUpdate(organization, plan, quantity);
 
@@ -79,14 +78,14 @@ public class SmSeatSubscriptionUpdateTests
             {
                 Data = new List<SubscriptionItem>
                 {
-                    new ()
+                    new()
                     {
                         Id = "subscription_item",
                         Price = new Price { Id = plan.SecretsManager.StripeSeatPlanId },
-                        Quantity = quantity
-                    }
-                }
-            }
+                        Quantity = quantity,
+                    },
+                },
+            },
         };
         var update = new SmSeatSubscriptionUpdate(organization, plan, quantity);
         update.UpgradeItemsOptions(subscription);

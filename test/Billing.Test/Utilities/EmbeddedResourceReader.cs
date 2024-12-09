@@ -8,7 +8,9 @@ public static class EmbeddedResourceReader
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        await using var stream = assembly.GetManifestResourceStream($"Bit.Billing.Test.Resources.{resourceType}.{fileName}");
+        await using var stream = assembly.GetManifestResourceStream(
+            $"Bit.Billing.Test.Resources.{resourceType}.{fileName}"
+        );
 
         if (stream == null)
         {

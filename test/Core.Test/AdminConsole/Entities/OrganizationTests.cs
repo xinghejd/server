@@ -9,7 +9,10 @@ namespace Bit.Core.Test.Entities;
 
 public class OrganizationTests
 {
-    private static readonly Dictionary<TwoFactorProviderType, TwoFactorProvider> _testConfig = new Dictionary<TwoFactorProviderType, TwoFactorProvider>()
+    private static readonly Dictionary<TwoFactorProviderType, TwoFactorProvider> _testConfig = new Dictionary<
+        TwoFactorProviderType,
+        TwoFactorProvider
+    >()
     {
         [TwoFactorProviderType.OrganizationDuo] = new TwoFactorProvider
         {
@@ -20,9 +23,8 @@ public class OrganizationTests
                 ["SKey"] = "SKey_value",
                 ["Host"] = "Host_value",
             },
-        }
+        },
     };
-
 
     [Fact]
     public void SetTwoFactorProviders_Success()
@@ -51,14 +53,14 @@ public class OrganizationTests
         // It intent is to mimic a storing of the entity in the database and it being read later
         var tempOrganization = new Organization();
         tempOrganization.SetTwoFactorProviders(_testConfig);
-        var organization = new Organization
-        {
-            TwoFactorProviders = tempOrganization.TwoFactorProviders,
-        };
+        var organization = new Organization { TwoFactorProviders = tempOrganization.TwoFactorProviders };
 
         var twoFactorProviders = organization.GetTwoFactorProviders();
 
-        var duo = Assert.Contains(TwoFactorProviderType.OrganizationDuo, (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders);
+        var duo = Assert.Contains(
+            TwoFactorProviderType.OrganizationDuo,
+            (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders
+        );
         Assert.True(duo.Enabled);
         Assert.NotNull(duo.MetaData);
         var iKey = Assert.Contains("IKey", (IDictionary<string, object>)duo.MetaData);
@@ -86,7 +88,10 @@ public class OrganizationTests
         // Actual checks
         var twoFactorProviders = organization.GetTwoFactorProviders();
 
-        var duo = Assert.Contains(TwoFactorProviderType.OrganizationDuo, (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders);
+        var duo = Assert.Contains(
+            TwoFactorProviderType.OrganizationDuo,
+            (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders
+        );
         Assert.True(duo.Enabled);
         Assert.NotNull(duo.MetaData);
         var iKey = Assert.Contains("IKey", (IDictionary<string, object>)duo.MetaData);

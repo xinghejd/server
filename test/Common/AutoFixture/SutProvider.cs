@@ -13,7 +13,8 @@ public class SutProvider<TSut> : ISutProvider
     public TSut Sut { get; private set; }
     public Type SutType => typeof(TSut);
 
-    public SutProvider() : this(new Fixture()) { }
+    public SutProvider()
+        : this(new Fixture()) { }
 
     public SutProvider(IFixture fixture)
     {
@@ -23,8 +24,9 @@ public class SutProvider<TSut> : ISutProvider
         _fixture.Customizations.Add(_constructorParameterRelay);
     }
 
-    public SutProvider<TSut> SetDependency<T>(T dependency, string parameterName = "")
-        => SetDependency(typeof(T), dependency, parameterName);
+    public SutProvider<TSut> SetDependency<T>(T dependency, string parameterName = "") =>
+        SetDependency(typeof(T), dependency, parameterName);
+
     public SutProvider<TSut> SetDependency(Type dependencyType, object dependency, string parameterName = "")
     {
         if (_dependencies.ContainsKey(dependencyType))
@@ -40,6 +42,7 @@ public class SutProvider<TSut> : ISutProvider
     }
 
     public T GetDependency<T>(string parameterName = "") => (T)GetDependency(typeof(T), parameterName);
+
     public object GetDependency(Type dependencyType, string parameterName = "")
     {
         if (DependencyIsSet(dependencyType, parameterName))
@@ -55,14 +58,20 @@ public class SutProvider<TSut> : ISutProvider
             }
             else
             {
-                throw new ArgumentException(string.Concat($"Dependency of type {dependencyType.Name} and name ",
-                    $"{parameterName} does not exist. Available dependency names are: ",
-                    string.Join(", ", knownDependencies.Keys)));
+                throw new ArgumentException(
+                    string.Concat(
+                        $"Dependency of type {dependencyType.Name} and name ",
+                        $"{parameterName} does not exist. Available dependency names are: ",
+                        string.Join(", ", knownDependencies.Keys)
+                    )
+                );
             }
         }
         else
         {
-            throw new ArgumentException($"Dependency of type {dependencyType.Name} and name {parameterName} has not been set.");
+            throw new ArgumentException(
+                $"Dependency of type {dependencyType.Name} and name {parameterName} has not been set."
+            );
         }
     }
 
@@ -79,14 +88,15 @@ public class SutProvider<TSut> : ISutProvider
     }
 
     ISutProvider ISutProvider.Create() => Create();
+
     public SutProvider<TSut> Create()
     {
         Sut = _fixture.Create<TSut>();
         return this;
     }
 
-    private bool DependencyIsSet(Type dependencyType, string parameterName = "")
-        => _dependencies.ContainsKey(dependencyType) && _dependencies[dependencyType].ContainsKey(parameterName);
+    private bool DependencyIsSet(Type dependencyType, string parameterName = "") =>
+        _dependencies.ContainsKey(dependencyType) && _dependencies[dependencyType].ContainsKey(parameterName);
 
     private object GetDefault(Type type) => type.IsValueType ? Activator.CreateInstance(type) : null;
 
@@ -111,8 +121,10 @@ public class SutProvider<TSut> : ISutProvider
             {
                 return new NoSpecimen();
             }
-            if (parameterInfo.Member.DeclaringType != typeof(T) ||
-                parameterInfo.Member.MemberType != MemberTypes.Constructor)
+            if (
+                parameterInfo.Member.DeclaringType != typeof(T)
+                || parameterInfo.Member.MemberType != MemberTypes.Constructor
+            )
             {
                 return new NoSpecimen();
             }
@@ -129,8 +141,12 @@ public class SutProvider<TSut> : ISutProvider
 
             // This is the equivalent of _fixture.Create<parameterInfo.ParameterType>, but no overload for
             // Create(Type type) exists.
-            var dependency = new SpecimenContext(_fixture).Resolve(new SeededRequest(parameterInfo.ParameterType,
-                _sutProvider.GetDefault(parameterInfo.ParameterType)));
+            var dependency = new SpecimenContext(_fixture).Resolve(
+                new SeededRequest(
+                    parameterInfo.ParameterType,
+                    _sutProvider.GetDefault(parameterInfo.ParameterType)
+                )
+            );
             _sutProvider.SetDependency(parameterInfo.ParameterType, dependency, parameterInfo.Name);
             return dependency;
         }

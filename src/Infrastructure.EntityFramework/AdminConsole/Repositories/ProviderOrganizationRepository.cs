@@ -9,14 +9,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bit.Infrastructure.EntityFramework.AdminConsole.Repositories;
 
-public class ProviderOrganizationRepository :
-    Repository<ProviderOrganization, Models.Provider.ProviderOrganization, Guid>, IProviderOrganizationRepository
+public class ProviderOrganizationRepository
+    : Repository<ProviderOrganization, Models.Provider.ProviderOrganization, Guid>,
+        IProviderOrganizationRepository
 {
     public ProviderOrganizationRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
-        : base(serviceScopeFactory, mapper, context => context.ProviderOrganizations)
-    { }
+        : base(serviceScopeFactory, mapper, context => context.ProviderOrganizations) { }
 
-    public async Task<ICollection<ProviderOrganization>> CreateManyAsync(IEnumerable<ProviderOrganization> providerOrganizations)
+    public async Task<ICollection<ProviderOrganization>> CreateManyAsync(
+        IEnumerable<ProviderOrganization> providerOrganizations
+    )
     {
         var entities = providerOrganizations.ToList();
 
@@ -40,7 +42,9 @@ public class ProviderOrganizationRepository :
         return entities;
     }
 
-    public async Task<ICollection<ProviderOrganizationOrganizationDetails>> GetManyDetailsByProviderAsync(Guid providerId)
+    public async Task<ICollection<ProviderOrganizationOrganizationDetails>> GetManyDetailsByProviderAsync(
+        Guid providerId
+    )
     {
         using (var scope = ServiceScopeFactory.CreateScope())
         {

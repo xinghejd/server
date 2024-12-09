@@ -48,12 +48,10 @@ public abstract class AzureQueueService<T>
             {
                 return CoreHelpers.Base64EncodeString(messagesList[0]);
             }
-            return CoreHelpers.Base64EncodeString(
-                string.Concat("[", string.Join(',', messagesList), "]"));
+            return CoreHelpers.Base64EncodeString(string.Concat("[", string.Join(',', messagesList), "]"));
         }
 
-        var serializedMessages = messages.Select(message =>
-            JsonSerializer.Serialize(message, jsonOptions));
+        var serializedMessages = messages.Select(message => JsonSerializer.Serialize(message, jsonOptions));
 
         foreach (var message in serializedMessages)
         {

@@ -7,7 +7,8 @@ public class HttpResponseBuilder : IDisposable
     private bool _disposedValue;
 
     public HttpStatusCode StatusCode { get; set; }
-    public IEnumerable<KeyValuePair<string, string>> Headers { get; set; } = new List<KeyValuePair<string, string>>();
+    public IEnumerable<KeyValuePair<string, string>> Headers { get; set; } =
+        new List<KeyValuePair<string, string>>();
     public IEnumerable<string> HeadersToRemove { get; set; } = new List<string>();
     public HttpContent Content { get; set; }
 
@@ -16,10 +17,7 @@ public class HttpResponseBuilder : IDisposable
         var copiedContentStream = new MemoryStream();
         await Content.CopyToAsync(copiedContentStream); // This is important, otherwise the content stream will be disposed when the response is disposed.
         copiedContentStream.Seek(0, SeekOrigin.Begin);
-        var message = new HttpResponseMessage(StatusCode)
-        {
-            Content = new StreamContent(copiedContentStream),
-        };
+        var message = new HttpResponseMessage(StatusCode) { Content = new StreamContent(copiedContentStream) };
 
         foreach (var header in Headers)
         {

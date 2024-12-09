@@ -6,4 +6,3 @@ public interface IDropPasswordHealthReportApplicationCommand
 {
     Task DropPasswordHealthReportApplicationAsync(DropPasswordHealthReportApplicationRequest request);
 }
-

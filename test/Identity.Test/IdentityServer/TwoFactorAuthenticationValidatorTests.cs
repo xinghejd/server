@@ -48,15 +48,16 @@ public class TwoFactorAuthenticationValidatorTests
         _currentContext = Substitute.For<ICurrentContext>();
 
         _sut = new TwoFactorAuthenticationValidator(
-                    _userService,
-                    _userManager,
-                    _organizationDuoUniversalTokenProvider,
-                    _featureService,
-                    _applicationCacheService,
-                    _organizationUserRepository,
-                    _organizationRepository,
-                    _ssoEmail2faSessionTokenable,
-                    _currentContext);
+            _userService,
+            _userManager,
+            _organizationDuoUniversalTokenProvider,
+            _featureService,
+            _applicationCacheService,
+            _organizationUserRepository,
+            _organizationRepository,
+            _ssoEmail2faSessionTokenable,
+            _currentContext
+        );
     }
 
     [Theory]
@@ -65,7 +66,8 @@ public class TwoFactorAuthenticationValidatorTests
     public async void RequiresTwoFactorAsync_IndividualOnly_Required_ReturnTrue(
         string grantType,
         [AuthFixtures.ValidatedTokenRequest] ValidatedTokenRequest request,
-        User user)
+        User user
+    )
     {
         // Arrange
         request.GrantType = grantType;
@@ -89,7 +91,8 @@ public class TwoFactorAuthenticationValidatorTests
     public async void RequiresTwoFactorAsync_NotRequired_ReturnFalse(
         string grantType,
         [AuthFixtures.ValidatedTokenRequest] ValidatedTokenRequest request,
-        User user)
+        User user
+    )
     {
         // Arrange
         request.GrantType = grantType;
@@ -111,7 +114,8 @@ public class TwoFactorAuthenticationValidatorTests
         User user,
         OrganizationUserOrganizationDetails orgUser,
         Organization organization,
-        ICollection<CurrentContextOrganization> organizationCollection)
+        ICollection<CurrentContextOrganization> organizationCollection
+    )
     {
         // Arrange
         request.GrantType = grantType;
@@ -131,14 +135,18 @@ public class TwoFactorAuthenticationValidatorTests
         orgUser.Permissions = "{}";
         organizationCollection.Add(new CurrentContextOrganization(orgUser));
 
-        _currentContext.OrganizationMembershipAsync(Arg.Any<IOrganizationUserRepository>(), Arg.Any<Guid>())
+        _currentContext
+            .OrganizationMembershipAsync(Arg.Any<IOrganizationUserRepository>(), Arg.Any<Guid>())
             .Returns(Task.FromResult(organizationCollection));
 
-        _applicationCacheService.GetOrganizationAbilitiesAsync()
-            .Returns(new Dictionary<Guid, OrganizationAbility>()
-            {
-                { orgUser.OrganizationId, new OrganizationAbility(organization)}
-            });
+        _applicationCacheService
+            .GetOrganizationAbilitiesAsync()
+            .Returns(
+                new Dictionary<Guid, OrganizationAbility>()
+                {
+                    { orgUser.OrganizationId, new OrganizationAbility(organization) },
+                }
+            );
 
         _organizationRepository.GetManyByUserIdAsync(Arg.Any<Guid>()).Returns([organization]);
 
@@ -153,9 +161,7 @@ public class TwoFactorAuthenticationValidatorTests
 
     [Theory]
     [BitAutoData]
-    public async void BuildTwoFactorResultAsync_NoProviders_ReturnsNull(
-        User user,
-        Organization organization)
+    public async void BuildTwoFactorResultAsync_NoProviders_ReturnsNull(User user, Organization organization)
     {
         // Arrange
         organization.Use2fa = true;
@@ -175,7 +181,8 @@ public class TwoFactorAuthenticationValidatorTests
     [BitAutoData]
     public async void BuildTwoFactorResultAsync_OrganizationProviders_NotEnabled_ReturnsNull(
         User user,
-        Organization organization)
+        Organization organization
+    )
     {
         // Arrange
         organization.Use2fa = true;
@@ -195,7 +202,8 @@ public class TwoFactorAuthenticationValidatorTests
     [BitAutoData]
     public async void BuildTwoFactorResultAsync_OrganizationProviders_ReturnsNotNull(
         User user,
-        Organization organization)
+        Organization organization
+    )
     {
         // Arrange
         organization.Use2fa = true;
@@ -216,8 +224,7 @@ public class TwoFactorAuthenticationValidatorTests
 
     [Theory]
     [BitAutoData]
-    public async void BuildTwoFactorResultAsync_IndividualProviders_NotEnabled_ReturnsNull(
-        User user)
+    public async void BuildTwoFactorResultAsync_IndividualProviders_NotEnabled_ReturnsNull(User user)
     {
         // Arrange
         user.TwoFactorProviders = GetTwoFactorIndividualNotEnabledProviderJson(TwoFactorProviderType.Email);
@@ -231,8 +238,7 @@ public class TwoFactorAuthenticationValidatorTests
 
     [Theory]
     [BitAutoData]
-    public async void BuildTwoFactorResultAsync_IndividualProviders_ReturnsNotNull(
-        User user)
+    public async void BuildTwoFactorResultAsync_IndividualProviders_ReturnsNotNull(User user)
     {
         // Arrange
         _userService.CanAccessPremium(user).Returns(true);
@@ -253,7 +259,8 @@ public class TwoFactorAuthenticationValidatorTests
     [BitAutoData(TwoFactorProviderType.Email)]
     public async void BuildTwoFactorResultAsync_IndividualEmailProvider_SendsEmail_SetsSsoToken_ReturnsNotNull(
         TwoFactorProviderType providerType,
-        User user)
+        User user
+    )
     {
         // Arrange
         var providerTypeInt = (int)providerType;
@@ -263,8 +270,7 @@ public class TwoFactorAuthenticationValidatorTests
         _userManager.SUPPORTS_TWO_FACTOR = true;
         _userManager.TWO_FACTOR_PROVIDERS = [providerType.ToString()];
 
-        _userService.TwoFactorProviderIsEnabledAsync(Arg.Any<TwoFactorProviderType>(), user)
-            .Returns(true);
+        _userService.TwoFactorProviderIsEnabledAsync(Arg.Any<TwoFactorProviderType>(), user).Returns(true);
 
         // Act
         var result = await _sut.BuildTwoFactorResultAsync(user, null);
@@ -290,7 +296,8 @@ public class TwoFactorAuthenticationValidatorTests
     [BitAutoData(TwoFactorProviderType.OrganizationDuo)]
     public async void BuildTwoFactorResultAsync_IndividualProvider_ReturnMatchesType(
         TwoFactorProviderType providerType,
-        User user)
+        User user
+    )
     {
         // Arrange
         var providerTypeInt = (int)providerType;
@@ -317,19 +324,15 @@ public class TwoFactorAuthenticationValidatorTests
 
     [Theory]
     [BitAutoData]
-    public async void VerifyTwoFactorAsync_Individual_TypeNull_ReturnsFalse(
-        User user,
-        string token)
+    public async void VerifyTwoFactorAsync_Individual_TypeNull_ReturnsFalse(User user, string token)
     {
         // Arrange
-        _userService.TwoFactorProviderIsEnabledAsync(
-            TwoFactorProviderType.Email, user).Returns(true);
+        _userService.TwoFactorProviderIsEnabledAsync(TwoFactorProviderType.Email, user).Returns(true);
 
         _userManager.TWO_FACTOR_PROVIDERS = ["email"];
 
         // Act
-        var result = await _sut.VerifyTwoFactor(
-            user, null, TwoFactorProviderType.U2f, token);
+        var result = await _sut.VerifyTwoFactor(user, null, TwoFactorProviderType.U2f, token);
 
         // Assert
         Assert.False(result);
@@ -337,19 +340,15 @@ public class TwoFactorAuthenticationValidatorTests
 
     [Theory]
     [BitAutoData]
-    public async void VerifyTwoFactorAsync_Individual_NotEnabled_ReturnsFalse(
-        User user,
-        string token)
+    public async void VerifyTwoFactorAsync_Individual_NotEnabled_ReturnsFalse(User user, string token)
     {
         // Arrange
-        _userService.TwoFactorProviderIsEnabledAsync(
-            TwoFactorProviderType.Email, user).Returns(false);
+        _userService.TwoFactorProviderIsEnabledAsync(TwoFactorProviderType.Email, user).Returns(false);
 
         _userManager.TWO_FACTOR_PROVIDERS = ["email"];
 
         // Act
-        var result = await _sut.VerifyTwoFactor(
-            user, null, TwoFactorProviderType.Email, token);
+        var result = await _sut.VerifyTwoFactor(user, null, TwoFactorProviderType.Email, token);
 
         // Assert
         Assert.False(result);
@@ -357,19 +356,15 @@ public class TwoFactorAuthenticationValidatorTests
 
     [Theory]
     [BitAutoData]
-    public async void VerifyTwoFactorAsync_Organization_NotEnabled_ReturnsFalse(
-        User user,
-        string token)
+    public async void VerifyTwoFactorAsync_Organization_NotEnabled_ReturnsFalse(User user, string token)
     {
         // Arrange
-        _userService.TwoFactorProviderIsEnabledAsync(
-            TwoFactorProviderType.OrganizationDuo, user).Returns(false);
+        _userService.TwoFactorProviderIsEnabledAsync(TwoFactorProviderType.OrganizationDuo, user).Returns(false);
 
         _userManager.TWO_FACTOR_PROVIDERS = ["OrganizationDuo"];
 
         // Act
-        var result = await _sut.VerifyTwoFactor(
-            user, null, TwoFactorProviderType.OrganizationDuo, token);
+        var result = await _sut.VerifyTwoFactor(user, null, TwoFactorProviderType.OrganizationDuo, token);
 
         // Assert
         Assert.False(result);
@@ -384,11 +379,11 @@ public class TwoFactorAuthenticationValidatorTests
     public async void VerifyTwoFactorAsync_Individual_ValidToken_ReturnsTrue(
         TwoFactorProviderType providerType,
         User user,
-        string token)
+        string token
+    )
     {
         // Arrange
-        _userService.TwoFactorProviderIsEnabledAsync(
-            providerType, user).Returns(true);
+        _userService.TwoFactorProviderIsEnabledAsync(providerType, user).Returns(true);
 
         _userManager.TWO_FACTOR_ENABLED = true;
         _userManager.TWO_FACTOR_TOKEN_VERIFIED = true;
@@ -409,11 +404,11 @@ public class TwoFactorAuthenticationValidatorTests
     public async void VerifyTwoFactorAsync_Individual_InvalidToken_ReturnsFalse(
         TwoFactorProviderType providerType,
         User user,
-        string token)
+        string token
+    )
     {
         // Arrange
-        _userService.TwoFactorProviderIsEnabledAsync(
-            providerType, user).Returns(true);
+        _userService.TwoFactorProviderIsEnabledAsync(providerType, user).Returns(true);
 
         _userManager.TWO_FACTOR_ENABLED = true;
         _userManager.TWO_FACTOR_TOKEN_VERIFIED = false;
@@ -431,11 +426,11 @@ public class TwoFactorAuthenticationValidatorTests
         TwoFactorProviderType providerType,
         User user,
         Organization organization,
-        string token)
+        string token
+    )
     {
         // Arrange
-        _organizationDuoUniversalTokenProvider.ValidateAsync(
-            token, organization, user).Returns(true);
+        _organizationDuoUniversalTokenProvider.ValidateAsync(token, organization, user).Returns(true);
 
         _userManager.TWO_FACTOR_ENABLED = true;
         _userManager.TWO_FACTOR_TOKEN_VERIFIED = true;
@@ -445,8 +440,7 @@ public class TwoFactorAuthenticationValidatorTests
         organization.Enabled = true;
 
         // Act
-        var result = await _sut.VerifyTwoFactor(
-            user, organization, providerType, token);
+        var result = await _sut.VerifyTwoFactor(user, organization, providerType, token);
 
         // Assert
         Assert.True(result);
@@ -463,30 +457,33 @@ public class TwoFactorAuthenticationValidatorTests
             Substitute.For<ILookupNormalizer>(),
             Substitute.For<IdentityErrorDescriber>(),
             Substitute.For<IServiceProvider>(),
-            Substitute.For<ILogger<UserManager<User>>>());
+            Substitute.For<ILogger<UserManager<User>>>()
+        );
     }
 
     private static string GetTwoFactorOrganizationDuoProviderJson(bool enabled = true)
     {
-        return
-            "{\"6\":{\"Enabled\":true,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}";
+        return "{\"6\":{\"Enabled\":true,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}";
     }
 
     private static string GetTwoFactorOrganizationNotEnabledDuoProviderJson(bool enabled = true)
     {
-        return
-            "{\"6\":{\"Enabled\":false,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}";
+        return "{\"6\":{\"Enabled\":false,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}";
     }
 
     private static string GetTwoFactorIndividualProviderJson(TwoFactorProviderType providerType)
     {
         return providerType switch
         {
-            TwoFactorProviderType.Duo => "{\"2\":{\"Enabled\":true,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}",
+            TwoFactorProviderType.Duo =>
+                "{\"2\":{\"Enabled\":true,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}",
             TwoFactorProviderType.Email => "{\"1\":{\"Enabled\":true,\"MetaData\":{\"Email\":\"user@test.dev\"}}}",
-            TwoFactorProviderType.WebAuthn => "{\"7\":{\"Enabled\":true,\"MetaData\":{\"Key1\":{\"Name\":\"key1\",\"Descriptor\":{\"Type\":0,\"Id\":\"keyId\",\"Transports\":null},\"PublicKey\":\"key\",\"UserHandle\":\"handle\",\"SignatureCounter\":0,\"CredType\":\"none\",\"RegDate\":\"2022-01-01T00:00:00Z\",\"AaGuid\":\"00000000-0000-0000-0000-000000000000\",\"Migrated\":false}}}}",
-            TwoFactorProviderType.YubiKey => "{\"3\":{\"Enabled\":true,\"MetaData\":{\"Id\":\"yubikeyId\",\"Nfc\":true}}}",
-            TwoFactorProviderType.OrganizationDuo => "{\"6\":{\"Enabled\":true,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}",
+            TwoFactorProviderType.WebAuthn =>
+                "{\"7\":{\"Enabled\":true,\"MetaData\":{\"Key1\":{\"Name\":\"key1\",\"Descriptor\":{\"Type\":0,\"Id\":\"keyId\",\"Transports\":null},\"PublicKey\":\"key\",\"UserHandle\":\"handle\",\"SignatureCounter\":0,\"CredType\":\"none\",\"RegDate\":\"2022-01-01T00:00:00Z\",\"AaGuid\":\"00000000-0000-0000-0000-000000000000\",\"Migrated\":false}}}}",
+            TwoFactorProviderType.YubiKey =>
+                "{\"3\":{\"Enabled\":true,\"MetaData\":{\"Id\":\"yubikeyId\",\"Nfc\":true}}}",
+            TwoFactorProviderType.OrganizationDuo =>
+                "{\"6\":{\"Enabled\":true,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}",
             _ => "{}",
         };
     }
@@ -495,11 +492,16 @@ public class TwoFactorAuthenticationValidatorTests
     {
         return providerType switch
         {
-            TwoFactorProviderType.Duo => "{\"2\":{\"Enabled\":false,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}",
-            TwoFactorProviderType.Email => "{\"1\":{\"Enabled\":false,\"MetaData\":{\"Email\":\"user@test.dev\"}}}",
-            TwoFactorProviderType.WebAuthn => "{\"7\":{\"Enabled\":false,\"MetaData\":{\"Key1\":{\"Name\":\"key1\",\"Descriptor\":{\"Type\":0,\"Id\":\"keyId\",\"Transports\":null},\"PublicKey\":\"key\",\"UserHandle\":\"handle\",\"SignatureCounter\":0,\"CredType\":\"none\",\"RegDate\":\"2022-01-01T00:00:00Z\",\"AaGuid\":\"00000000-0000-0000-0000-000000000000\",\"Migrated\":false}}}}",
-            TwoFactorProviderType.YubiKey => "{\"3\":{\"Enabled\":false,\"MetaData\":{\"Id\":\"yubikeyId\",\"Nfc\":true}}}",
-            TwoFactorProviderType.OrganizationDuo => "{\"6\":{\"Enabled\":false,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}",
+            TwoFactorProviderType.Duo =>
+                "{\"2\":{\"Enabled\":false,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}",
+            TwoFactorProviderType.Email =>
+                "{\"1\":{\"Enabled\":false,\"MetaData\":{\"Email\":\"user@test.dev\"}}}",
+            TwoFactorProviderType.WebAuthn =>
+                "{\"7\":{\"Enabled\":false,\"MetaData\":{\"Key1\":{\"Name\":\"key1\",\"Descriptor\":{\"Type\":0,\"Id\":\"keyId\",\"Transports\":null},\"PublicKey\":\"key\",\"UserHandle\":\"handle\",\"SignatureCounter\":0,\"CredType\":\"none\",\"RegDate\":\"2022-01-01T00:00:00Z\",\"AaGuid\":\"00000000-0000-0000-0000-000000000000\",\"Migrated\":false}}}}",
+            TwoFactorProviderType.YubiKey =>
+                "{\"3\":{\"Enabled\":false,\"MetaData\":{\"Id\":\"yubikeyId\",\"Nfc\":true}}}",
+            TwoFactorProviderType.OrganizationDuo =>
+                "{\"6\":{\"Enabled\":false,\"MetaData\":{\"ClientSecret\":\"secretClientSecret\",\"ClientId\":\"clientId\",\"Host\":\"example.com\"}}}",
             _ => "{}",
         };
     }

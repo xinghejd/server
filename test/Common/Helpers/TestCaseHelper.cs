@@ -20,7 +20,9 @@ public static class TestCaseHelper
         }
     }
 
-    public static IEnumerable<IEnumerable<object>> GetCombinationsOfMultipleLists(params IEnumerable<object>[] optionLists)
+    public static IEnumerable<IEnumerable<object>> GetCombinationsOfMultipleLists(
+        params IEnumerable<object>[] optionLists
+    )
     {
         if (!optionLists.Any())
         {

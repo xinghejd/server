@@ -17,7 +17,8 @@ public class MultiServiceMailDeliveryService : IMailDeliveryService
         GlobalSettings globalSettings,
         IWebHostEnvironment hostingEnvironment,
         ILogger<AmazonSesMailDeliveryService> sesLogger,
-        ILogger<SendGridMailDeliveryService> sendGridLogger)
+        ILogger<SendGridMailDeliveryService> sendGridLogger
+    )
     {
         _sesService = new AmazonSesMailDeliveryService(globalSettings, hostingEnvironment, sesLogger);
         _sendGridService = new SendGridMailDeliveryService(globalSettings, hostingEnvironment, sendGridLogger);

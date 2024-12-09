@@ -16,7 +16,8 @@ namespace Bit.Api.Vault.AuthorizationHandlers.Collections;
 /// Handles authorization logic for Collection objects, including access permissions for users and groups.
 /// This uses new logic implemented in the Flexible Collections initiative.
 /// </summary>
-public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkCollectionOperationRequirement, Collection>
+public class BulkCollectionAuthorizationHandler
+    : BulkAuthorizationHandler<BulkCollectionOperationRequirement, Collection>
 {
     private readonly ICurrentContext _currentContext;
     private readonly ICollectionRepository _collectionRepository;
@@ -31,7 +32,8 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
         ICurrentContext currentContext,
         ICollectionRepository collectionRepository,
         IApplicationCacheService applicationCacheService,
-        IFeatureService featureService)
+        IFeatureService featureService
+    )
     {
         _currentContext = currentContext;
         _collectionRepository = collectionRepository;
@@ -39,8 +41,11 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
         _featureService = featureService;
     }
 
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,
-        BulkCollectionOperationRequirement requirement, ICollection<Collection>? resources)
+    protected override async Task HandleRequirementAsync(
+        AuthorizationHandlerContext context,
+        BulkCollectionOperationRequirement requirement,
+        ICollection<Collection>? resources
+    )
     {
         // Establish pattern of authorization handler null checking passed resources
         if (resources == null || !resources.Any())
@@ -116,9 +121,11 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
     private async Task<bool> CanCreateAsync(CurrentContextOrganization? org)
     {
         // Owners, Admins, and users with CreateNewCollections permission can always create collections
-        if (org is
-        { Type: OrganizationUserType.Owner or OrganizationUserType.Admin } or
-        { Permissions.CreateNewCollections: true })
+        if (
+            org
+            is { Type: OrganizationUserType.Owner or OrganizationUserType.Admin }
+                or { Permissions.CreateNewCollections: true }
+        )
         {
             return true;
         }
@@ -126,7 +133,8 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
         var organizationAbility = await GetOrganizationAbilityAsync(org);
 
         var userIsMemberOfOrg = org is not null;
-        var limitCollectionCreationEnabled = await GetOrganizationAbilityAsync(org) is { LimitCollectionCreation: true };
+        var limitCollectionCreationEnabled =
+            await GetOrganizationAbilityAsync(org) is { LimitCollectionCreation: true };
         var userIsOrgOwnerOrAdmin = org is { Type: OrganizationUserType.Owner or OrganizationUserType.Admin };
         // If the limit collection management setting is disabled, allow any user to create collections
         if (userIsMemberOfOrg && (!limitCollectionCreationEnabled || userIsOrgOwnerOrAdmin))
@@ -141,10 +149,12 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
     private async Task<bool> CanReadAsync(ICollection<Collection> resources, CurrentContextOrganization? org)
     {
         // Owners, Admins, and users with EditAnyCollection or DeleteAnyCollection permission can always read a collection
-        if (org is
-        { Type: OrganizationUserType.Owner or OrganizationUserType.Admin } or
-        { Permissions.EditAnyCollection: true } or
-        { Permissions.DeleteAnyCollection: true })
+        if (
+            org
+            is { Type: OrganizationUserType.Owner or OrganizationUserType.Admin }
+                or { Permissions.EditAnyCollection: true }
+                or { Permissions.DeleteAnyCollection: true }
+        )
         {
             return true;
         }
@@ -164,14 +174,19 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
         return await _currentContext.ProviderUserForOrgAsync(_targetOrganizationId);
     }
 
-    private async Task<bool> CanReadWithAccessAsync(ICollection<Collection> resources, CurrentContextOrganization? org)
+    private async Task<bool> CanReadWithAccessAsync(
+        ICollection<Collection> resources,
+        CurrentContextOrganization? org
+    )
     {
         // Owners, Admins, and users with EditAnyCollection, DeleteAnyCollection or ManageUsers permission can always read a collection
-        if (org is
-        { Type: OrganizationUserType.Owner or OrganizationUserType.Admin } or
-        { Permissions.EditAnyCollection: true } or
-        { Permissions.DeleteAnyCollection: true } or
-        { Permissions.ManageUsers: true })
+        if (
+            org
+            is { Type: OrganizationUserType.Owner or OrganizationUserType.Admin }
+                or { Permissions.EditAnyCollection: true }
+                or { Permissions.DeleteAnyCollection: true }
+                or { Permissions.ManageUsers: true }
+        )
         {
             return true;
         }
@@ -194,7 +209,10 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
     /// <summary>
     /// Ensures the acting user is allowed to update the target collections or manage access permissions for them.
     /// </summary>
-    private async Task<bool> CanUpdateCollectionAsync(ICollection<Collection> resources, CurrentContextOrganization? org)
+    private async Task<bool> CanUpdateCollectionAsync(
+        ICollection<Collection> resources,
+        CurrentContextOrganization? org
+    )
     {
         // Users with EditAnyCollection permission can always update a collection
         if (org is { Permissions.EditAnyCollection: true })
@@ -203,7 +221,10 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
         }
 
         // Owners and Admins can update any collection only if permitted by collection management settings
-        if (await AllowAdminAccessToAllCollectionItems(org) && org is { Type: OrganizationUserType.Owner or OrganizationUserType.Admin })
+        if (
+            await AllowAdminAccessToAllCollectionItems(org)
+            && org is { Type: OrganizationUserType.Owner or OrganizationUserType.Admin }
+        )
         {
             return true;
         }
@@ -223,7 +244,10 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
         return await _currentContext.ProviderUserForOrgAsync(_targetOrganizationId);
     }
 
-    private async Task<bool> CanUpdateUserAccessAsync(ICollection<Collection> resources, CurrentContextOrganization? org)
+    private async Task<bool> CanUpdateUserAccessAsync(
+        ICollection<Collection> resources,
+        CurrentContextOrganization? org
+    )
     {
         if (await AllowAdminAccessToAllCollectionItems(org) && org?.Permissions.ManageUsers == true)
         {
@@ -233,7 +257,10 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
         return await CanUpdateCollectionAsync(resources, org);
     }
 
-    private async Task<bool> CanUpdateGroupAccessAsync(ICollection<Collection> resources, CurrentContextOrganization? org)
+    private async Task<bool> CanUpdateGroupAccessAsync(
+        ICollection<Collection> resources,
+        CurrentContextOrganization? org
+    )
     {
         if (await AllowAdminAccessToAllCollectionItems(org) && org?.Permissions.ManageGroups == true)
         {
@@ -252,16 +279,24 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
         }
 
         // If AllowAdminAccessToAllCollectionItems is true, Owners and Admins can delete any collection, regardless of LimitCollectionDeletion setting
-        if (await AllowAdminAccessToAllCollectionItems(org) && org is { Type: OrganizationUserType.Owner or OrganizationUserType.Admin })
+        if (
+            await AllowAdminAccessToAllCollectionItems(org)
+            && org is { Type: OrganizationUserType.Owner or OrganizationUserType.Admin }
+        )
         {
             return true;
         }
 
         var userIsMemberOfOrg = org is not null;
-        var limitCollectionDeletionEnabled = await GetOrganizationAbilityAsync(org) is { LimitCollectionDeletion: true };
+        var limitCollectionDeletionEnabled =
+            await GetOrganizationAbilityAsync(org) is { LimitCollectionDeletion: true };
         var userIsOrgOwnerOrAdmin = org is { Type: OrganizationUserType.Owner or OrganizationUserType.Admin };
         // If the limit collection management setting is disabled, allow any user to delete collections
-        if (userIsMemberOfOrg && (!limitCollectionDeletionEnabled || userIsOrgOwnerOrAdmin) && await CanManageCollectionsAsync(resources, org))
+        if (
+            userIsMemberOfOrg
+            && (!limitCollectionDeletionEnabled || userIsOrgOwnerOrAdmin)
+            && await CanManageCollectionsAsync(resources, org)
+        )
         {
             return true;
         }
@@ -270,20 +305,20 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
         return await _currentContext.ProviderUserForOrgAsync(_targetOrganizationId);
     }
 
-    private async Task<bool> CanManageCollectionsAsync(ICollection<Collection> targetCollections,
-        CurrentContextOrganization? org)
+    private async Task<bool> CanManageCollectionsAsync(
+        ICollection<Collection> targetCollections,
+        CurrentContextOrganization? org
+    )
     {
         if (_managedCollectionsIds == null)
         {
-            var allUserCollections = await _collectionRepository
-                .GetManyByUserIdAsync(_currentContext.UserId!.Value);
+            var allUserCollections = await _collectionRepository.GetManyByUserIdAsync(
+                _currentContext.UserId!.Value
+            );
 
-            var managedCollectionIds = allUserCollections
-                .Where(c => c.Manage)
-                .Select(c => c.Id);
+            var managedCollectionIds = allUserCollections.Where(c => c.Manage).Select(c => c.Id);
 
-            _managedCollectionsIds = managedCollectionIds
-                .ToHashSet();
+            _managedCollectionsIds = managedCollectionIds.ToHashSet();
         }
 
         var canManageTargetCollections = targetCollections.All(tc => _managedCollectionsIds.Contains(tc.Id));
@@ -296,7 +331,13 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
 
         // The user is not assigned to manage all target collections
         // If the user is an Owner/Admin/Custom user with edit, check if any targets are orphaned collections
-        if (org is not ({ Type: OrganizationUserType.Owner or OrganizationUserType.Admin } or { Permissions.EditAnyCollection: true }))
+        if (
+            org
+            is not (
+                { Type: OrganizationUserType.Owner or OrganizationUserType.Admin }
+                or { Permissions.EditAnyCollection: true }
+            )
+        )
         {
             // User is not allowed to manage orphaned collections
             return false;
@@ -304,16 +345,20 @@ public class BulkCollectionAuthorizationHandler : BulkAuthorizationHandler<BulkC
 
         if (_orphanedCollectionsIds == null)
         {
-            var orgCollections = await _collectionRepository.GetManyByOrganizationIdWithAccessAsync(_targetOrganizationId);
+            var orgCollections = await _collectionRepository.GetManyByOrganizationIdWithAccessAsync(
+                _targetOrganizationId
+            );
 
             // Orphaned collections are collections that have no users or groups with manage permissions
-            _orphanedCollectionsIds = orgCollections.Where(c =>
-                    !c.Item2.Users.Any(u => u.Manage) && !c.Item2.Groups.Any(g => g.Manage))
+            _orphanedCollectionsIds = orgCollections
+                .Where(c => !c.Item2.Users.Any(u => u.Manage) && !c.Item2.Groups.Any(g => g.Manage))
                 .Select(c => c.Item1.Id)
                 .ToHashSet();
         }
 
-        return targetCollections.All(tc => _orphanedCollectionsIds.Contains(tc.Id) || _managedCollectionsIds.Contains(tc.Id));
+        return targetCollections.All(tc =>
+            _orphanedCollectionsIds.Contains(tc.Id) || _managedCollectionsIds.Contains(tc.Id)
+        );
     }
 
     private async Task<OrganizationAbility?> GetOrganizationAbilityAsync(CurrentContextOrganization? organization)

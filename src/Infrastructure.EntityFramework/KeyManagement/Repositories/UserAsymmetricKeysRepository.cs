@@ -9,11 +9,8 @@ namespace Bit.Infrastructure.EntityFramework.KeyManagement.Repositories;
 
 public class UserAsymmetricKeysRepository : BaseEntityFrameworkRepository, IUserAsymmetricKeysRepository
 {
-    public UserAsymmetricKeysRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper) : base(
-        serviceScopeFactory,
-        mapper)
-    {
-    }
+    public UserAsymmetricKeysRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
+        : base(serviceScopeFactory, mapper) { }
 
     public async Task RegenerateUserAsymmetricKeysAsync(UserAsymmetricKeys userAsymmetricKeys)
     {

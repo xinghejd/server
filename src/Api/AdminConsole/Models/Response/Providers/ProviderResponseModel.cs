@@ -8,7 +8,8 @@ namespace Bit.Api.AdminConsole.Models.Response.Providers;
 
 public class ProviderResponseModel : ResponseModel
 {
-    public ProviderResponseModel(Provider provider, string obj = "provider") : base(obj)
+    public ProviderResponseModel(Provider provider, string obj = "provider")
+        : base(obj)
     {
         if (provider == null)
         {
@@ -29,6 +30,7 @@ public class ProviderResponseModel : ResponseModel
     }
 
     public Guid Id { get; set; }
+
     [JsonConverter(typeof(HtmlEncodingStringConverter))]
     public string Name { get; set; }
     public string BusinessName { get; set; }

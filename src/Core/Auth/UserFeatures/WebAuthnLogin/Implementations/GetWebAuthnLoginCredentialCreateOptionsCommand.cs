@@ -11,7 +11,10 @@ internal class GetWebAuthnLoginCredentialCreateOptionsCommand : IGetWebAuthnLogi
     private readonly IFido2 _fido2;
     private readonly IWebAuthnCredentialRepository _webAuthnCredentialRepository;
 
-    public GetWebAuthnLoginCredentialCreateOptionsCommand(IFido2 fido2, IWebAuthnCredentialRepository webAuthnCredentialRepository)
+    public GetWebAuthnLoginCredentialCreateOptionsCommand(
+        IFido2 fido2,
+        IWebAuthnCredentialRepository webAuthnCredentialRepository
+    )
     {
         _fido2 = fido2;
         _webAuthnCredentialRepository = webAuthnCredentialRepository;
@@ -36,13 +39,18 @@ internal class GetWebAuthnLoginCredentialCreateOptionsCommand : IGetWebAuthnLogi
         {
             AuthenticatorAttachment = null,
             RequireResidentKey = true,
-            UserVerification = UserVerificationRequirement.Required
+            UserVerification = UserVerificationRequirement.Required,
         };
 
         var extensions = new AuthenticationExtensionsClientInputs { };
 
-        var options = _fido2.RequestNewCredential(fidoUser, excludeCredentials, authenticatorSelection,
-            AttestationConveyancePreference.None, extensions);
+        var options = _fido2.RequestNewCredential(
+            fidoUser,
+            excludeCredentials,
+            authenticatorSelection,
+            AttestationConveyancePreference.None,
+            extensions
+        );
 
         return options;
     }

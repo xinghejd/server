@@ -16,7 +16,6 @@ namespace Bit.Core.Test.Services;
 [SutProviderCustomize]
 public class LocalAttachmentStorageServiceTests
 {
-
     private void AssertFileCreation(string expectedPath, string expectedFileContents)
     {
         Assert.True(File.Exists(expectedPath));
@@ -27,14 +26,21 @@ public class LocalAttachmentStorageServiceTests
     [InlineCustomAutoData(new[] { typeof(UserCipher), typeof(MetaData) })]
     [InlineCustomAutoData(new[] { typeof(UserCipher), typeof(MetaDataWithoutContainer) })]
     [InlineCustomAutoData(new[] { typeof(UserCipher), typeof(MetaDataWithoutKey) })]
-    public async Task UploadNewAttachmentAsync_Success(string stream, Cipher cipher, CipherAttachment.MetaData attachmentData)
+    public async Task UploadNewAttachmentAsync_Success(
+        string stream,
+        Cipher cipher,
+        CipherAttachment.MetaData attachmentData
+    )
     {
         using (var tempDirectory = new TempDirectory())
         {
             var sutProvider = GetSutProvider(tempDirectory);
 
-            await sutProvider.Sut.UploadNewAttachmentAsync(new MemoryStream(Encoding.UTF8.GetBytes(stream)),
-                cipher, attachmentData);
+            await sutProvider.Sut.UploadNewAttachmentAsync(
+                new MemoryStream(Encoding.UTF8.GetBytes(stream)),
+                cipher,
+                attachmentData
+            );
 
             AssertFileCreation($"{tempDirectory}/{cipher.Id}/{attachmentData.AttachmentId}", stream);
         }
@@ -44,16 +50,27 @@ public class LocalAttachmentStorageServiceTests
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaData) })]
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaDataWithoutContainer) })]
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaDataWithoutKey) })]
-    public async Task UploadShareAttachmentAsync_Success(string stream, Cipher cipher, CipherAttachment.MetaData attachmentData)
+    public async Task UploadShareAttachmentAsync_Success(
+        string stream,
+        Cipher cipher,
+        CipherAttachment.MetaData attachmentData
+    )
     {
         using (var tempDirectory = new TempDirectory())
         {
             var sutProvider = GetSutProvider(tempDirectory);
 
-            await sutProvider.Sut.UploadShareAttachmentAsync(new MemoryStream(Encoding.UTF8.GetBytes(stream)),
-                cipher.Id, cipher.OrganizationId.Value, attachmentData);
+            await sutProvider.Sut.UploadShareAttachmentAsync(
+                new MemoryStream(Encoding.UTF8.GetBytes(stream)),
+                cipher.Id,
+                cipher.OrganizationId.Value,
+                attachmentData
+            );
 
-            AssertFileCreation($"{tempDirectory}/temp/{cipher.Id}/{cipher.OrganizationId}/{attachmentData.AttachmentId}", stream);
+            AssertFileCreation(
+                $"{tempDirectory}/temp/{cipher.Id}/{cipher.OrganizationId}/{attachmentData.AttachmentId}",
+                stream
+            );
         }
     }
 
@@ -61,13 +78,20 @@ public class LocalAttachmentStorageServiceTests
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaData) })]
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaDataWithoutContainer) })]
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaDataWithoutKey) })]
-    public async Task StartShareAttachmentAsync_NoSource_NoWork(Cipher cipher, CipherAttachment.MetaData attachmentData)
+    public async Task StartShareAttachmentAsync_NoSource_NoWork(
+        Cipher cipher,
+        CipherAttachment.MetaData attachmentData
+    )
     {
         using (var tempDirectory = new TempDirectory())
         {
             var sutProvider = GetSutProvider(tempDirectory);
 
-            await sutProvider.Sut.StartShareAttachmentAsync(cipher.Id, cipher.OrganizationId.Value, attachmentData);
+            await sutProvider.Sut.StartShareAttachmentAsync(
+                cipher.Id,
+                cipher.OrganizationId.Value,
+                attachmentData
+            );
 
             Assert.False(File.Exists($"{tempDirectory}/{cipher.Id}/{attachmentData.AttachmentId}"));
             Assert.False(File.Exists($"{tempDirectory}/{cipher.Id}/{attachmentData.AttachmentId}"));
@@ -78,19 +102,28 @@ public class LocalAttachmentStorageServiceTests
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaData) })]
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaDataWithoutContainer) })]
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaDataWithoutKey) })]
-    public async Task StartShareAttachmentAsync_NoDest_NoWork(string source, Cipher cipher, CipherAttachment.MetaData attachmentData)
+    public async Task StartShareAttachmentAsync_NoDest_NoWork(
+        string source,
+        Cipher cipher,
+        CipherAttachment.MetaData attachmentData
+    )
     {
         using (var tempDirectory = new TempDirectory())
         {
             var sutProvider = GetSutProvider(tempDirectory);
 
-            var sourcePath = $"{tempDirectory}/temp/{cipher.Id}/{cipher.OrganizationId}/{attachmentData.AttachmentId}";
+            var sourcePath =
+                $"{tempDirectory}/temp/{cipher.Id}/{cipher.OrganizationId}/{attachmentData.AttachmentId}";
             var destPath = $"{tempDirectory}/{cipher.Id}/{attachmentData.AttachmentId}";
             var rollBackPath = $"{tempDirectory}/temp/{cipher.Id}/{attachmentData.AttachmentId}";
             Directory.CreateDirectory(Path.GetDirectoryName(sourcePath));
             File.WriteAllText(sourcePath, source);
 
-            await sutProvider.Sut.StartShareAttachmentAsync(cipher.Id, cipher.OrganizationId.Value, attachmentData);
+            await sutProvider.Sut.StartShareAttachmentAsync(
+                cipher.Id,
+                cipher.OrganizationId.Value,
+                attachmentData
+            );
 
             Assert.True(File.Exists(sourcePath));
             Assert.Equal(source, File.ReadAllText(sourcePath));
@@ -99,12 +132,16 @@ public class LocalAttachmentStorageServiceTests
         }
     }
 
-
     [Theory]
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaData) })]
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaDataWithoutContainer) })]
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaDataWithoutKey) })]
-    public async Task StartShareAttachmentAsync_Success(string source, string destOriginal, Cipher cipher, CipherAttachment.MetaData attachmentData)
+    public async Task StartShareAttachmentAsync_Success(
+        string source,
+        string destOriginal,
+        Cipher cipher,
+        CipherAttachment.MetaData attachmentData
+    )
     {
         using (var tempDirectory = new TempDirectory())
         {
@@ -116,18 +153,29 @@ public class LocalAttachmentStorageServiceTests
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaData) })]
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaDataWithoutContainer) })]
     [InlineCustomAutoData(new[] { typeof(OrganizationCipher), typeof(MetaDataWithoutKey) })]
-    public async Task RollbackShareAttachmentAsync_Success(string source, string destOriginal, Cipher cipher, CipherAttachment.MetaData attachmentData)
+    public async Task RollbackShareAttachmentAsync_Success(
+        string source,
+        string destOriginal,
+        Cipher cipher,
+        CipherAttachment.MetaData attachmentData
+    )
     {
         using (var tempDirectory = new TempDirectory())
         {
             var sutProvider = GetSutProvider(tempDirectory);
 
-            var sourcePath = $"{tempDirectory}/temp/{cipher.Id}/{cipher.OrganizationId}/{attachmentData.AttachmentId}";
+            var sourcePath =
+                $"{tempDirectory}/temp/{cipher.Id}/{cipher.OrganizationId}/{attachmentData.AttachmentId}";
             var destPath = $"{tempDirectory}/{cipher.Id}/{attachmentData.AttachmentId}";
             var rollBackPath = $"{tempDirectory}/temp/{cipher.Id}/{attachmentData.AttachmentId}";
 
             await StartShareAttachmentAsync(source, destOriginal, cipher, attachmentData, tempDirectory);
-            await sutProvider.Sut.RollbackShareAttachmentAsync(cipher.Id, cipher.OrganizationId.Value, attachmentData, "Not Used Here");
+            await sutProvider.Sut.RollbackShareAttachmentAsync(
+                cipher.Id,
+                cipher.OrganizationId.Value,
+                attachmentData,
+                "Not Used Here"
+            );
 
             Assert.True(File.Exists(destPath));
             Assert.Equal(destOriginal, File.ReadAllText(destPath));
@@ -159,6 +207,7 @@ public class LocalAttachmentStorageServiceTests
     [Theory, BitAutoData]
     [UserCipherCustomize]
     public async Task UserCipher_CleanupAsync_Success(Cipher cipher) => await CleanupAsync_Success(cipher);
+
     [Theory, BitAutoData]
     [OrganizationCipherCustomize]
     public async Task OrganizationCipher_CleanupAsync_Success(Cipher cipher) => await CleanupAsync_Success(cipher);
@@ -183,10 +232,13 @@ public class LocalAttachmentStorageServiceTests
 
     [Theory, BitAutoData]
     [UserCipherCustomize]
-    public async Task UserCipher_DeleteAttachmentsForCipherAsync_Success(Cipher cipher) => await DeleteAttachmentsForCipherAsync_Success(cipher);
+    public async Task UserCipher_DeleteAttachmentsForCipherAsync_Success(Cipher cipher) =>
+        await DeleteAttachmentsForCipherAsync_Success(cipher);
+
     [Theory, BitAutoData]
     [OrganizationCipherCustomize]
-    public async Task OrganizationCipher_DeleteAttachmentsForCipherAsync_Success(Cipher cipher) => await DeleteAttachmentsForCipherAsync_Success(cipher);
+    public async Task OrganizationCipher_DeleteAttachmentsForCipherAsync_Success(Cipher cipher) =>
+        await DeleteAttachmentsForCipherAsync_Success(cipher);
 
     private async Task DeleteAttachmentsForCipherAsync_Success(Cipher cipher)
     {
@@ -206,8 +258,13 @@ public class LocalAttachmentStorageServiceTests
         }
     }
 
-    private async Task StartShareAttachmentAsync(string source, string destOriginal, Cipher cipher,
-        CipherAttachment.MetaData attachmentData, TempDirectory tempDirectory)
+    private async Task StartShareAttachmentAsync(
+        string source,
+        string destOriginal,
+        Cipher cipher,
+        CipherAttachment.MetaData attachmentData,
+        TempDirectory tempDirectory
+    )
     {
         var sutProvider = GetSutProvider(tempDirectory);
 

@@ -14,14 +14,15 @@ public class DeleteCiphersJob : BaseJob
     public DeleteCiphersJob(
         ICipherRepository cipherRepository,
         IOptions<AdminSettings> adminSettings,
-        ILogger<DeleteCiphersJob> logger)
+        ILogger<DeleteCiphersJob> logger
+    )
         : base(logger)
     {
         _cipherRepository = cipherRepository;
         _adminSettings = adminSettings?.Value;
     }
 
-    protected async override Task ExecuteJobAsync(IJobExecutionContext context)
+    protected override async Task ExecuteJobAsync(IJobExecutionContext context)
     {
         _logger.LogInformation(Constants.BypassFiltersEventId, "Execute job task: DeleteDeletedAsync");
         var deleteDate = DateTime.UtcNow.AddDays(-30);

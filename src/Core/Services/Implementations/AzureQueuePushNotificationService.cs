@@ -20,7 +20,8 @@ public class AzureQueuePushNotificationService : IPushNotificationService
 
     public AzureQueuePushNotificationService(
         GlobalSettings globalSettings,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor
+    )
     {
         _queueClient = new QueueClient(globalSettings.Notifications.ConnectionString, "notifications");
         _globalSettings = globalSettings;
@@ -90,7 +91,7 @@ public class AzureQueuePushNotificationService : IPushNotificationService
         {
             Id = folder.Id,
             UserId = folder.UserId,
-            RevisionDate = folder.RevisionDate
+            RevisionDate = folder.RevisionDate,
         };
 
         await SendMessageAsync(type, message, true);
@@ -128,11 +129,7 @@ public class AzureQueuePushNotificationService : IPushNotificationService
 
     private async Task PushUserAsync(Guid userId, PushType type, bool excludeCurrentContext = false)
     {
-        var message = new UserPushNotification
-        {
-            UserId = userId,
-            Date = DateTime.UtcNow
-        };
+        var message = new UserPushNotification { UserId = userId, Date = DateTime.UtcNow };
 
         await SendMessageAsync(type, message, excludeCurrentContext);
     }
@@ -149,11 +146,7 @@ public class AzureQueuePushNotificationService : IPushNotificationService
 
     private async Task PushAuthRequestAsync(AuthRequest authRequest, PushType type)
     {
-        var message = new AuthRequestPushNotification
-        {
-            Id = authRequest.Id,
-            UserId = authRequest.UserId
-        };
+        var message = new AuthRequestPushNotification { Id = authRequest.Id, UserId = authRequest.UserId };
 
         await SendMessageAsync(type, message, true);
     }
@@ -181,7 +174,7 @@ public class AzureQueuePushNotificationService : IPushNotificationService
             {
                 Id = send.Id,
                 UserId = send.UserId.Value,
-                RevisionDate = send.RevisionDate
+                RevisionDate = send.RevisionDate,
             };
 
             await SendMessageAsync(type, message, true);
@@ -191,8 +184,10 @@ public class AzureQueuePushNotificationService : IPushNotificationService
     private async Task SendMessageAsync<T>(PushType type, T payload, bool excludeCurrentContext)
     {
         var contextId = GetContextIdentifier(excludeCurrentContext);
-        var message = JsonSerializer.Serialize(new PushNotificationData<T>(type, payload, contextId),
-            JsonHelpers.IgnoreWritingNull);
+        var message = JsonSerializer.Serialize(
+            new PushNotificationData<T>(type, payload, contextId),
+            JsonHelpers.IgnoreWritingNull
+        );
         await _queueClient.SendMessageAsync(message);
     }
 
@@ -203,20 +198,31 @@ public class AzureQueuePushNotificationService : IPushNotificationService
             return null;
         }
 
-        var currentContext = _httpContextAccessor?.HttpContext?.
-            RequestServices.GetService(typeof(ICurrentContext)) as ICurrentContext;
+        var currentContext =
+            _httpContextAccessor?.HttpContext?.RequestServices.GetService(typeof(ICurrentContext))
+            as ICurrentContext;
         return currentContext?.DeviceIdentifier;
     }
 
-    public Task SendPayloadToUserAsync(string userId, PushType type, object payload, string identifier,
-        string deviceId = null)
+    public Task SendPayloadToUserAsync(
+        string userId,
+        PushType type,
+        object payload,
+        string identifier,
+        string deviceId = null
+    )
     {
         // Noop
         return Task.FromResult(0);
     }
 
-    public Task SendPayloadToOrganizationAsync(string orgId, PushType type, object payload, string identifier,
-        string deviceId = null)
+    public Task SendPayloadToOrganizationAsync(
+        string orgId,
+        PushType type,
+        object payload,
+        string identifier,
+        string deviceId = null
+    )
     {
         // Noop
         return Task.FromResult(0);

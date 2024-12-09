@@ -17,10 +17,12 @@ public class CreateNotificationStatusCommand : ICreateNotificationStatusCommand
     private readonly INotificationRepository _notificationRepository;
     private readonly INotificationStatusRepository _notificationStatusRepository;
 
-    public CreateNotificationStatusCommand(ICurrentContext currentContext,
+    public CreateNotificationStatusCommand(
+        ICurrentContext currentContext,
         IAuthorizationService authorizationService,
         INotificationRepository notificationRepository,
-        INotificationStatusRepository notificationStatusRepository)
+        INotificationStatusRepository notificationStatusRepository
+    )
     {
         _currentContext = currentContext;
         _authorizationService = authorizationService;
@@ -36,11 +38,17 @@ public class CreateNotificationStatusCommand : ICreateNotificationStatusCommand
             throw new NotFoundException();
         }
 
-        await _authorizationService.AuthorizeOrThrowAsync(_currentContext.HttpContext.User, notification,
-            NotificationOperations.Read);
+        await _authorizationService.AuthorizeOrThrowAsync(
+            _currentContext.HttpContext.User,
+            notification,
+            NotificationOperations.Read
+        );
 
-        await _authorizationService.AuthorizeOrThrowAsync(_currentContext.HttpContext.User, notificationStatus,
-            NotificationStatusOperations.Create);
+        await _authorizationService.AuthorizeOrThrowAsync(
+            _currentContext.HttpContext.User,
+            notificationStatus,
+            NotificationStatusOperations.Create
+        );
 
         return await _notificationStatusRepository.CreateAsync(notificationStatus);
     }

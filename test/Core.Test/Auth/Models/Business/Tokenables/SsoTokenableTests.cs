@@ -21,10 +21,7 @@ public class SsoTokenableTests
     [Fact]
     public void TokenWithNullOrganizationIsInvalid()
     {
-        var token = new SsoTokenable(null, 500)
-        {
-            ExpirationDate = DateTime.UtcNow + TimeSpan.FromDays(1)
-        };
+        var token = new SsoTokenable(null, 500) { ExpirationDate = DateTime.UtcNow + TimeSpan.FromDays(1) };
 
         Assert.False(token.Valid);
     }
@@ -34,7 +31,7 @@ public class SsoTokenableTests
     {
         var token = new SsoTokenable(organization, 500)
         {
-            ExpirationDate = DateTime.UtcNow + TimeSpan.FromDays(1)
+            ExpirationDate = DateTime.UtcNow + TimeSpan.FromDays(1),
         };
 
         Assert.False(token.TokenIsValid(null));
@@ -62,10 +59,7 @@ public class SsoTokenableTests
     public void SerializationSetsCorrectDateTime(Organization organization)
     {
         var expectedDateTime = DateTime.UtcNow.AddHours(-5);
-        var token = new SsoTokenable(organization, default)
-        {
-            ExpirationDate = expectedDateTime
-        };
+        var token = new SsoTokenable(organization, default) { ExpirationDate = expectedDateTime };
 
         var result = Tokenable.FromToken<HCaptchaTokenable>(token.ToToken());
 
@@ -76,10 +70,7 @@ public class SsoTokenableTests
     public void TokenIsValidFailsWhenExpired(Organization organization)
     {
         var expectedDateTime = DateTime.UtcNow.AddHours(-5);
-        var token = new SsoTokenable(organization, default)
-        {
-            ExpirationDate = expectedDateTime
-        };
+        var token = new SsoTokenable(organization, default) { ExpirationDate = expectedDateTime };
 
         var result = token.TokenIsValid(organization);
 

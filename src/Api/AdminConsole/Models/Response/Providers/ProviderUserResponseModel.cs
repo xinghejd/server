@@ -48,8 +48,11 @@ public class ProviderUserResponseModel : ResponseModel
 
 public class ProviderUserUserDetailsResponseModel : ProviderUserResponseModel
 {
-    public ProviderUserUserDetailsResponseModel(ProviderUserUserDetails providerUser,
-        string obj = "providerUserUserDetails") : base(providerUser, obj)
+    public ProviderUserUserDetailsResponseModel(
+        ProviderUserUserDetails providerUser,
+        string obj = "providerUserUserDetails"
+    )
+        : base(providerUser, obj)
     {
         if (providerUser == null)
         {
@@ -66,8 +69,13 @@ public class ProviderUserUserDetailsResponseModel : ProviderUserResponseModel
 
 public class ProviderUserPublicKeyResponseModel : ResponseModel
 {
-    public ProviderUserPublicKeyResponseModel(Guid id, Guid userId, string key,
-        string obj = "providerUserPublicKeyResponseModel") : base(obj)
+    public ProviderUserPublicKeyResponseModel(
+        Guid id,
+        Guid userId,
+        string key,
+        string obj = "providerUserPublicKeyResponseModel"
+    )
+        : base(obj)
     {
         Id = id;
         UserId = userId;
@@ -81,12 +89,13 @@ public class ProviderUserPublicKeyResponseModel : ResponseModel
 
 public class ProviderUserBulkResponseModel : ResponseModel
 {
-    public ProviderUserBulkResponseModel(Guid id, string error,
-        string obj = "providerBulkConfirmResponseModel") : base(obj)
+    public ProviderUserBulkResponseModel(Guid id, string error, string obj = "providerBulkConfirmResponseModel")
+        : base(obj)
     {
         Id = id;
         Error = error;
     }
+
     public Guid Id { get; set; }
     public string Error { get; set; }
 }

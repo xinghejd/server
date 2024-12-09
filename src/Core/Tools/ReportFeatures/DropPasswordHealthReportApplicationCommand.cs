@@ -10,7 +10,8 @@ public class DropPasswordHealthReportApplicationCommand : IDropPasswordHealthRep
     private IPasswordHealthReportApplicationRepository _passwordHealthReportApplicationRepo;
 
     public DropPasswordHealthReportApplicationCommand(
-        IPasswordHealthReportApplicationRepository passwordHealthReportApplicationRepository)
+        IPasswordHealthReportApplicationRepository passwordHealthReportApplicationRepository
+    )
     {
         _passwordHealthReportApplicationRepo = passwordHealthReportApplicationRepository;
     }
@@ -23,9 +24,11 @@ public class DropPasswordHealthReportApplicationCommand : IDropPasswordHealthRep
             throw new BadRequestException("Organization does not have any records.");
         }
 
-        data.Where(_ => request.PasswordHealthReportApplicationIds.Contains(_.Id)).ToList().ForEach(async _ =>
-        {
-            await _passwordHealthReportApplicationRepo.DeleteAsync(_);
-        });
+        data.Where(_ => request.PasswordHealthReportApplicationIds.Contains(_.Id))
+            .ToList()
+            .ForEach(async _ =>
+            {
+                await _passwordHealthReportApplicationRepo.DeleteAsync(_);
+            });
     }
 }

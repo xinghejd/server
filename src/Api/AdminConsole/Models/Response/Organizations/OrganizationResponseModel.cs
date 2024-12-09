@@ -62,8 +62,10 @@ public class OrganizationResponseModel : ResponseModel
     }
 
     public Guid Id { get; set; }
+
     [JsonConverter(typeof(HtmlEncodingStringConverter))]
     public string Name { get; set; }
+
     [JsonConverter(typeof(HtmlEncodingStringConverter))]
     public string BusinessName { get; set; }
     public string BusinessAddress1 { get; set; }
@@ -108,21 +110,33 @@ public class OrganizationResponseModel : ResponseModel
 
 public class OrganizationSubscriptionResponseModel : OrganizationResponseModel
 {
-    public OrganizationSubscriptionResponseModel(Organization organization) : base(organization, "organizationSubscription")
+    public OrganizationSubscriptionResponseModel(Organization organization)
+        : base(organization, "organizationSubscription")
     {
         Expiration = organization.ExpirationDate;
-        StorageName = organization.Storage.HasValue ?
-            CoreHelpers.ReadableBytesSize(organization.Storage.Value) : null;
-        StorageGb = organization.Storage.HasValue ?
-            Math.Round(organization.Storage.Value / 1073741824D, 2) : 0; // 1 GB
+        StorageName = organization.Storage.HasValue
+            ? CoreHelpers.ReadableBytesSize(organization.Storage.Value)
+            : null;
+        StorageGb = organization.Storage.HasValue ? Math.Round(organization.Storage.Value / 1073741824D, 2) : 0; // 1 GB
     }
 
-    public OrganizationSubscriptionResponseModel(Organization organization, SubscriptionInfo subscription, bool hideSensitiveData)
+    public OrganizationSubscriptionResponseModel(
+        Organization organization,
+        SubscriptionInfo subscription,
+        bool hideSensitiveData
+    )
         : this(organization)
     {
-        Subscription = subscription.Subscription != null ? new BillingSubscription(subscription.Subscription) : null;
-        UpcomingInvoice = subscription.UpcomingInvoice != null ? new BillingSubscriptionUpcomingInvoice(subscription.UpcomingInvoice) : null;
-        CustomerDiscount = subscription.CustomerDiscount != null ? new BillingCustomerDiscount(subscription.CustomerDiscount) : null;
+        Subscription =
+            subscription.Subscription != null ? new BillingSubscription(subscription.Subscription) : null;
+        UpcomingInvoice =
+            subscription.UpcomingInvoice != null
+                ? new BillingSubscriptionUpcomingInvoice(subscription.UpcomingInvoice)
+                : null;
+        CustomerDiscount =
+            subscription.CustomerDiscount != null
+                ? new BillingCustomerDiscount(subscription.CustomerDiscount)
+                : null;
         Expiration = DateTime.UtcNow.AddYears(1); // Not used, so just give it a value.
 
         if (hideSensitiveData)
@@ -139,8 +153,8 @@ public class OrganizationSubscriptionResponseModel : OrganizationResponseModel
         }
     }
 
-    public OrganizationSubscriptionResponseModel(Organization organization, OrganizationLicense license) :
-        this(organization)
+    public OrganizationSubscriptionResponseModel(Organization organization, OrganizationLicense license)
+        : this(organization)
     {
         if (license != null)
         {
@@ -148,9 +162,13 @@ public class OrganizationSubscriptionResponseModel : OrganizationResponseModel
             Expiration = license.Expires;
 
             // Use license.ExpirationWithoutGracePeriod if available, otherwise assume license expiration minus grace period unless it's in a Trial.
-            ExpirationWithoutGracePeriod = license.ExpirationWithoutGracePeriod ?? (license.Trial
-                ? license.Expires
-                : license.Expires?.AddDays(-Constants.OrganizationSelfHostSubscriptionGracePeriodDays));
+            ExpirationWithoutGracePeriod =
+                license.ExpirationWithoutGracePeriod
+                ?? (
+                    license.Trial
+                        ? license.Expires
+                        : license.Expires?.AddDays(-Constants.OrganizationSelfHostSubscriptionGracePeriodDays)
+                );
         }
     }
 

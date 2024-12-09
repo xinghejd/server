@@ -15,6 +15,7 @@ namespace Bit.Infrastructure.EFIntegration.Test.AutoFixture;
 internal class CipherBuilder : ISpecimenBuilder
 {
     public bool OrganizationOwned { get; set; }
+
     public object Create(object request, ISpecimenContext context)
     {
         if (context == null)
@@ -33,20 +34,14 @@ internal class CipherBuilder : ISpecimenBuilder
 
         if (!OrganizationOwned)
         {
-            fixture.Customize<Cipher>(composer => composer
-                    .Without(c => c.OrganizationId));
+            fixture.Customize<Cipher>(composer => composer.Without(c => c.OrganizationId));
         }
 
         // Can't test valid Favorites and Folders without creating those values inside each test,
         // since we won't have any UserIds until the test is running & creating data
-        fixture.Customize<Cipher>(c => c
-            .Without(e => e.Favorites)
-            .Without(e => e.Folders));
+        fixture.Customize<Cipher>(c => c.Without(e => e.Favorites).Without(e => e.Folders));
         //
-        var serializerOptions = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
+        var serializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
         if (type == typeof(Cipher))
         {
@@ -79,13 +74,11 @@ internal class CipherBuilder : ISpecimenBuilder
 internal class EfCipher : ICustomization
 {
     public bool OrganizationOwned { get; set; }
+
     public void Customize(IFixture fixture)
     {
         fixture.Customizations.Add(new GlobalSettingsBuilder());
-        fixture.Customizations.Add(new CipherBuilder()
-        {
-            OrganizationOwned = OrganizationOwned
-        });
+        fixture.Customizations.Add(new CipherBuilder() { OrganizationOwned = OrganizationOwned });
         fixture.Customizations.Add(new UserBuilder());
         fixture.Customizations.Add(new OrganizationBuilder());
         fixture.Customizations.Add(new OrganizationUserBuilder());

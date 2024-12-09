@@ -5,7 +5,8 @@ namespace Bit.Api.AdminConsole.Models.Response.Organizations;
 
 public class OrganizationKeysResponseModel : ResponseModel
 {
-    public OrganizationKeysResponseModel(Organization org) : base("organizationKeys")
+    public OrganizationKeysResponseModel(Organization org)
+        : base("organizationKeys")
     {
         if (org == null)
         {

@@ -9,8 +9,9 @@ public class NotificationStatusCustomization : ICustomization
 {
     public void Customize(IFixture fixture)
     {
-        fixture.Customize<NotificationStatus>(composer => composer.With(ns => ns.NotificationId, Guid.NewGuid())
-            .With(ns => ns.UserId, Guid.NewGuid()));
+        fixture.Customize<NotificationStatus>(composer =>
+            composer.With(ns => ns.NotificationId, Guid.NewGuid()).With(ns => ns.UserId, Guid.NewGuid())
+        );
     }
 }
 

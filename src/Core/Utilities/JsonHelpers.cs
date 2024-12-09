@@ -19,25 +19,16 @@ public static class JsonHelpers
     {
         Default = new JsonSerializerOptions();
 
-        Indented = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-        };
+        Indented = new JsonSerializerOptions { WriteIndented = true };
 
-        IgnoreCase = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-        };
+        IgnoreCase = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
         IgnoreWritingNull = new JsonSerializerOptions
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
 
-        CamelCase = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        };
+        CamelCase = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
         IgnoreWritingNullAndCamelCase = new JsonSerializerOptions
         {
@@ -58,13 +49,12 @@ public static class JsonHelpers
     }
 
     #region Legacy Newtonsoft.Json usage
-    private const string LegacyMessage = "Usage of Newtonsoft.Json should be kept to a minimum and will further be removed when we move to .NET 6";
+    private const string LegacyMessage =
+        "Usage of Newtonsoft.Json should be kept to a minimum and will further be removed when we move to .NET 6";
 
     [Obsolete(LegacyMessage)]
-    public static NS.JsonSerializerSettings LegacyEnumKeyResolver { get; } = new NS.JsonSerializerSettings
-    {
-        ContractResolver = new EnumKeyResolver<byte>(),
-    };
+    public static NS.JsonSerializerSettings LegacyEnumKeyResolver { get; } =
+        new NS.JsonSerializerSettings { ContractResolver = new EnumKeyResolver<byte>() };
 
     [Obsolete(LegacyMessage)]
     public static string LegacySerialize(object value, NS.JsonSerializerSettings settings = null)
@@ -156,7 +146,11 @@ public class PermissiveStringConverter : JsonConverter<string>
 /// </summary>
 public class PermissiveStringEnumerableConverter : JsonConverter<IEnumerable<string>>
 {
-    public override IEnumerable<string> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override IEnumerable<string> Read(
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
     {
         var stringList = new List<string>();
 

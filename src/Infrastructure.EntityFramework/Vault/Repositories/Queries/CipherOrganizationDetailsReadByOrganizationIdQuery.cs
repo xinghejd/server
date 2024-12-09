@@ -18,36 +18,37 @@ public class CipherOrganizationDetailsReadByOrganizationIdQuery : IQuery<CipherO
         _organizationId = organizationId;
         _unassignedOnly = unassignedOnly;
     }
+
     public virtual IQueryable<CipherOrganizationDetails> Run(DatabaseContext dbContext)
     {
-        var query = from c in dbContext.Ciphers
-                    join o in dbContext.Organizations
-                        on c.OrganizationId equals o.Id into o_g
-                    from o in o_g.DefaultIfEmpty()
-                    where c.OrganizationId == _organizationId
-                    select new CipherOrganizationDetails
-                    {
-                        Id = c.Id,
-                        UserId = c.UserId,
-                        OrganizationId = c.OrganizationId,
-                        Type = c.Type,
-                        Data = c.Data,
-                        Favorites = c.Favorites,
-                        Folders = c.Folders,
-                        Attachments = c.Attachments,
-                        CreationDate = c.CreationDate,
-                        RevisionDate = c.RevisionDate,
-                        DeletedDate = c.DeletedDate,
-                        OrganizationUseTotp = o.UseTotp,
-                    };
+        var query =
+            from c in dbContext.Ciphers
+            join o in dbContext.Organizations on c.OrganizationId equals o.Id into o_g
+            from o in o_g.DefaultIfEmpty()
+            where c.OrganizationId == _organizationId
+            select new CipherOrganizationDetails
+            {
+                Id = c.Id,
+                UserId = c.UserId,
+                OrganizationId = c.OrganizationId,
+                Type = c.Type,
+                Data = c.Data,
+                Favorites = c.Favorites,
+                Folders = c.Folders,
+                Attachments = c.Attachments,
+                CreationDate = c.CreationDate,
+                RevisionDate = c.RevisionDate,
+                DeletedDate = c.DeletedDate,
+                OrganizationUseTotp = o.UseTotp,
+            };
 
         if (_unassignedOnly)
         {
-            var collectionCipherIds = from cc in dbContext.CollectionCiphers
-                                      join c in dbContext.Collections
-                                          on cc.CollectionId equals c.Id
-                                      where c.OrganizationId == _organizationId
-                                      select cc.CipherId;
+            var collectionCipherIds =
+                from cc in dbContext.CollectionCiphers
+                join c in dbContext.Collections on cc.CollectionId equals c.Id
+                where c.OrganizationId == _organizationId
+                select cc.CipherId;
 
             query = query.Where(c => !collectionCipherIds.Contains(c.Id));
         }

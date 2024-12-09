@@ -21,7 +21,8 @@ public class AzureQueueMailHostedService : IHostedService
     public AzureQueueMailHostedService(
         ILogger<AzureQueueMailHostedService> logger,
         IMailService mailService,
-        GlobalSettings globalSettings)
+        GlobalSettings globalSettings
+    )
     {
         _logger = logger;
         _mailService = mailService;

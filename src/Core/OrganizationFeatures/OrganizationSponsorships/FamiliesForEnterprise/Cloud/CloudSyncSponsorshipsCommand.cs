@@ -16,36 +16,44 @@ public class CloudSyncSponsorshipsCommand : ICloudSyncSponsorshipsCommand
     private readonly IEventService _eventService;
 
     public CloudSyncSponsorshipsCommand(
-    IOrganizationSponsorshipRepository organizationSponsorshipRepository,
-    IEventService eventService)
+        IOrganizationSponsorshipRepository organizationSponsorshipRepository,
+        IEventService eventService
+    )
     {
         _organizationSponsorshipRepository = organizationSponsorshipRepository;
         _eventService = eventService;
     }
 
-    public async Task<(OrganizationSponsorshipSyncData, IEnumerable<OrganizationSponsorship>)> SyncOrganization(Organization sponsoringOrg, IEnumerable<OrganizationSponsorshipData> sponsorshipsData)
+    public async Task<(OrganizationSponsorshipSyncData, IEnumerable<OrganizationSponsorship>)> SyncOrganization(
+        Organization sponsoringOrg,
+        IEnumerable<OrganizationSponsorshipData> sponsorshipsData
+    )
     {
         if (sponsoringOrg == null)
         {
             throw new BadRequestException("Failed to sync sponsorship - missing organization.");
         }
 
-        var (processedSponsorshipsData, sponsorshipsToEmailOffer) = sponsorshipsData.Any() ?
-            await DoSyncAsync(sponsoringOrg, sponsorshipsData) :
-            (sponsorshipsData, Array.Empty<OrganizationSponsorship>());
+        var (processedSponsorshipsData, sponsorshipsToEmailOffer) = sponsorshipsData.Any()
+            ? await DoSyncAsync(sponsoringOrg, sponsorshipsData)
+            : (sponsorshipsData, Array.Empty<OrganizationSponsorship>());
 
         await RecordEvent(sponsoringOrg);
 
-        return (new OrganizationSponsorshipSyncData
-        {
-            SponsorshipsBatch = processedSponsorshipsData
-        }, sponsorshipsToEmailOffer);
+        return (
+            new OrganizationSponsorshipSyncData { SponsorshipsBatch = processedSponsorshipsData },
+            sponsorshipsToEmailOffer
+        );
     }
 
-    private async Task<(IEnumerable<OrganizationSponsorshipData> data, IEnumerable<OrganizationSponsorship> toOffer)> DoSyncAsync(Organization sponsoringOrg, IEnumerable<OrganizationSponsorshipData> sponsorshipsData)
+    private async Task<(
+        IEnumerable<OrganizationSponsorshipData> data,
+        IEnumerable<OrganizationSponsorship> toOffer
+    )> DoSyncAsync(Organization sponsoringOrg, IEnumerable<OrganizationSponsorshipData> sponsorshipsData)
     {
-        var existingSponsorshipsDict = (await _organizationSponsorshipRepository.GetManyBySponsoringOrganizationAsync(sponsoringOrg.Id))
-            .ToDictionary(i => i.SponsoringOrganizationUserId);
+        var existingSponsorshipsDict = (
+            await _organizationSponsorshipRepository.GetManyBySponsoringOrganizationAsync(sponsoringOrg.Id)
+        ).ToDictionary(i => i.SponsoringOrganizationUserId);
 
         var sponsorshipsToUpsert = new List<OrganizationSponsorship>();
         var sponsorshipIdsToDelete = new List<Guid>();
@@ -53,14 +61,23 @@ public class CloudSyncSponsorshipsCommand : ICloudSyncSponsorshipsCommand
 
         foreach (var selfHostedSponsorship in sponsorshipsData)
         {
-            var requiredSponsoringProductType = StaticStore.GetSponsoredPlan(selfHostedSponsorship.PlanSponsorshipType)?.SponsoringProductTierType;
-            if (requiredSponsoringProductType == null
-                || StaticStore.GetPlan(sponsoringOrg.PlanType).ProductTier != requiredSponsoringProductType.Value)
+            var requiredSponsoringProductType = StaticStore
+                .GetSponsoredPlan(selfHostedSponsorship.PlanSponsorshipType)
+                ?.SponsoringProductTierType;
+            if (
+                requiredSponsoringProductType == null
+                || StaticStore.GetPlan(sponsoringOrg.PlanType).ProductTier != requiredSponsoringProductType.Value
+            )
             {
                 continue; // prevent unsupported sponsorships
             }
 
-            if (!existingSponsorshipsDict.TryGetValue(selfHostedSponsorship.SponsoringOrganizationUserId, out var cloudSponsorship))
+            if (
+                !existingSponsorshipsDict.TryGetValue(
+                    selfHostedSponsorship.SponsoringOrganizationUserId,
+                    out var cloudSponsorship
+                )
+            )
             {
                 if (selfHostedSponsorship.ToDelete && selfHostedSponsorship.LastSyncDate == null)
                 {
@@ -121,10 +138,10 @@ public class CloudSyncSponsorshipsCommand : ICloudSyncSponsorshipsCommand
     /// </summary>
     /// <param name="organization"></param>
     private bool OrgDisabledForMoreThanGracePeriod(Organization organization) =>
-        !organization.Enabled &&
-        (
-            !organization.ExpirationDate.HasValue ||
-            DateTime.UtcNow.Subtract(organization.ExpirationDate.Value).TotalDays > 93
+        !organization.Enabled
+        && (
+            !organization.ExpirationDate.HasValue
+            || DateTime.UtcNow.Subtract(organization.ExpirationDate.Value).TotalDays > 93
         );
 
     private async Task RecordEvent(Organization organization)

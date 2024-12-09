@@ -28,11 +28,7 @@ public class MultiServicePushNotificationServiceTests
         _services = fixture.CreateMany<IPushNotificationService>();
         _globalSettings = fixture.Create<Settings.GlobalSettings>();
 
-        _sut = new MultiServicePushNotificationService(
-            _services,
-            _logger,
-            _globalSettings
-        );
+        _sut = new MultiServicePushNotificationService(_services, _logger, _globalSettings);
     }
 
     // Remove this test when we add actual tests. It only proves that

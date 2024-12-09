@@ -22,25 +22,33 @@ public class FreeFamiliesForEnterprisePolicyValidatorTests
         List<OrganizationSponsorship> organizationSponsorships,
         [PolicyUpdate(PolicyType.FreeFamiliesSponsorshipPolicy)] PolicyUpdate policyUpdate,
         [Policy(PolicyType.FreeFamiliesSponsorshipPolicy, true)] Policy policy,
-        SutProvider<FreeFamiliesForEnterprisePolicyValidator> sutProvider)
+        SutProvider<FreeFamiliesForEnterprisePolicyValidator> sutProvider
+    )
     {
-
         policy.Enabled = true;
         policyUpdate.Enabled = false;
 
-        sutProvider.GetDependency<IOrganizationRepository>()
+        sutProvider
+            .GetDependency<IOrganizationRepository>()
             .GetByIdAsync(policyUpdate.OrganizationId)
             .Returns(organization);
 
-        sutProvider.GetDependency<IOrganizationSponsorshipRepository>()
+        sutProvider
+            .GetDependency<IOrganizationSponsorshipRepository>()
             .GetManyBySponsoringOrganizationAsync(policyUpdate.OrganizationId)
             .Returns(organizationSponsorships);
 
         await sutProvider.Sut.OnSaveSideEffectsAsync(policyUpdate, policy);
 
-        await sutProvider.GetDependency<IMailService>().DidNotReceive()
-            .SendFamiliesForEnterpriseRemoveSponsorshipsEmailAsync(organizationSponsorships[0].FriendlyName, organizationSponsorships[0].ValidUntil.ToString(),
-                organizationSponsorships[0].SponsoredOrganizationId.ToString(), organization.DisplayName());
+        await sutProvider
+            .GetDependency<IMailService>()
+            .DidNotReceive()
+            .SendFamiliesForEnterpriseRemoveSponsorshipsEmailAsync(
+                organizationSponsorships[0].FriendlyName,
+                organizationSponsorships[0].ValidUntil.ToString(),
+                organizationSponsorships[0].SponsoredOrganizationId.ToString(),
+                organization.DisplayName()
+            );
     }
 
     [Theory, BitAutoData]
@@ -49,17 +57,19 @@ public class FreeFamiliesForEnterprisePolicyValidatorTests
         List<OrganizationSponsorship> organizationSponsorships,
         [PolicyUpdate(PolicyType.FreeFamiliesSponsorshipPolicy)] PolicyUpdate policyUpdate,
         [Policy(PolicyType.FreeFamiliesSponsorshipPolicy, true)] Policy policy,
-        SutProvider<FreeFamiliesForEnterprisePolicyValidator> sutProvider)
+        SutProvider<FreeFamiliesForEnterprisePolicyValidator> sutProvider
+    )
     {
-
         policy.Enabled = false;
         policyUpdate.Enabled = true;
 
-        sutProvider.GetDependency<IOrganizationRepository>()
+        sutProvider
+            .GetDependency<IOrganizationRepository>()
             .GetByIdAsync(policyUpdate.OrganizationId)
             .Returns(organization);
 
-        sutProvider.GetDependency<IOrganizationSponsorshipRepository>()
+        sutProvider
+            .GetDependency<IOrganizationSponsorshipRepository>()
             .GetManyBySponsoringOrganizationAsync(policyUpdate.OrganizationId)
             .Returns(organizationSponsorships);
         // Act
@@ -67,9 +77,14 @@ public class FreeFamiliesForEnterprisePolicyValidatorTests
 
         // Assert
         var offerAcceptanceDate = organizationSponsorships[0].ValidUntil!.Value.AddDays(-7).ToString("MM/dd/yyyy");
-        await sutProvider.GetDependency<IMailService>().Received(1)
-            .SendFamiliesForEnterpriseRemoveSponsorshipsEmailAsync(organizationSponsorships[0].FriendlyName, offerAcceptanceDate,
-                organizationSponsorships[0].SponsoredOrganizationId.ToString(), organization.Name);
-
+        await sutProvider
+            .GetDependency<IMailService>()
+            .Received(1)
+            .SendFamiliesForEnterpriseRemoveSponsorshipsEmailAsync(
+                organizationSponsorships[0].FriendlyName,
+                offerAcceptanceDate,
+                organizationSponsorships[0].SponsoredOrganizationId.ToString(),
+                organization.Name
+            );
     }
 }

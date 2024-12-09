@@ -22,7 +22,7 @@ public class EmergencyAccessRepositoryTests
         List<EfRepo.UserRepository> efUserRepos,
         SqlAuthRepo.EmergencyAccessRepository sqlEmergencyAccessRepo,
         SqlRepo.UserRepository sqlUserRepo
-        )
+    )
     {
         var savedEmergencyAccesses = new List<EmergencyAccess>();
         foreach (var sut in suts)

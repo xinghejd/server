@@ -48,7 +48,8 @@ public class GroupsController : Controller
         IUserService userService,
         IFeatureService featureService,
         IOrganizationUserRepository organizationUserRepository,
-        ICollectionRepository collectionRepository)
+        ICollectionRepository collectionRepository
+    )
     {
         _groupRepository = groupRepository;
         _groupService = groupService;
@@ -92,7 +93,11 @@ public class GroupsController : Controller
     [HttpGet("")]
     public async Task<ListResponseModel<GroupDetailsResponseModel>> GetOrganizationGroups(Guid orgId)
     {
-        var authResult = await _authorizationService.AuthorizeAsync(User, new OrganizationScope(orgId), GroupOperations.ReadAll);
+        var authResult = await _authorizationService.AuthorizeAsync(
+            User,
+            new OrganizationScope(orgId),
+            GroupOperations.ReadAll
+        );
         if (!authResult.Succeeded)
         {
             throw new NotFoundException();
@@ -114,8 +119,16 @@ public class GroupsController : Controller
     public async Task<ListResponseModel<GroupDetailsResponseModel>> GetOrganizationGroupDetails(Guid orgId)
     {
         var authResult = _featureService.IsEnabled(FeatureFlagKeys.SecureOrgGroupDetails)
-            ? await _authorizationService.AuthorizeAsync(User, new OrganizationScope(orgId), GroupOperations.ReadAllDetails)
-            : await _authorizationService.AuthorizeAsync(User, new OrganizationScope(orgId), GroupOperations.ReadAll);
+            ? await _authorizationService.AuthorizeAsync(
+                User,
+                new OrganizationScope(orgId),
+                GroupOperations.ReadAllDetails
+            )
+            : await _authorizationService.AuthorizeAsync(
+                User,
+                new OrganizationScope(orgId),
+                GroupOperations.ReadAll
+            );
 
         if (!authResult.Succeeded)
         {
@@ -152,10 +165,16 @@ public class GroupsController : Controller
         // Check the user has permission to grant access to the collections for the new group
         if (model.Collections?.Any() == true)
         {
-            var collections = await _collectionRepository.GetManyByManyIdsAsync(model.Collections.Select(a => a.Id));
-            var authorized =
-                (await _authorizationService.AuthorizeAsync(User, collections, BulkCollectionOperations.ModifyGroupAccess))
-                .Succeeded;
+            var collections = await _collectionRepository.GetManyByManyIdsAsync(
+                model.Collections.Select(a => a.Id)
+            );
+            var authorized = (
+                await _authorizationService.AuthorizeAsync(
+                    User,
+                    collections,
+                    BulkCollectionOperations.ModifyGroupAccess
+                )
+            ).Succeeded;
             if (!authorized)
             {
                 throw new NotFoundException();
@@ -164,7 +183,12 @@ public class GroupsController : Controller
 
         var organization = await _organizationRepository.GetByIdAsync(orgId);
         var group = model.ToGroup(orgId);
-        await _createGroupCommand.CreateGroupAsync(group, organization, model.Collections?.Select(c => c.ToSelectionReadOnly()).ToList(), model.Users);
+        await _createGroupCommand.CreateGroupAsync(
+            group,
+            organization,
+            model.Collections?.Select(c => c.ToSelectionReadOnly()).ToList(),
+            model.Users
+        );
 
         return new GroupResponseModel(group);
     }
@@ -194,7 +218,11 @@ public class GroupsController : Controller
             var organizationUser = await _organizationUserRepository.GetByOrganizationAsync(orgId, userId);
             var currentGroupUsers = await _groupRepository.GetManyUserIdsByIdAsync(id);
             // OrganizationUser may be null if the current user is a provider
-            if (organizationUser != null && !currentGroupUsers.Contains(organizationUser.Id) && model.Users.Contains(organizationUser.Id))
+            if (
+                organizationUser != null
+                && !currentGroupUsers.Contains(organizationUser.Id)
+                && model.Users.Contains(organizationUser.Id)
+            )
             {
                 throw new BadRequestException("You cannot add yourself to groups.");
             }
@@ -202,13 +230,20 @@ public class GroupsController : Controller
 
         // Authorization check:
         // You must have authorization to ModifyUserAccess for all collections being saved
-        var postedCollections = await _collectionRepository
-            .GetManyByManyIdsAsync(model.Collections.Select(c => c.Id));
+        var postedCollections = await _collectionRepository.GetManyByManyIdsAsync(
+            model.Collections.Select(c => c.Id)
+        );
         foreach (var collection in postedCollections)
         {
-            if (!(await _authorizationService.AuthorizeAsync(User, collection,
-                    BulkCollectionOperations.ModifyGroupAccess))
-                .Succeeded)
+            if (
+                !(
+                    await _authorizationService.AuthorizeAsync(
+                        User,
+                        collection,
+                        BulkCollectionOperations.ModifyGroupAccess
+                    )
+                ).Succeeded
+            )
             {
                 throw new NotFoundException();
             }
@@ -217,30 +252,39 @@ public class GroupsController : Controller
         // The client only sends collections that the saving user has permissions to edit.
         // We need to combine these with collections that the user doesn't have permissions for, so that we don't
         // accidentally overwrite those
-        var currentCollections = await _collectionRepository
-            .GetManyByManyIdsAsync(currentAccess.Select(cas => cas.Id));
+        var currentCollections = await _collectionRepository.GetManyByManyIdsAsync(
+            currentAccess.Select(cas => cas.Id)
+        );
 
         var readonlyCollectionIds = new HashSet<Guid>();
         foreach (var collection in currentCollections)
         {
-            if (!(await _authorizationService.AuthorizeAsync(User, collection, BulkCollectionOperations.ModifyGroupAccess))
-                .Succeeded)
+            if (
+                !(
+                    await _authorizationService.AuthorizeAsync(
+                        User,
+                        collection,
+                        BulkCollectionOperations.ModifyGroupAccess
+                    )
+                ).Succeeded
+            )
             {
                 readonlyCollectionIds.Add(collection.Id);
             }
         }
 
-        var editedCollectionAccess = model.Collections
-            .Select(c => c.ToSelectionReadOnly());
-        var readonlyCollectionAccess = currentAccess
-            .Where(ca => readonlyCollectionIds.Contains(ca.Id));
-        var collectionsToSave = editedCollectionAccess
-            .Concat(readonlyCollectionAccess)
-            .ToList();
+        var editedCollectionAccess = model.Collections.Select(c => c.ToSelectionReadOnly());
+        var readonlyCollectionAccess = currentAccess.Where(ca => readonlyCollectionIds.Contains(ca.Id));
+        var collectionsToSave = editedCollectionAccess.Concat(readonlyCollectionAccess).ToList();
 
         var organization = await _organizationRepository.GetByIdAsync(orgId);
 
-        await _updateGroupCommand.UpdateGroupAsync(model.ToGroup(group), organization, collectionsToSave, model.Users);
+        await _updateGroupCommand.UpdateGroupAsync(
+            model.ToGroup(group),
+            organization,
+            collectionsToSave,
+            model.Users
+        );
         return new GroupResponseModel(group);
     }
 

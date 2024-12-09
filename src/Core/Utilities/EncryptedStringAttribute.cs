@@ -23,8 +23,7 @@ public class EncryptedStringAttribute : ValidationAttribute
     };
 
     public EncryptedStringAttribute()
-        : base("{0} is not a valid encrypted string.")
-    { }
+        : base("{0} is not a valid encrypted string.") { }
 
     public override bool IsValid(object? value)
     {
@@ -62,7 +61,10 @@ public class EncryptedStringAttribute : ValidationAttribute
 
             if (splitChars == 2)
             {
-                return ValidatePieces(rest, _encryptionTypeToRequiredPiecesMap[EncryptionType.AesCbc128_HmacSha256_B64]);
+                return ValidatePieces(
+                    rest,
+                    _encryptionTypeToRequiredPiecesMap[EncryptionType.AesCbc128_HmacSha256_B64]
+                );
             }
             else
             {

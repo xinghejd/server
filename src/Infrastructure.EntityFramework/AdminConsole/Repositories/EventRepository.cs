@@ -15,8 +15,7 @@ namespace Bit.Infrastructure.EntityFramework.Repositories;
 public class EventRepository : Repository<Core.Entities.Event, Event, Guid>, IEventRepository
 {
     public EventRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
-        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.Events)
-    { }
+        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.Events) { }
 
     public async Task CreateAsync(IEvent e)
     {
@@ -51,21 +50,33 @@ public class EventRepository : Repository<Core.Entities.Event, Event, Guid>, IEv
         }
     }
 
-    public async Task<PagedResult<IEvent>> GetManyByOrganizationServiceAccountAsync(Guid organizationId, Guid serviceAccountId,
-        DateTime startDate, DateTime endDate,
-        PageOptions pageOptions)
+    public async Task<PagedResult<IEvent>> GetManyByOrganizationServiceAccountAsync(
+        Guid organizationId,
+        Guid serviceAccountId,
+        DateTime startDate,
+        DateTime endDate,
+        PageOptions pageOptions
+    )
     {
         DateTime? beforeDate = null;
-        if (!string.IsNullOrWhiteSpace(pageOptions.ContinuationToken) &&
-            long.TryParse(pageOptions.ContinuationToken, out var binaryDate))
+        if (
+            !string.IsNullOrWhiteSpace(pageOptions.ContinuationToken)
+            && long.TryParse(pageOptions.ContinuationToken, out var binaryDate)
+        )
         {
             beforeDate = DateTime.SpecifyKind(DateTime.FromBinary(binaryDate), DateTimeKind.Utc);
         }
 
         using var scope = ServiceScopeFactory.CreateScope();
         var dbContext = GetDatabaseContext(scope);
-        var query = new EventReadPageByOrganizationIdServiceAccountIdQuery(organizationId, serviceAccountId,
-            startDate, endDate, beforeDate, pageOptions);
+        var query = new EventReadPageByOrganizationIdServiceAccountIdQuery(
+            organizationId,
+            serviceAccountId,
+            startDate,
+            endDate,
+            beforeDate,
+            pageOptions
+        );
         var events = await query.Run(dbContext).ToListAsync();
 
         var result = new PagedResult<IEvent>();
@@ -77,11 +88,18 @@ public class EventRepository : Repository<Core.Entities.Event, Event, Guid>, IEv
         return result;
     }
 
-    public async Task<PagedResult<IEvent>> GetManyByCipherAsync(Cipher cipher, DateTime startDate, DateTime endDate, PageOptions pageOptions)
+    public async Task<PagedResult<IEvent>> GetManyByCipherAsync(
+        Cipher cipher,
+        DateTime startDate,
+        DateTime endDate,
+        PageOptions pageOptions
+    )
     {
         DateTime? beforeDate = null;
-        if (!string.IsNullOrWhiteSpace(pageOptions.ContinuationToken) &&
-            long.TryParse(pageOptions.ContinuationToken, out var binaryDate))
+        if (
+            !string.IsNullOrWhiteSpace(pageOptions.ContinuationToken)
+            && long.TryParse(pageOptions.ContinuationToken, out var binaryDate)
+        )
         {
             beforeDate = DateTime.SpecifyKind(DateTime.FromBinary(binaryDate), DateTimeKind.Utc);
         }
@@ -101,20 +119,33 @@ public class EventRepository : Repository<Core.Entities.Event, Event, Guid>, IEv
         }
     }
 
-
-    public async Task<PagedResult<IEvent>> GetManyByOrganizationActingUserAsync(Guid organizationId, Guid actingUserId, DateTime startDate, DateTime endDate, PageOptions pageOptions)
+    public async Task<PagedResult<IEvent>> GetManyByOrganizationActingUserAsync(
+        Guid organizationId,
+        Guid actingUserId,
+        DateTime startDate,
+        DateTime endDate,
+        PageOptions pageOptions
+    )
     {
         DateTime? beforeDate = null;
-        if (!string.IsNullOrWhiteSpace(pageOptions.ContinuationToken) &&
-            long.TryParse(pageOptions.ContinuationToken, out var binaryDate))
+        if (
+            !string.IsNullOrWhiteSpace(pageOptions.ContinuationToken)
+            && long.TryParse(pageOptions.ContinuationToken, out var binaryDate)
+        )
         {
             beforeDate = DateTime.SpecifyKind(DateTime.FromBinary(binaryDate), DateTimeKind.Utc);
         }
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var query = new EventReadPageByOrganizationIdActingUserIdQuery(organizationId, actingUserId,
-                startDate, endDate, beforeDate, pageOptions);
+            var query = new EventReadPageByOrganizationIdActingUserIdQuery(
+                organizationId,
+                actingUserId,
+                startDate,
+                endDate,
+                beforeDate,
+                pageOptions
+            );
             var events = await query.Run(dbContext).ToListAsync();
 
             var result = new PagedResult<IEvent>();
@@ -127,19 +158,31 @@ public class EventRepository : Repository<Core.Entities.Event, Event, Guid>, IEv
         }
     }
 
-    public async Task<PagedResult<IEvent>> GetManyByProviderAsync(Guid providerId, DateTime startDate, DateTime endDate, PageOptions pageOptions)
+    public async Task<PagedResult<IEvent>> GetManyByProviderAsync(
+        Guid providerId,
+        DateTime startDate,
+        DateTime endDate,
+        PageOptions pageOptions
+    )
     {
         DateTime? beforeDate = null;
-        if (!string.IsNullOrWhiteSpace(pageOptions.ContinuationToken) &&
-            long.TryParse(pageOptions.ContinuationToken, out var binaryDate))
+        if (
+            !string.IsNullOrWhiteSpace(pageOptions.ContinuationToken)
+            && long.TryParse(pageOptions.ContinuationToken, out var binaryDate)
+        )
         {
             beforeDate = DateTime.SpecifyKind(DateTime.FromBinary(binaryDate), DateTimeKind.Utc);
         }
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var query = new EventReadPageByProviderIdQuery(providerId, startDate,
-                endDate, beforeDate, pageOptions);
+            var query = new EventReadPageByProviderIdQuery(
+                providerId,
+                startDate,
+                endDate,
+                beforeDate,
+                pageOptions
+            );
             var events = await query.Run(dbContext).ToListAsync();
 
             var result = new PagedResult<IEvent>();
@@ -152,20 +195,33 @@ public class EventRepository : Repository<Core.Entities.Event, Event, Guid>, IEv
         }
     }
 
-    public async Task<PagedResult<IEvent>> GetManyByProviderActingUserAsync(Guid providerId, Guid actingUserId,
-        DateTime startDate, DateTime endDate, PageOptions pageOptions)
+    public async Task<PagedResult<IEvent>> GetManyByProviderActingUserAsync(
+        Guid providerId,
+        Guid actingUserId,
+        DateTime startDate,
+        DateTime endDate,
+        PageOptions pageOptions
+    )
     {
         DateTime? beforeDate = null;
-        if (!string.IsNullOrWhiteSpace(pageOptions.ContinuationToken) &&
-            long.TryParse(pageOptions.ContinuationToken, out var binaryDate))
+        if (
+            !string.IsNullOrWhiteSpace(pageOptions.ContinuationToken)
+            && long.TryParse(pageOptions.ContinuationToken, out var binaryDate)
+        )
         {
             beforeDate = DateTime.SpecifyKind(DateTime.FromBinary(binaryDate), DateTimeKind.Utc);
         }
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var query = new EventReadPageByProviderIdActingUserIdQuery(providerId, actingUserId,
-                startDate, endDate, beforeDate, pageOptions);
+            var query = new EventReadPageByProviderIdActingUserIdQuery(
+                providerId,
+                actingUserId,
+                startDate,
+                endDate,
+                beforeDate,
+                pageOptions
+            );
             var events = await query.Run(dbContext).ToListAsync();
 
             var result = new PagedResult<IEvent>();
@@ -178,19 +234,31 @@ public class EventRepository : Repository<Core.Entities.Event, Event, Guid>, IEv
         }
     }
 
-    public async Task<PagedResult<IEvent>> GetManyByOrganizationAsync(Guid organizationId, DateTime startDate, DateTime endDate, PageOptions pageOptions)
+    public async Task<PagedResult<IEvent>> GetManyByOrganizationAsync(
+        Guid organizationId,
+        DateTime startDate,
+        DateTime endDate,
+        PageOptions pageOptions
+    )
     {
         DateTime? beforeDate = null;
-        if (!string.IsNullOrWhiteSpace(pageOptions.ContinuationToken) &&
-            long.TryParse(pageOptions.ContinuationToken, out var binaryDate))
+        if (
+            !string.IsNullOrWhiteSpace(pageOptions.ContinuationToken)
+            && long.TryParse(pageOptions.ContinuationToken, out var binaryDate)
+        )
         {
             beforeDate = DateTime.SpecifyKind(DateTime.FromBinary(binaryDate), DateTimeKind.Utc);
         }
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var query = new EventReadPageByOrganizationIdQuery(organizationId, startDate,
-                endDate, beforeDate, pageOptions);
+            var query = new EventReadPageByOrganizationIdQuery(
+                organizationId,
+                startDate,
+                endDate,
+                beforeDate,
+                pageOptions
+            );
             var events = await query.Run(dbContext).ToListAsync();
 
             var result = new PagedResult<IEvent>();
@@ -203,19 +271,25 @@ public class EventRepository : Repository<Core.Entities.Event, Event, Guid>, IEv
         }
     }
 
-    public async Task<PagedResult<IEvent>> GetManyByUserAsync(Guid userId, DateTime startDate, DateTime endDate, PageOptions pageOptions)
+    public async Task<PagedResult<IEvent>> GetManyByUserAsync(
+        Guid userId,
+        DateTime startDate,
+        DateTime endDate,
+        PageOptions pageOptions
+    )
     {
         DateTime? beforeDate = null;
-        if (!string.IsNullOrWhiteSpace(pageOptions.ContinuationToken) &&
-            long.TryParse(pageOptions.ContinuationToken, out var binaryDate))
+        if (
+            !string.IsNullOrWhiteSpace(pageOptions.ContinuationToken)
+            && long.TryParse(pageOptions.ContinuationToken, out var binaryDate)
+        )
         {
             beforeDate = DateTime.SpecifyKind(DateTime.FromBinary(binaryDate), DateTimeKind.Utc);
         }
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var query = new EventReadPageByUserIdQuery(userId, startDate,
-                endDate, beforeDate, pageOptions);
+            var query = new EventReadPageByUserIdQuery(userId, startDate, endDate, beforeDate, pageOptions);
             var events = await query.Run(dbContext).ToListAsync();
 
             var result = new PagedResult<IEvent>();

@@ -5,7 +5,10 @@ namespace Bit.Api.AdminConsole.Models.Response.Organizations;
 
 public class OrganizationDomainSsoDetailsResponseModel : ResponseModel
 {
-    public OrganizationDomainSsoDetailsResponseModel(OrganizationDomainSsoDetailsData data, string obj = "organizationDomainSsoDetails")
+    public OrganizationDomainSsoDetailsResponseModel(
+        OrganizationDomainSsoDetailsData data,
+        string obj = "organizationDomainSsoDetails"
+    )
         : base(obj)
     {
         if (data == null)

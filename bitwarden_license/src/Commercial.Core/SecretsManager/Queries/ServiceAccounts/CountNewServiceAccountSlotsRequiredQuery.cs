@@ -12,7 +12,8 @@ public class CountNewServiceAccountSlotsRequiredQuery : ICountNewServiceAccountS
 
     public CountNewServiceAccountSlotsRequiredQuery(
         IOrganizationRepository organizationRepository,
-        IServiceAccountRepository serviceAccountRepository)
+        IServiceAccountRepository serviceAccountRepository
+    )
     {
         _organizationRepository = organizationRepository;
         _serviceAccountRepository = serviceAccountRepository;
@@ -31,7 +32,9 @@ public class CountNewServiceAccountSlotsRequiredQuery : ICountNewServiceAccountS
             return 0;
         }
 
-        var serviceAccountCount = await _serviceAccountRepository.GetServiceAccountCountByOrganizationIdAsync(organizationId);
+        var serviceAccountCount = await _serviceAccountRepository.GetServiceAccountCountByOrganizationIdAsync(
+            organizationId
+        );
         var availableServiceAccountSlots = organization.SmServiceAccounts.Value - serviceAccountCount;
 
         if (availableServiceAccountSlots >= serviceAccountsToAdd)

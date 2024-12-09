@@ -14,10 +14,7 @@ public class PremiumUserSale
     public required CustomerSetup CustomerSetup { get; set; }
     public short? Storage { get; set; }
 
-    public void Deconstruct(
-        out User user,
-        out CustomerSetup customerSetup,
-        out short? storage)
+    public void Deconstruct(out User user, out CustomerSetup customerSetup, out short? storage)
     {
         user = User;
         customerSetup = CustomerSetup;
@@ -29,7 +26,8 @@ public class PremiumUserSale
         PaymentMethodType paymentMethodType,
         string paymentMethodToken,
         TaxInfo taxInfo,
-        short? storage)
+        short? storage
+    )
     {
         var tokenizedPaymentSource = new TokenizedPaymentSource(paymentMethodType, paymentMethodToken);
 
@@ -41,9 +39,9 @@ public class PremiumUserSale
             CustomerSetup = new CustomerSetup
             {
                 TokenizedPaymentSource = tokenizedPaymentSource,
-                TaxInformation = taxInformation
+                TaxInformation = taxInformation,
             },
-            Storage = storage
+            Storage = storage,
         };
     }
 }

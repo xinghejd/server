@@ -62,17 +62,27 @@ public class AccountsController : Controller
     private readonly IReferenceEventService _referenceEventService;
     private readonly ICurrentContext _currentContext;
 
-    private readonly IRotationValidator<IEnumerable<CipherWithIdRequestModel>, IEnumerable<Cipher>> _cipherValidator;
-    private readonly IRotationValidator<IEnumerable<FolderWithIdRequestModel>, IEnumerable<Folder>> _folderValidator;
+    private readonly IRotationValidator<
+        IEnumerable<CipherWithIdRequestModel>,
+        IEnumerable<Cipher>
+    > _cipherValidator;
+    private readonly IRotationValidator<
+        IEnumerable<FolderWithIdRequestModel>,
+        IEnumerable<Folder>
+    > _folderValidator;
     private readonly IRotationValidator<IEnumerable<SendWithIdRequestModel>, IReadOnlyList<Send>> _sendValidator;
-    private readonly IRotationValidator<IEnumerable<EmergencyAccessWithIdRequestModel>, IEnumerable<EmergencyAccess>>
-        _emergencyAccessValidator;
-    private readonly IRotationValidator<IEnumerable<ResetPasswordWithOrgIdRequestModel>,
-            IReadOnlyList<OrganizationUser>>
-        _organizationUserValidator;
-    private readonly IRotationValidator<IEnumerable<WebAuthnLoginRotateKeyRequestModel>, IEnumerable<WebAuthnLoginRotateKeyData>>
-        _webauthnKeyValidator;
-
+    private readonly IRotationValidator<
+        IEnumerable<EmergencyAccessWithIdRequestModel>,
+        IEnumerable<EmergencyAccess>
+    > _emergencyAccessValidator;
+    private readonly IRotationValidator<
+        IEnumerable<ResetPasswordWithOrgIdRequestModel>,
+        IReadOnlyList<OrganizationUser>
+    > _organizationUserValidator;
+    private readonly IRotationValidator<
+        IEnumerable<WebAuthnLoginRotateKeyRequestModel>,
+        IEnumerable<WebAuthnLoginRotateKeyData>
+    > _webauthnKeyValidator;
 
     public AccountsController(
         GlobalSettings globalSettings,
@@ -92,12 +102,19 @@ public class AccountsController : Controller
         IRotationValidator<IEnumerable<CipherWithIdRequestModel>, IEnumerable<Cipher>> cipherValidator,
         IRotationValidator<IEnumerable<FolderWithIdRequestModel>, IEnumerable<Folder>> folderValidator,
         IRotationValidator<IEnumerable<SendWithIdRequestModel>, IReadOnlyList<Send>> sendValidator,
-        IRotationValidator<IEnumerable<EmergencyAccessWithIdRequestModel>, IEnumerable<EmergencyAccess>>
-            emergencyAccessValidator,
-        IRotationValidator<IEnumerable<ResetPasswordWithOrgIdRequestModel>, IReadOnlyList<OrganizationUser>>
-            organizationUserValidator,
-        IRotationValidator<IEnumerable<WebAuthnLoginRotateKeyRequestModel>, IEnumerable<WebAuthnLoginRotateKeyData>> webAuthnKeyValidator
-        )
+        IRotationValidator<
+            IEnumerable<EmergencyAccessWithIdRequestModel>,
+            IEnumerable<EmergencyAccess>
+        > emergencyAccessValidator,
+        IRotationValidator<
+            IEnumerable<ResetPasswordWithOrgIdRequestModel>,
+            IReadOnlyList<OrganizationUser>
+        > organizationUserValidator,
+        IRotationValidator<
+            IEnumerable<WebAuthnLoginRotateKeyRequestModel>,
+            IEnumerable<WebAuthnLoginRotateKeyData>
+        > webAuthnKeyValidator
+    )
     {
         _globalSettings = globalSettings;
         _organizationService = organizationService;
@@ -120,7 +137,6 @@ public class AccountsController : Controller
         _organizationUserValidator = organizationUserValidator;
         _webauthnKeyValidator = webAuthnKeyValidator;
     }
-
 
     [HttpPost("password-hint")]
     [AllowAnonymous]
@@ -150,10 +166,14 @@ public class AccountsController : Controller
         }
 
         // If Account Deprovisioning is enabled, we need to check if the user is managed by any organization.
-        if (_featureService.IsEnabled(FeatureFlagKeys.AccountDeprovisioning)
-            && await _userService.IsManagedByAnyOrganizationAsync(user.Id))
+        if (
+            _featureService.IsEnabled(FeatureFlagKeys.AccountDeprovisioning)
+            && await _userService.IsManagedByAnyOrganizationAsync(user.Id)
+        )
         {
-            throw new BadRequestException("Cannot change emails for accounts owned by an organization. Contact your organization administrator for additional details.");
+            throw new BadRequestException(
+                "Cannot change emails for accounts owned by an organization. Contact your organization administrator for additional details."
+            );
         }
 
         await _userService.InitiateEmailChangeAsync(user, model.NewEmail);
@@ -174,14 +194,24 @@ public class AccountsController : Controller
         }
 
         // If Account Deprovisioning is enabled, we need to check if the user is managed by any organization.
-        if (_featureService.IsEnabled(FeatureFlagKeys.AccountDeprovisioning)
-            && await _userService.IsManagedByAnyOrganizationAsync(user.Id))
+        if (
+            _featureService.IsEnabled(FeatureFlagKeys.AccountDeprovisioning)
+            && await _userService.IsManagedByAnyOrganizationAsync(user.Id)
+        )
         {
-            throw new BadRequestException("Cannot change emails for accounts owned by an organization. Contact your organization administrator for additional details.");
+            throw new BadRequestException(
+                "Cannot change emails for accounts owned by an organization. Contact your organization administrator for additional details."
+            );
         }
 
-        var result = await _userService.ChangeEmailAsync(user, model.MasterPasswordHash, model.NewEmail,
-            model.NewMasterPasswordHash, model.Token, model.Key);
+        var result = await _userService.ChangeEmailAsync(
+            user,
+            model.MasterPasswordHash,
+            model.NewEmail,
+            model.NewMasterPasswordHash,
+            model.Token,
+            model.Key
+        );
         if (result.Succeeded)
         {
             return;
@@ -241,8 +271,13 @@ public class AccountsController : Controller
             throw new UnauthorizedAccessException();
         }
 
-        var result = await _userService.ChangePasswordAsync(user, model.MasterPasswordHash,
-            model.NewMasterPasswordHash, model.MasterPasswordHint, model.Key);
+        var result = await _userService.ChangePasswordAsync(
+            user,
+            model.MasterPasswordHash,
+            model.NewMasterPasswordHash,
+            model.MasterPasswordHint,
+            model.Key
+        );
         if (result.Succeeded)
         {
             return;
@@ -270,7 +305,8 @@ public class AccountsController : Controller
             model.ToUser(user),
             model.MasterPasswordHash,
             model.Key,
-            model.OrgIdentifier);
+            model.OrgIdentifier
+        );
 
         if (result.Succeeded)
         {
@@ -286,7 +322,9 @@ public class AccountsController : Controller
     }
 
     [HttpPost("verify-password")]
-    public async Task<MasterPasswordPolicyResponseModel> PostVerifyPassword([FromBody] SecretVerificationRequestModel model)
+    public async Task<MasterPasswordPolicyResponseModel> PostVerifyPassword(
+        [FromBody] SecretVerificationRequestModel model
+    )
     {
         var user = await _userService.GetUserByPrincipalAsync(User);
         if (user == null)
@@ -315,7 +353,11 @@ public class AccountsController : Controller
             throw new UnauthorizedAccessException();
         }
 
-        var result = await _userService.SetKeyConnectorKeyAsync(model.ToUser(user), model.Key, model.OrgIdentifier);
+        var result = await _userService.SetKeyConnectorKeyAsync(
+            model.ToUser(user),
+            model.Key,
+            model.OrgIdentifier
+        );
         if (result.Succeeded)
         {
             return;
@@ -361,8 +403,16 @@ public class AccountsController : Controller
             throw new UnauthorizedAccessException();
         }
 
-        var result = await _userService.ChangeKdfAsync(user, model.MasterPasswordHash,
-            model.NewMasterPasswordHash, model.Key, model.Kdf.Value, model.KdfIterations.Value, model.KdfMemory, model.KdfParallelism);
+        var result = await _userService.ChangeKdfAsync(
+            user,
+            model.MasterPasswordHash,
+            model.NewMasterPasswordHash,
+            model.Key,
+            model.Kdf.Value,
+            model.KdfIterations.Value,
+            model.KdfMemory,
+            model.KdfParallelism
+        );
         if (result.Succeeded)
         {
             return;
@@ -396,7 +446,7 @@ public class AccountsController : Controller
             Sends = await _sendValidator.ValidateAsync(user, model.Sends),
             EmergencyAccesses = await _emergencyAccessValidator.ValidateAsync(user, model.EmergencyAccessKeys),
             OrganizationUsers = await _organizationUserValidator.ValidateAsync(user, model.ResetPasswordKeys),
-            WebAuthnKeys = await _webauthnKeyValidator.ValidateAsync(user, model.WebAuthnKeys)
+            WebAuthnKeys = await _webauthnKeyValidator.ValidateAsync(user, model.WebAuthnKeys),
         };
 
         var result = await _rotateUserKeyCommand.RotateUserKeyAsync(user, dataModel);
@@ -448,21 +498,32 @@ public class AccountsController : Controller
             throw new UnauthorizedAccessException();
         }
 
-        var organizationUserDetails = await _organizationUserRepository.GetManyDetailsByUserAsync(user.Id,
-            OrganizationUserStatusType.Confirmed);
-        var providerUserDetails = await _providerUserRepository.GetManyDetailsByUserAsync(user.Id,
-            ProviderUserStatusType.Confirmed);
-        var providerUserOrganizationDetails =
-            await _providerUserRepository.GetManyOrganizationDetailsByUserAsync(user.Id,
-                ProviderUserStatusType.Confirmed);
+        var organizationUserDetails = await _organizationUserRepository.GetManyDetailsByUserAsync(
+            user.Id,
+            OrganizationUserStatusType.Confirmed
+        );
+        var providerUserDetails = await _providerUserRepository.GetManyDetailsByUserAsync(
+            user.Id,
+            ProviderUserStatusType.Confirmed
+        );
+        var providerUserOrganizationDetails = await _providerUserRepository.GetManyOrganizationDetailsByUserAsync(
+            user.Id,
+            ProviderUserStatusType.Confirmed
+        );
 
         var twoFactorEnabled = await _userService.TwoFactorIsEnabledAsync(user);
         var hasPremiumFromOrg = await _userService.HasPremiumFromOrganization(user);
         var organizationIdsManagingActiveUser = await GetOrganizationIdsManagingUserAsync(user.Id);
 
-        var response = new ProfileResponseModel(user, organizationUserDetails, providerUserDetails,
-            providerUserOrganizationDetails, twoFactorEnabled,
-            hasPremiumFromOrg, organizationIdsManagingActiveUser);
+        var response = new ProfileResponseModel(
+            user,
+            organizationUserDetails,
+            providerUserDetails,
+            providerUserOrganizationDetails,
+            twoFactorEnabled,
+            hasPremiumFromOrg,
+            organizationIdsManagingActiveUser
+        );
         return response;
     }
 
@@ -470,11 +531,16 @@ public class AccountsController : Controller
     public async Task<ListResponseModel<ProfileOrganizationResponseModel>> GetOrganizations()
     {
         var userId = _userService.GetProperUserId(User);
-        var organizationUserDetails = await _organizationUserRepository.GetManyDetailsByUserAsync(userId.Value,
-            OrganizationUserStatusType.Confirmed);
+        var organizationUserDetails = await _organizationUserRepository.GetManyDetailsByUserAsync(
+            userId.Value,
+            OrganizationUserStatusType.Confirmed
+        );
         var organizationIdsManagingActiveUser = await GetOrganizationIdsManagingUserAsync(userId.Value);
 
-        var responseData = organizationUserDetails.Select(o => new ProfileOrganizationResponseModel(o, organizationIdsManagingActiveUser));
+        var responseData = organizationUserDetails.Select(o => new ProfileOrganizationResponseModel(
+            o,
+            organizationIdsManagingActiveUser
+        ));
         return new ListResponseModel<ProfileOrganizationResponseModel>(responseData);
     }
 
@@ -494,7 +560,15 @@ public class AccountsController : Controller
         var hasPremiumFromOrg = await _userService.HasPremiumFromOrganization(user);
         var organizationIdsManagingActiveUser = await GetOrganizationIdsManagingUserAsync(user.Id);
 
-        var response = new ProfileResponseModel(user, null, null, null, twoFactorEnabled, hasPremiumFromOrg, organizationIdsManagingActiveUser);
+        var response = new ProfileResponseModel(
+            user,
+            null,
+            null,
+            null,
+            twoFactorEnabled,
+            hasPremiumFromOrg,
+            organizationIdsManagingActiveUser
+        );
         return response;
     }
 
@@ -513,7 +587,15 @@ public class AccountsController : Controller
         var userHasPremiumFromOrganization = await _userService.HasPremiumFromOrganization(user);
         var organizationIdsManagingActiveUser = await GetOrganizationIdsManagingUserAsync(user.Id);
 
-        var response = new ProfileResponseModel(user, null, null, null, userTwoFactorEnabled, userHasPremiumFromOrganization, organizationIdsManagingActiveUser);
+        var response = new ProfileResponseModel(
+            user,
+            null,
+            null,
+            null,
+            userTwoFactorEnabled,
+            userHasPremiumFromOrganization,
+            organizationIdsManagingActiveUser
+        );
         return response;
     }
 
@@ -582,10 +664,14 @@ public class AccountsController : Controller
         else
         {
             // If Account Deprovisioning is enabled, we need to check if the user is managed by any organization.
-            if (_featureService.IsEnabled(FeatureFlagKeys.AccountDeprovisioning)
-                && await _userService.IsManagedByAnyOrganizationAsync(user.Id))
+            if (
+                _featureService.IsEnabled(FeatureFlagKeys.AccountDeprovisioning)
+                && await _userService.IsManagedByAnyOrganizationAsync(user.Id)
+            )
             {
-                throw new BadRequestException("Cannot delete accounts owned by an organization. Contact your organization administrator for additional details.");
+                throw new BadRequestException(
+                    "Cannot delete accounts owned by an organization. Contact your organization administrator for additional details."
+                );
             }
 
             var result = await _userService.DeleteAsync(user);
@@ -661,24 +747,33 @@ public class AccountsController : Controller
             throw new BadRequestException("Invalid license.");
         }
 
-        var result = await _userService.SignUpPremiumAsync(user, model.PaymentToken,
-            model.PaymentMethodType.Value, model.AdditionalStorageGb.GetValueOrDefault(0), license,
-            new TaxInfo
-            {
-                BillingAddressCountry = model.Country,
-                BillingAddressPostalCode = model.PostalCode,
-            });
+        var result = await _userService.SignUpPremiumAsync(
+            user,
+            model.PaymentToken,
+            model.PaymentMethodType.Value,
+            model.AdditionalStorageGb.GetValueOrDefault(0),
+            license,
+            new TaxInfo { BillingAddressCountry = model.Country, BillingAddressPostalCode = model.PostalCode }
+        );
 
         var userTwoFactorEnabled = await _userService.TwoFactorIsEnabledAsync(user);
         var userHasPremiumFromOrganization = await _userService.HasPremiumFromOrganization(user);
         var organizationIdsManagingActiveUser = await GetOrganizationIdsManagingUserAsync(user.Id);
 
-        var profile = new ProfileResponseModel(user, null, null, null, userTwoFactorEnabled, userHasPremiumFromOrganization, organizationIdsManagingActiveUser);
+        var profile = new ProfileResponseModel(
+            user,
+            null,
+            null,
+            null,
+            userTwoFactorEnabled,
+            userHasPremiumFromOrganization,
+            organizationIdsManagingActiveUser
+        );
         return new PaymentResponseModel
         {
             UserProfile = profile,
             PaymentIntentClientSecret = result.Item2,
-            Success = result.Item1
+            Success = result.Item1,
         };
     }
 
@@ -718,12 +813,12 @@ public class AccountsController : Controller
             throw new UnauthorizedAccessException();
         }
 
-        await _userService.ReplacePaymentMethodAsync(user, model.PaymentToken, model.PaymentMethodType.Value,
-            new TaxInfo
-            {
-                BillingAddressCountry = model.Country,
-                BillingAddressPostalCode = model.PostalCode,
-            });
+        await _userService.ReplacePaymentMethodAsync(
+            user,
+            model.PaymentToken,
+            model.PaymentMethodType.Value,
+            new TaxInfo { BillingAddressCountry = model.Country, BillingAddressPostalCode = model.PostalCode }
+        );
     }
 
     [HttpPost("storage")]
@@ -737,11 +832,7 @@ public class AccountsController : Controller
         }
 
         var result = await _userService.AdjustStorageAsync(user, model.StorageGbAdjustment.Value);
-        return new PaymentResponseModel
-        {
-            Success = true,
-            PaymentIntentClientSecret = result
-        };
+        return new PaymentResponseModel { Success = true, PaymentIntentClientSecret = result };
     }
 
     [HttpPost("license")]
@@ -773,22 +864,23 @@ public class AccountsController : Controller
             throw new UnauthorizedAccessException();
         }
 
-        await _subscriberService.CancelSubscription(user,
+        await _subscriberService.CancelSubscription(
+            user,
             new OffboardingSurveyResponse
             {
                 UserId = user.Id,
                 Reason = request.Reason,
-                Feedback = request.Feedback
+                Feedback = request.Feedback,
             },
-            user.IsExpired());
+            user.IsExpired()
+        );
 
-        await _referenceEventService.RaiseEventAsync(new ReferenceEvent(
-            ReferenceEventType.CancelSubscription,
-            user,
-            _currentContext)
-        {
-            EndOfPeriod = user.IsExpired()
-        });
+        await _referenceEventService.RaiseEventAsync(
+            new ReferenceEvent(ReferenceEventType.CancelSubscription, user, _currentContext)
+            {
+                EndOfPeriod = user.IsExpired(),
+            }
+        );
     }
 
     [HttpPost("reinstate-premium")]
@@ -904,7 +996,12 @@ public class AccountsController : Controller
             throw new UnauthorizedAccessException();
         }
 
-        var result = await _userService.UpdateTempPasswordAsync(user, model.NewMasterPasswordHash, model.Key, model.MasterPasswordHint);
+        var result = await _userService.UpdateTempPasswordAsync(
+            user,
+            model.NewMasterPasswordHash,
+            model.Key,
+            model.MasterPasswordHint
+        );
         if (result.Succeeded)
         {
             return;
@@ -927,7 +1024,12 @@ public class AccountsController : Controller
             throw new UnauthorizedAccessException();
         }
 
-        var result = await _tdeOffboardingPasswordCommand.UpdateTdeOffboardingPasswordAsync(user, model.NewMasterPasswordHash, model.Key, model.MasterPasswordHint);
+        var result = await _tdeOffboardingPasswordCommand.UpdateTdeOffboardingPasswordAsync(
+            user,
+            model.NewMasterPasswordHash,
+            model.Key,
+            model.MasterPasswordHint
+        );
         if (result.Succeeded)
         {
             return;

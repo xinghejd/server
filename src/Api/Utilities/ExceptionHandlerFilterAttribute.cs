@@ -56,13 +56,17 @@ public class ExceptionHandlerFilterAttribute : ExceptionFilterAttribute
             context.HttpContext.Response.StatusCode = 400;
             if (_publicApi)
             {
-                publicErrorModel = new ErrorResponseModel(stripeCardErrorException.StripeError.Param,
-                    stripeCardErrorException.Message);
+                publicErrorModel = new ErrorResponseModel(
+                    stripeCardErrorException.StripeError.Param,
+                    stripeCardErrorException.Message
+                );
             }
             else
             {
-                internalErrorModel = new InternalApi.ErrorResponseModel(stripeCardErrorException.StripeError.Param,
-                    stripeCardErrorException.Message);
+                internalErrorModel = new InternalApi.ErrorResponseModel(
+                    stripeCardErrorException.StripeError.Param,
+                    stripeCardErrorException.Message
+                );
             }
         }
         else if (exception is GatewayException)
@@ -77,7 +81,9 @@ public class ExceptionHandlerFilterAttribute : ExceptionFilterAttribute
         }
         else if (exception is StripeException stripeException)
         {
-            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<ExceptionHandlerFilterAttribute>>();
+            var logger = context.HttpContext.RequestServices.GetRequiredService<
+                ILogger<ExceptionHandlerFilterAttribute>
+            >();
 
             var error = stripeException.Message;
 
@@ -148,7 +154,9 @@ public class ExceptionHandlerFilterAttribute : ExceptionFilterAttribute
         }
         else
         {
-            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<ExceptionHandlerFilterAttribute>>();
+            var logger = context.HttpContext.RequestServices.GetRequiredService<
+                ILogger<ExceptionHandlerFilterAttribute>
+            >();
             logger.LogError(0, exception, exception.Message);
             errorMessage = "An unhandled server error has occurred.";
             context.HttpContext.Response.StatusCode = 500;

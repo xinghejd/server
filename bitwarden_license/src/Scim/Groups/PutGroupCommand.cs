@@ -19,7 +19,8 @@ public class PutGroupCommand : IPutGroupCommand
     public PutGroupCommand(
         IGroupRepository groupRepository,
         IScimContext scimContext,
-        IUpdateGroupCommand updateGroupCommand)
+        IUpdateGroupCommand updateGroupCommand
+    )
     {
         _groupRepository = groupRepository;
         _scimContext = scimContext;
@@ -43,8 +44,10 @@ public class PutGroupCommand : IPutGroupCommand
 
     private async Task UpdateGroupMembersAsync(Group group, ScimGroupRequestModel model)
     {
-        if (_scimContext.RequestScimProvider != ScimProviderType.Okta &&
-            _scimContext.RequestScimProvider != ScimProviderType.Ping)
+        if (
+            _scimContext.RequestScimProvider != ScimProviderType.Okta
+            && _scimContext.RequestScimProvider != ScimProviderType.Ping
+        )
         {
             return;
         }

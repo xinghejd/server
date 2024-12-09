@@ -17,11 +17,12 @@ public class ProjectServiceAccountsAccessPoliciesUpdatesQuery : IProjectServiceA
     }
 
     public async Task<ProjectServiceAccountsAccessPoliciesUpdates> GetAsync(
-        ProjectServiceAccountsAccessPolicies projectServiceAccountsAccessPolicies)
+        ProjectServiceAccountsAccessPolicies projectServiceAccountsAccessPolicies
+    )
     {
-        var currentPolicies =
-            await _accessPolicyRepository.GetProjectServiceAccountsAccessPoliciesAsync(
-                projectServiceAccountsAccessPolicies.ProjectId);
+        var currentPolicies = await _accessPolicyRepository.GetProjectServiceAccountsAccessPoliciesAsync(
+            projectServiceAccountsAccessPolicies.ProjectId
+        );
 
         if (currentPolicies == null)
         {
@@ -30,12 +31,13 @@ public class ProjectServiceAccountsAccessPoliciesUpdatesQuery : IProjectServiceA
                 ProjectId = projectServiceAccountsAccessPolicies.ProjectId,
                 OrganizationId = projectServiceAccountsAccessPolicies.OrganizationId,
                 ServiceAccountAccessPolicyUpdates =
-                    projectServiceAccountsAccessPolicies.ServiceAccountAccessPolicies.Select(p =>
-                        new ServiceAccountProjectAccessPolicyUpdate
+                    projectServiceAccountsAccessPolicies.ServiceAccountAccessPolicies.Select(
+                        p => new ServiceAccountProjectAccessPolicyUpdate
                         {
                             Operation = AccessPolicyOperation.Create,
-                            AccessPolicy = p
-                        })
+                            AccessPolicy = p,
+                        }
+                    ),
             };
         }
 

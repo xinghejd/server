@@ -17,8 +17,12 @@ public class AuthRequestResponseModel : ResponseModel
 
         Id = authRequest.Id;
         PublicKey = authRequest.PublicKey;
-        RequestDeviceType = authRequest.RequestDeviceType.GetType().GetMember(authRequest.RequestDeviceType.ToString())
-            .FirstOrDefault()?.GetCustomAttribute<DisplayAttribute>()?.GetName();
+        RequestDeviceType = authRequest
+            .RequestDeviceType.GetType()
+            .GetMember(authRequest.RequestDeviceType.ToString())
+            .FirstOrDefault()
+            ?.GetCustomAttribute<DisplayAttribute>()
+            ?.GetName();
         RequestIpAddress = authRequest.RequestIpAddress;
         Key = authRequest.Key;
         MasterPasswordHash = authRequest.MasterPasswordHash;

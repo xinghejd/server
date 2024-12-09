@@ -16,7 +16,10 @@ public class OrganizationLicenseClaimsFactory : ILicenseClaimsFactory<Organizati
         var subscriptionInfo = licenseContext.SubscriptionInfo;
         var expires = entity.CalculateFreshExpirationDate(subscriptionInfo);
         var refresh = entity.CalculateFreshRefreshDate(subscriptionInfo, expires);
-        var expirationWithoutGracePeriod = entity.CalculateFreshExpirationDateWithoutGracePeriod(subscriptionInfo, expires);
+        var expirationWithoutGracePeriod = entity.CalculateFreshExpirationDateWithoutGracePeriod(
+            subscriptionInfo,
+            expires
+        );
         var trial = IsTrialing(entity, subscriptionInfo);
 
         var claims = new List<Claim>
@@ -47,7 +50,10 @@ public class OrganizationLicenseClaimsFactory : ILicenseClaimsFactory<Organizati
             new(nameof(OrganizationLicenseConstants.SelfHost), entity.SelfHost.ToString()),
             new(nameof(OrganizationLicenseConstants.UsersGetPremium), entity.UsersGetPremium.ToString()),
             new(nameof(OrganizationLicenseConstants.UseCustomPermissions), entity.UseCustomPermissions.ToString()),
-            new(nameof(OrganizationLicenseConstants.Issued), DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)),
+            new(
+                nameof(OrganizationLicenseConstants.Issued),
+                DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)
+            ),
             new(nameof(OrganizationLicenseConstants.UsePasswordManager), entity.UsePasswordManager.ToString()),
             new(nameof(OrganizationLicenseConstants.UseSecretsManager), entity.UseSecretsManager.ToString()),
             new(nameof(OrganizationLicenseConstants.SmSeats), entity.SmSeats.ToString()),
@@ -55,12 +61,20 @@ public class OrganizationLicenseClaimsFactory : ILicenseClaimsFactory<Organizati
             // LimitCollectionCreationDeletion was split and removed from the
             // license. Left here with an assignment from the new values for
             // backwards compatibility.
-            new(nameof(OrganizationLicenseConstants.LimitCollectionCreationDeletion),
-                (entity.LimitCollectionCreation || entity.LimitCollectionDeletion).ToString()),
-            new(nameof(OrganizationLicenseConstants.AllowAdminAccessToAllCollectionItems), entity.AllowAdminAccessToAllCollectionItems.ToString()),
+            new(
+                nameof(OrganizationLicenseConstants.LimitCollectionCreationDeletion),
+                (entity.LimitCollectionCreation || entity.LimitCollectionDeletion).ToString()
+            ),
+            new(
+                nameof(OrganizationLicenseConstants.AllowAdminAccessToAllCollectionItems),
+                entity.AllowAdminAccessToAllCollectionItems.ToString()
+            ),
             new(nameof(OrganizationLicenseConstants.Expires), expires.ToString(CultureInfo.InvariantCulture)),
             new(nameof(OrganizationLicenseConstants.Refresh), refresh.ToString(CultureInfo.InvariantCulture)),
-            new(nameof(OrganizationLicenseConstants.ExpirationWithoutGracePeriod), expirationWithoutGracePeriod.ToString(CultureInfo.InvariantCulture)),
+            new(
+                nameof(OrganizationLicenseConstants.ExpirationWithoutGracePeriod),
+                expirationWithoutGracePeriod.ToString(CultureInfo.InvariantCulture)
+            ),
             new(nameof(OrganizationLicenseConstants.Trial), trial.ToString()),
         };
 

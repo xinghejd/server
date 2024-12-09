@@ -14,12 +14,10 @@ namespace Bit.Infrastructure.Dapper.AdminConsole.Repositories;
 public class ProviderRepository : Repository<Provider, Guid>, IProviderRepository
 {
     public ProviderRepository(GlobalSettings globalSettings)
-        : this(globalSettings.SqlServer.ConnectionString, globalSettings.SqlServer.ReadOnlyConnectionString)
-    { }
+        : this(globalSettings.SqlServer.ConnectionString, globalSettings.SqlServer.ReadOnlyConnectionString) { }
 
     public ProviderRepository(string connectionString, string readOnlyConnectionString)
-        : base(connectionString, readOnlyConnectionString)
-    { }
+        : base(connectionString, readOnlyConnectionString) { }
 
     public async Task<Provider?> GetByOrganizationIdAsync(Guid organizationId)
     {
@@ -28,7 +26,8 @@ public class ProviderRepository : Repository<Provider, Guid>, IProviderRepositor
             var results = await connection.QueryAsync<Provider>(
                 "[dbo].[Provider_ReadByOrganizationId]",
                 new { OrganizationId = organizationId },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.FirstOrDefault();
         }
@@ -40,9 +39,16 @@ public class ProviderRepository : Repository<Provider, Guid>, IProviderRepositor
         {
             var results = await connection.QueryAsync<Provider>(
                 "[dbo].[Provider_Search]",
-                new { Name = name, UserEmail = userEmail, Skip = skip, Take = take },
+                new
+                {
+                    Name = name,
+                    UserEmail = userEmail,
+                    Skip = skip,
+                    Take = take,
+                },
                 commandType: CommandType.StoredProcedure,
-                commandTimeout: 120);
+                commandTimeout: 120
+            );
 
             return results.ToList();
         }
@@ -54,7 +60,8 @@ public class ProviderRepository : Repository<Provider, Guid>, IProviderRepositor
         {
             var results = await connection.QueryAsync<ProviderAbility>(
                 "[dbo].[Provider_ReadAbilities]",
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.ToList();
         }

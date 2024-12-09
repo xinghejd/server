@@ -28,13 +28,12 @@ public class SmSeatSubscriptionUpdate : SubscriptionUpdate
                 Plan = PlanIds.Single(),
                 Quantity = _additionalSeats,
                 Deleted = (item?.Id != null && _additionalSeats == 0) ? true : (bool?)null,
-            }
+            },
         };
     }
 
     public override List<SubscriptionItemOptions> RevertItemsOptions(Subscription subscription)
     {
-
         var item = FindSubscriptionItem(subscription, PlanIds.Single());
         return new()
         {
@@ -44,7 +43,7 @@ public class SmSeatSubscriptionUpdate : SubscriptionUpdate
                 Plan = PlanIds.Single(),
                 Quantity = _previousSeats,
                 Deleted = _previousSeats == 0 ? true : (bool?)null,
-            }
+            },
         };
     }
 }

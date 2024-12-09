@@ -14,15 +14,16 @@ public class SendTrialInitiationEmailForRegistrationCommand(
     IUserRepository userRepository,
     GlobalSettings globalSettings,
     IMailService mailService,
-    IDataProtectorTokenFactory<RegistrationEmailVerificationTokenable> tokenDataFactory)
-    : ISendTrialInitiationEmailForRegistrationCommand
+    IDataProtectorTokenFactory<RegistrationEmailVerificationTokenable> tokenDataFactory
+) : ISendTrialInitiationEmailForRegistrationCommand
 {
     public async Task<string?> Handle(
         string email,
         string? name,
         bool receiveMarketingEmails,
         ProductTierType productTier,
-        IEnumerable<ProductType> products)
+        IEnumerable<ProductType> products
+    )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email, nameof(email));
 
@@ -69,6 +70,9 @@ public class SendTrialInitiationEmailForRegistrationCommand(
     {
         var user = await userRepository.GetByEmailAsync(email);
 
-        return CoreHelpers.FixedTimeEquals(user?.Email.ToLowerInvariant() ?? string.Empty, email.ToLowerInvariant());
+        return CoreHelpers.FixedTimeEquals(
+            user?.Email.ToLowerInvariant() ?? string.Empty,
+            email.ToLowerInvariant()
+        );
     }
 }

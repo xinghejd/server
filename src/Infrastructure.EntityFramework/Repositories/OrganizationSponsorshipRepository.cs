@@ -8,13 +8,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bit.Infrastructure.EntityFramework.Repositories;
 
-public class OrganizationSponsorshipRepository : Repository<Core.Entities.OrganizationSponsorship, OrganizationSponsorship, Guid>, IOrganizationSponsorshipRepository
+public class OrganizationSponsorshipRepository
+    : Repository<Core.Entities.OrganizationSponsorship, OrganizationSponsorship, Guid>,
+        IOrganizationSponsorshipRepository
 {
     public OrganizationSponsorshipRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
-        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.OrganizationSponsorships)
-    { }
+        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.OrganizationSponsorships) { }
 
-    public async Task<ICollection<Guid>?> CreateManyAsync(IEnumerable<Core.Entities.OrganizationSponsorship> organizationSponsorships)
+    public async Task<ICollection<Guid>?> CreateManyAsync(
+        IEnumerable<Core.Entities.OrganizationSponsorship> organizationSponsorships
+    )
     {
         if (!organizationSponsorships.Any())
         {
@@ -73,8 +76,8 @@ public class OrganizationSponsorshipRepository : Repository<Core.Entities.Organi
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var entities = await dbContext.OrganizationSponsorships
-                .Where(os => organizationSponsorshipIds.Contains(os.Id))
+            var entities = await dbContext
+                .OrganizationSponsorships.Where(os => organizationSponsorshipIds.Contains(os.Id))
                 .ToListAsync();
 
             dbContext.OrganizationSponsorships.RemoveRange(entities);
@@ -87,29 +90,36 @@ public class OrganizationSponsorshipRepository : Repository<Core.Entities.Organi
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var orgSponsorship = await GetDbSet(dbContext).Where(e => e.OfferedToEmail == email)
+            var orgSponsorship = await GetDbSet(dbContext)
+                .Where(e => e.OfferedToEmail == email)
                 .FirstOrDefaultAsync();
             return orgSponsorship;
         }
     }
 
-    public async Task<Core.Entities.OrganizationSponsorship?> GetBySponsoredOrganizationIdAsync(Guid sponsoredOrganizationId)
+    public async Task<Core.Entities.OrganizationSponsorship?> GetBySponsoredOrganizationIdAsync(
+        Guid sponsoredOrganizationId
+    )
     {
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var orgSponsorship = await GetDbSet(dbContext).Where(e => e.SponsoredOrganizationId == sponsoredOrganizationId)
+            var orgSponsorship = await GetDbSet(dbContext)
+                .Where(e => e.SponsoredOrganizationId == sponsoredOrganizationId)
                 .FirstOrDefaultAsync();
             return orgSponsorship;
         }
     }
 
-    public async Task<Core.Entities.OrganizationSponsorship?> GetBySponsoringOrganizationUserIdAsync(Guid sponsoringOrganizationUserId)
+    public async Task<Core.Entities.OrganizationSponsorship?> GetBySponsoringOrganizationUserIdAsync(
+        Guid sponsoringOrganizationUserId
+    )
     {
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var orgSponsorship = await GetDbSet(dbContext).Where(e => e.SponsoringOrganizationUserId == sponsoringOrganizationUserId)
+            var orgSponsorship = await GetDbSet(dbContext)
+                .Where(e => e.SponsoringOrganizationUserId == sponsoringOrganizationUserId)
                 .FirstOrDefaultAsync();
             return orgSponsorship;
         }
@@ -120,24 +130,26 @@ public class OrganizationSponsorshipRepository : Repository<Core.Entities.Organi
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            return await GetDbSet(dbContext).Where(e => e.SponsoringOrganizationId == sponsoringOrganizationId && e.LastSyncDate != null)
+            return await GetDbSet(dbContext)
+                .Where(e => e.SponsoringOrganizationId == sponsoringOrganizationId && e.LastSyncDate != null)
                 .OrderByDescending(e => e.LastSyncDate)
                 .Select(e => e.LastSyncDate)
                 .FirstOrDefaultAsync();
-
         }
     }
 
-    public async Task<ICollection<Core.Entities.OrganizationSponsorship>> GetManyBySponsoringOrganizationAsync(Guid sponsoringOrganizationId)
+    public async Task<ICollection<Core.Entities.OrganizationSponsorship>> GetManyBySponsoringOrganizationAsync(
+        Guid sponsoringOrganizationId
+    )
     {
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var query = from os in dbContext.OrganizationSponsorships
-                        where os.SponsoringOrganizationId == sponsoringOrganizationId
-                        select os;
+            var query =
+                from os in dbContext.OrganizationSponsorships
+                where os.SponsoringOrganizationId == sponsoringOrganizationId
+                select os;
             return Mapper.Map<List<Core.Entities.OrganizationSponsorship>>(await query.ToListAsync());
         }
     }
-
 }

@@ -33,6 +33,7 @@ public class OrganizationUserResetPasswordDetails
         ResetPasswordKey = orgUser.ResetPasswordKey;
         EncryptedPrivateKey = org.PrivateKey;
     }
+
     public Guid OrganizationUserId { get; set; }
     public KdfType Kdf { get; set; }
     public int KdfIterations { get; set; }

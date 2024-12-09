@@ -23,7 +23,8 @@ public class SavePolicyCommand : ISavePolicyCommand
         IEventService eventService,
         IPolicyRepository policyRepository,
         IEnumerable<IPolicyValidator> policyValidators,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider
+    )
     {
         _applicationCacheService = applicationCacheService;
         _eventService = eventService;
@@ -60,13 +61,14 @@ public class SavePolicyCommand : ISavePolicyCommand
             await RunValidatorAsync(validator, policyUpdate);
         }
 
-        var policy = await _policyRepository.GetByOrganizationIdTypeAsync(policyUpdate.OrganizationId, policyUpdate.Type)
-                     ?? new Policy
-                     {
-                         OrganizationId = policyUpdate.OrganizationId,
-                         Type = policyUpdate.Type,
-                         CreationDate = _timeProvider.GetUtcNow().UtcDateTime
-                     };
+        var policy =
+            await _policyRepository.GetByOrganizationIdTypeAsync(policyUpdate.OrganizationId, policyUpdate.Type)
+            ?? new Policy
+            {
+                OrganizationId = policyUpdate.OrganizationId,
+                Type = policyUpdate.Type,
+                CreationDate = _timeProvider.GetUtcNow().UtcDateTime,
+            };
 
         policy.Enabled = policyUpdate.Enabled;
         policy.Data = policyUpdate.Data;
@@ -88,32 +90,41 @@ public class SavePolicyCommand : ISavePolicyCommand
         // If enabling this policy - check that all policy requirements are satisfied
         if (currentPolicy is not { Enabled: true } && policyUpdate.Enabled)
         {
-            var missingRequiredPolicyTypes = validator.RequiredPolicies
-                .Where(requiredPolicyType => savedPoliciesDict.GetValueOrDefault(requiredPolicyType) is not { Enabled: true })
+            var missingRequiredPolicyTypes = validator
+                .RequiredPolicies.Where(requiredPolicyType =>
+                    savedPoliciesDict.GetValueOrDefault(requiredPolicyType) is not { Enabled: true }
+                )
                 .ToList();
 
             if (missingRequiredPolicyTypes.Count != 0)
             {
-                throw new BadRequestException($"Turn on the {missingRequiredPolicyTypes.First().GetName()} policy because it is required for the {validator.Type.GetName()} policy.");
+                throw new BadRequestException(
+                    $"Turn on the {missingRequiredPolicyTypes.First().GetName()} policy because it is required for the {validator.Type.GetName()} policy."
+                );
             }
         }
 
         // If disabling this policy - ensure it's not required by any other policy
         if (currentPolicy is { Enabled: true } && !policyUpdate.Enabled)
         {
-            var dependentPolicyTypes = _policyValidators.Values
-                .Where(otherValidator => otherValidator.RequiredPolicies.Contains(policyUpdate.Type))
+            var dependentPolicyTypes = _policyValidators
+                .Values.Where(otherValidator => otherValidator.RequiredPolicies.Contains(policyUpdate.Type))
                 .Select(otherValidator => otherValidator.Type)
-                .Where(otherPolicyType => savedPoliciesDict.ContainsKey(otherPolicyType) &&
-                    savedPoliciesDict[otherPolicyType].Enabled)
+                .Where(otherPolicyType =>
+                    savedPoliciesDict.ContainsKey(otherPolicyType) && savedPoliciesDict[otherPolicyType].Enabled
+                )
                 .ToList();
 
             switch (dependentPolicyTypes)
             {
                 case { Count: 1 }:
-                    throw new BadRequestException($"Turn off the {dependentPolicyTypes.First().GetName()} policy because it requires the {validator.Type.GetName()} policy.");
+                    throw new BadRequestException(
+                        $"Turn off the {dependentPolicyTypes.First().GetName()} policy because it requires the {validator.Type.GetName()} policy."
+                    );
                 case { Count: > 1 }:
-                    throw new BadRequestException($"Turn off all of the policies that require the {validator.Type.GetName()} policy.");
+                    throw new BadRequestException(
+                        $"Turn off all of the policies that require the {validator.Type.GetName()} policy."
+                    );
             }
         }
 

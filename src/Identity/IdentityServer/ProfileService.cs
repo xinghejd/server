@@ -25,7 +25,8 @@ public class ProfileService : IProfileService
         IProviderUserRepository providerUserRepository,
         IProviderOrganizationRepository providerOrganizationRepository,
         ILicensingService licensingService,
-        ICurrentContext currentContext)
+        ICurrentContext currentContext
+    )
     {
         _userService = userService;
         _organizationUserRepository = organizationUserRepository;
@@ -50,17 +51,19 @@ public class ProfileService : IProfileService
             {
                 var upperValue = claim.Value.ToUpperInvariant();
                 var isBool = upperValue == "TRUE" || upperValue == "FALSE";
-                newClaims.Add(isBool ?
-                    new Claim(claim.Key, claim.Value, ClaimValueTypes.Boolean) :
-                    new Claim(claim.Key, claim.Value)
+                newClaims.Add(
+                    isBool
+                        ? new Claim(claim.Key, claim.Value, ClaimValueTypes.Boolean)
+                        : new Claim(claim.Key, claim.Value)
                 );
             }
         }
 
         // filter out any of the new claims
         var existingClaimsToKeep = existingClaims
-            .Where(c => !c.Type.StartsWith("org") &&
-                (newClaims.Count == 0 || !newClaims.Any(nc => nc.Type == c.Type)))
+            .Where(c =>
+                !c.Type.StartsWith("org") && (newClaims.Count == 0 || !newClaims.Any(nc => nc.Type == c.Type))
+            )
             .ToList();
 
         newClaims.AddRange(existingClaimsToKeep);
@@ -77,8 +80,11 @@ public class ProfileService : IProfileService
 
         if (user != null && securityTokenClaim != null)
         {
-            context.IsActive = string.Equals(user.SecurityStamp, securityTokenClaim.Value,
-                StringComparison.InvariantCultureIgnoreCase);
+            context.IsActive = string.Equals(
+                user.SecurityStamp,
+                securityTokenClaim.Value,
+                StringComparison.InvariantCultureIgnoreCase
+            );
             return;
         }
         else

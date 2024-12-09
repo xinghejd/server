@@ -22,7 +22,8 @@ public class PostUserCommand : IPostUserCommand
         IOrganizationUserRepository organizationUserRepository,
         IOrganizationService organizationService,
         IPaymentService paymentService,
-        IScimContext scimContext)
+        IScimContext scimContext
+    )
     {
         _organizationRepository = organizationRepository;
         _organizationUserRepository = organizationUserRepository;
@@ -61,8 +62,13 @@ public class PostUserCommand : IPostUserCommand
         var hasStandaloneSecretsManager = await _paymentService.HasSecretsManagerStandalone(organization);
         invite.AccessSecretsManager = hasStandaloneSecretsManager;
 
-        var invitedOrgUser = await _organizationService.InviteUserAsync(organizationId, invitingUserId: null, EventSystemUser.SCIM,
-            invite, externalId);
+        var invitedOrgUser = await _organizationService.InviteUserAsync(
+            organizationId,
+            invitingUserId: null,
+            EventSystemUser.SCIM,
+            invite,
+            externalId
+        );
         var orgUser = await _organizationUserRepository.GetDetailsByIdAsync(invitedOrgUser.Id);
 
         return orgUser;

@@ -29,26 +29,32 @@ public class ApiApplicationFactory : WebApplicationFactoryBase<Startup>
         builder.ConfigureTestServices(services =>
         {
             // Remove scheduled background jobs to prevent errors in parallel test execution
-            var jobService = services.First(sd => sd.ServiceType == typeof(IHostedService) && sd.ImplementationType == typeof(Jobs.JobsHostedService));
+            var jobService = services.First(sd =>
+                sd.ServiceType == typeof(IHostedService) && sd.ImplementationType == typeof(Jobs.JobsHostedService)
+            );
             services.Remove(jobService);
 
-            services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.BackchannelHttpHandler = _identityApplicationFactory.Server.CreateHandler();
-            });
+            services.Configure<JwtBearerOptions>(
+                JwtBearerDefaults.AuthenticationScheme,
+                options =>
+                {
+                    options.BackchannelHttpHandler = _identityApplicationFactory.Server.CreateHandler();
+                }
+            );
         });
     }
 
     /// <summary>
     /// Helper for registering and logging in to a new account
     /// </summary>
-    public async Task<(string Token, string RefreshToken)> LoginWithNewAccount(string email = "integration-test@bitwarden.com", string masterPasswordHash = "master_password_hash")
+    public async Task<(string Token, string RefreshToken)> LoginWithNewAccount(
+        string email = "integration-test@bitwarden.com",
+        string masterPasswordHash = "master_password_hash"
+    )
     {
-        await _identityApplicationFactory.RegisterAsync(new RegisterRequestModel
-        {
-            Email = email,
-            MasterPasswordHash = masterPasswordHash,
-        });
+        await _identityApplicationFactory.RegisterAsync(
+            new RegisterRequestModel { Email = email, MasterPasswordHash = masterPasswordHash }
+        );
 
         return await _identityApplicationFactory.TokenFromPasswordAsync(email, masterPasswordHash);
     }
@@ -56,7 +62,10 @@ public class ApiApplicationFactory : WebApplicationFactoryBase<Startup>
     /// <summary>
     /// Helper for logging in to an account
     /// </summary>
-    public async Task<(string Token, string RefreshToken)> LoginAsync(string email = "integration-test@bitwarden.com", string masterPasswordHash = "master_password_hash")
+    public async Task<(string Token, string RefreshToken)> LoginAsync(
+        string email = "integration-test@bitwarden.com",
+        string masterPasswordHash = "master_password_hash"
+    )
     {
         return await _identityApplicationFactory.TokenFromPasswordAsync(email, masterPasswordHash);
     }

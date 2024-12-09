@@ -43,9 +43,7 @@ public class SubscriptionInfo
                 Items = sub.Items.Data.Select(i => new BillingSubscriptionItem(i));
             }
             CollectionMethod = sub.CollectionMethod;
-            GracePeriod = sub.CollectionMethod == "charge_automatically"
-                ? 14
-                : 30;
+            GracePeriod = sub.CollectionMethod == "charge_automatically" ? 14 : 30;
         }
 
         public DateTime? TrialStartDate { get; set; }
@@ -73,12 +71,13 @@ public class SubscriptionInfo
                     Name = item.Plan.Nickname;
                     Amount = item.Plan.Amount.GetValueOrDefault() / 100M;
                     Interval = item.Plan.Interval;
-                    AddonSubscriptionItem =
-                        Utilities.StaticStore.IsAddonSubscriptionItem(item.Plan.Id);
+                    AddonSubscriptionItem = Utilities.StaticStore.IsAddonSubscriptionItem(item.Plan.Id);
                 }
 
                 Quantity = (int)item.Quantity;
-                SponsoredSubscriptionItem = Utilities.StaticStore.SponsoredPlans.Any(p => p.StripePlanId == item.Plan.Id);
+                SponsoredSubscriptionItem = Utilities.StaticStore.SponsoredPlans.Any(p =>
+                    p.StripePlanId == item.Plan.Id
+                );
             }
 
             public bool AddonSubscriptionItem { get; set; }

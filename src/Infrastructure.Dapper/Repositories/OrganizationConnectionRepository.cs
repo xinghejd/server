@@ -10,11 +10,12 @@ using Microsoft.Data.SqlClient;
 
 namespace Bit.Infrastructure.Dapper.Repositories;
 
-public class OrganizationConnectionRepository : Repository<OrganizationConnection, Guid>, IOrganizationConnectionRepository
+public class OrganizationConnectionRepository
+    : Repository<OrganizationConnection, Guid>,
+        IOrganizationConnectionRepository
 {
     public OrganizationConnectionRepository(GlobalSettings globalSettings)
-        : base(globalSettings.SqlServer.ConnectionString, globalSettings.SqlServer.ReadOnlyConnectionString)
-    { }
+        : base(globalSettings.SqlServer.ConnectionString, globalSettings.SqlServer.ReadOnlyConnectionString) { }
 
     public async Task<OrganizationConnection?> GetByIdOrganizationIdAsync(Guid id, Guid organizationId)
     {
@@ -22,34 +23,33 @@ public class OrganizationConnectionRepository : Repository<OrganizationConnectio
         {
             var results = await connection.QueryAsync<OrganizationConnection>(
                 $"[{Schema}].[OrganizationConnection_ReadByIdOrganizationId]",
-                new
-                {
-                    Id = id,
-                    OrganizationId = organizationId
-                },
-                commandType: CommandType.StoredProcedure);
+                new { Id = id, OrganizationId = organizationId },
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.FirstOrDefault();
         }
     }
 
-    public async Task<ICollection<OrganizationConnection>> GetByOrganizationIdTypeAsync(Guid organizationId, OrganizationConnectionType type)
+    public async Task<ICollection<OrganizationConnection>> GetByOrganizationIdTypeAsync(
+        Guid organizationId,
+        OrganizationConnectionType type
+    )
     {
         using (var connection = new SqlConnection(ConnectionString))
         {
             var results = await connection.QueryAsync<OrganizationConnection>(
                 $"[{Schema}].[OrganizationConnection_ReadByOrganizationIdType]",
-                new
-                {
-                    OrganizationId = organizationId,
-                    Type = type
-                },
-                commandType: CommandType.StoredProcedure);
+                new { OrganizationId = organizationId, Type = type },
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.ToList();
         }
     }
 
-    public async Task<ICollection<OrganizationConnection>> GetEnabledByOrganizationIdTypeAsync(Guid organizationId, OrganizationConnectionType type) =>
-        (await GetByOrganizationIdTypeAsync(organizationId, type)).Where(c => c.Enabled).ToList();
+    public async Task<ICollection<OrganizationConnection>> GetEnabledByOrganizationIdTypeAsync(
+        Guid organizationId,
+        OrganizationConnectionType type
+    ) => (await GetByOrganizationIdTypeAsync(organizationId, type)).Where(c => c.Enabled).ToList();
 }

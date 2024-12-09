@@ -22,8 +22,13 @@ public class ProvidersController : Controller
     private readonly ICurrentContext _currentContext;
     private readonly GlobalSettings _globalSettings;
 
-    public ProvidersController(IUserService userService, IProviderRepository providerRepository,
-        IProviderService providerService, ICurrentContext currentContext, GlobalSettings globalSettings)
+    public ProvidersController(
+        IUserService userService,
+        IProviderRepository providerRepository,
+        IProviderService providerService,
+        ICurrentContext currentContext,
+        GlobalSettings globalSettings
+    )
     {
         _userService = userService;
         _providerRepository = providerRepository;
@@ -84,22 +89,27 @@ public class ProvidersController : Controller
 
         var userId = _userService.GetProperUserId(User).Value;
 
-        var taxInfo = model.TaxInfo != null
-            ? new TaxInfo
-            {
-                BillingAddressCountry = model.TaxInfo.Country,
-                BillingAddressPostalCode = model.TaxInfo.PostalCode,
-                TaxIdNumber = model.TaxInfo.TaxId,
-                BillingAddressLine1 = model.TaxInfo.Line1,
-                BillingAddressLine2 = model.TaxInfo.Line2,
-                BillingAddressCity = model.TaxInfo.City,
-                BillingAddressState = model.TaxInfo.State
-            }
-            : null;
+        var taxInfo =
+            model.TaxInfo != null
+                ? new TaxInfo
+                {
+                    BillingAddressCountry = model.TaxInfo.Country,
+                    BillingAddressPostalCode = model.TaxInfo.PostalCode,
+                    TaxIdNumber = model.TaxInfo.TaxId,
+                    BillingAddressLine1 = model.TaxInfo.Line1,
+                    BillingAddressLine2 = model.TaxInfo.Line2,
+                    BillingAddressCity = model.TaxInfo.City,
+                    BillingAddressState = model.TaxInfo.State,
+                }
+                : null;
 
-        var response =
-            await _providerService.CompleteSetupAsync(model.ToProvider(provider), userId, model.Token, model.Key,
-                taxInfo);
+        var response = await _providerService.CompleteSetupAsync(
+            model.ToProvider(provider),
+            userId,
+            model.Token,
+            model.Key,
+            taxInfo
+        );
 
         return new ProviderResponseModel(response);
     }

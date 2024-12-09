@@ -53,7 +53,10 @@ public static class SecretsManagerCollectionExtensions
         services.AddScoped<IServiceAccountGrantedPolicyUpdatesQuery, ServiceAccountGrantedPolicyUpdatesQuery>();
         services.AddScoped<ISecretAccessPoliciesUpdatesQuery, SecretAccessPoliciesUpdatesQuery>();
         services.AddScoped<ISecretsSyncQuery, SecretsSyncQuery>();
-        services.AddScoped<IProjectServiceAccountsAccessPoliciesUpdatesQuery, ProjectServiceAccountsAccessPoliciesUpdatesQuery>();
+        services.AddScoped<
+            IProjectServiceAccountsAccessPoliciesUpdatesQuery,
+            ProjectServiceAccountsAccessPoliciesUpdatesQuery
+        >();
         services.AddScoped<ICreateSecretCommand, CreateSecretCommand>();
         services.AddScoped<IUpdateSecretCommand, UpdateSecretCommand>();
         services.AddScoped<IDeleteSecretCommand, DeleteSecretCommand>();
@@ -70,7 +73,13 @@ public static class SecretsManagerCollectionExtensions
         services.AddScoped<IImportCommand, ImportCommand>();
         services.AddScoped<IEmptyTrashCommand, EmptyTrashCommand>();
         services.AddScoped<IRestoreTrashCommand, RestoreTrashCommand>();
-        services.AddScoped<IUpdateServiceAccountGrantedPoliciesCommand, UpdateServiceAccountGrantedPoliciesCommand>();
-        services.AddScoped<IUpdateProjectServiceAccountsAccessPoliciesCommand, UpdateProjectServiceAccountsAccessPoliciesCommand>();
+        services.AddScoped<
+            IUpdateServiceAccountGrantedPoliciesCommand,
+            UpdateServiceAccountGrantedPoliciesCommand
+        >();
+        services.AddScoped<
+            IUpdateProjectServiceAccountsAccessPoliciesCommand,
+            UpdateProjectServiceAccountsAccessPoliciesCommand
+        >();
     }
 }

@@ -17,15 +17,19 @@ public class DomainIcons : IEnumerable<Icon>
     public string Domain { get; }
     public Icon this[int i]
     {
-        get
-        {
-            return _icons[i];
-        }
+        get { return _icons[i]; }
     }
+
     public IEnumerator<Icon> GetEnumerator() => ((IEnumerable<Icon>)_icons).GetEnumerator();
+
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_icons).GetEnumerator();
 
-    private DomainIcons(string domain, ILogger<IIconFetchingService> logger, IHttpClientFactory httpClientFactory, IUriService uriService)
+    private DomainIcons(
+        string domain,
+        ILogger<IIconFetchingService> logger,
+        IHttpClientFactory httpClientFactory,
+        IUriService uriService
+    )
     {
         _logger = logger;
         _httpClientFactory = httpClientFactory;
@@ -33,13 +37,18 @@ public class DomainIcons : IEnumerable<Icon>
         Domain = domain;
     }
 
-    public static async Task<DomainIcons> FetchAsync(string domain, ILogger<IIconFetchingService> logger, IHttpClientFactory httpClientFactory, IHtmlParser parser, IUriService uriService)
+    public static async Task<DomainIcons> FetchAsync(
+        string domain,
+        ILogger<IIconFetchingService> logger,
+        IHttpClientFactory httpClientFactory,
+        IHtmlParser parser,
+        IUriService uriService
+    )
     {
         var pageIcons = new DomainIcons(domain, logger, httpClientFactory, uriService);
         await pageIcons.FetchIconsAsync(parser);
         return pageIcons;
     }
-
 
     private async Task FetchIconsAsync(IHtmlParser parser)
     {
@@ -75,8 +84,11 @@ public class DomainIcons : IEnumerable<Icon>
         var dotCount = Domain.Count(c => c == '.');
 
         // Then try base domain
-        if (dotCount > 1 && DomainName.TryParseBaseDomain(Domain, out var baseDomain) &&
-            Uri.TryCreate($"https://{baseDomain}", UriKind.Absolute, out uri))
+        if (
+            dotCount > 1
+            && DomainName.TryParseBaseDomain(Domain, out var baseDomain)
+            && Uri.TryCreate($"https://{baseDomain}", UriKind.Absolute, out uri)
+        )
         {
             using var response = await IconHttpRequest.FetchAsync(uri, _logger, _httpClientFactory, _uriService);
             if (response.IsSuccessStatusCode)

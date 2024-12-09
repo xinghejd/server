@@ -11,7 +11,10 @@ namespace Bit.Core.Utilities;
 public abstract class BulkAuthorizationHandler<TRequirement, TResource> : AuthorizationHandler<TRequirement>
     where TRequirement : IAuthorizationRequirement
 {
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, TRequirement requirement)
+    protected override async Task HandleRequirementAsync(
+        AuthorizationHandlerContext context,
+        TRequirement requirement
+    )
     {
         // Attempt to get the resource(s) from the context
         var bulkResources = GetBulkResourceFromContext(context);
@@ -31,10 +34,13 @@ public abstract class BulkAuthorizationHandler<TRequirement, TResource> : Author
         {
             TResource resource => new List<TResource> { resource },
             IEnumerable<TResource> resources => resources.ToList(),
-            _ => null
+            _ => null,
         };
     }
 
-    protected abstract Task HandleRequirementAsync(AuthorizationHandlerContext context, TRequirement requirement,
-        ICollection<TResource> resources);
+    protected abstract Task HandleRequirementAsync(
+        AuthorizationHandlerContext context,
+        TRequirement requirement,
+        ICollection<TResource> resources
+    );
 }

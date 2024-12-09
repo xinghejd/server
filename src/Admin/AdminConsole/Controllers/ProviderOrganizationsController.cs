@@ -19,10 +19,12 @@ public class ProviderOrganizationsController : Controller
     private readonly IOrganizationRepository _organizationRepository;
     private readonly IRemoveOrganizationFromProviderCommand _removeOrganizationFromProviderCommand;
 
-    public ProviderOrganizationsController(IProviderRepository providerRepository,
+    public ProviderOrganizationsController(
+        IProviderRepository providerRepository,
         IProviderOrganizationRepository providerOrganizationRepository,
         IOrganizationRepository organizationRepository,
-        IRemoveOrganizationFromProviderCommand removeOrganizationFromProviderCommand)
+        IRemoveOrganizationFromProviderCommand removeOrganizationFromProviderCommand
+    )
     {
         _providerRepository = providerRepository;
         _providerOrganizationRepository = providerOrganizationRepository;
@@ -57,7 +59,8 @@ public class ProviderOrganizationsController : Controller
             await _removeOrganizationFromProviderCommand.RemoveOrganizationFromProvider(
                 provider,
                 providerOrganization,
-                organization);
+                organization
+            );
         }
         catch (BadRequestException ex)
         {

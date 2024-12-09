@@ -35,7 +35,8 @@ public class ProjectsController : Controller
         ICreateProjectCommand createProjectCommand,
         IUpdateProjectCommand updateProjectCommand,
         IDeleteProjectCommand deleteProjectCommand,
-        IAuthorizationService authorizationService)
+        IAuthorizationService authorizationService
+    )
     {
         _currentContext = currentContext;
         _userService = userService;
@@ -48,7 +49,9 @@ public class ProjectsController : Controller
     }
 
     [HttpGet("organizations/{organizationId}/projects")]
-    public async Task<ListResponseModel<ProjectResponseModel>> ListByOrganizationAsync([FromRoute] Guid organizationId)
+    public async Task<ListResponseModel<ProjectResponseModel>> ListByOrganizationAsync(
+        [FromRoute] Guid organizationId
+    )
     {
         if (!_currentContext.AccessSecretsManager(organizationId))
         {
@@ -66,12 +69,17 @@ public class ProjectsController : Controller
     }
 
     [HttpPost("organizations/{organizationId}/projects")]
-    public async Task<ProjectResponseModel> CreateAsync([FromRoute] Guid organizationId,
-        [FromBody] ProjectCreateRequestModel createRequest)
+    public async Task<ProjectResponseModel> CreateAsync(
+        [FromRoute] Guid organizationId,
+        [FromBody] ProjectCreateRequestModel createRequest
+    )
     {
         var project = createRequest.ToProject(organizationId);
-        var authorizationResult =
-            await _authorizationService.AuthorizeAsync(User, project, ProjectOperations.Create);
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+            User,
+            project,
+            ProjectOperations.Create
+        );
         if (!authorizationResult.Succeeded)
         {
             throw new NotFoundException();
@@ -80,7 +88,9 @@ public class ProjectsController : Controller
         var (max, overMax) = await _maxProjectsQuery.GetByOrgIdAsync(organizationId, 1);
         if (overMax != null && overMax.Value)
         {
-            throw new BadRequestException($"You have reached the maximum number of projects ({max}) for this plan.");
+            throw new BadRequestException(
+                $"You have reached the maximum number of projects ({max}) for this plan."
+            );
         }
 
         var userId = _userService.GetProperUserId(User).Value;
@@ -91,12 +101,17 @@ public class ProjectsController : Controller
     }
 
     [HttpPut("projects/{id}")]
-    public async Task<ProjectResponseModel> UpdateAsync([FromRoute] Guid id,
-        [FromBody] ProjectUpdateRequestModel updateRequest)
+    public async Task<ProjectResponseModel> UpdateAsync(
+        [FromRoute] Guid id,
+        [FromBody] ProjectUpdateRequestModel updateRequest
+    )
     {
         var project = await _projectRepository.GetByIdAsync(id);
-        var authorizationResult =
-            await _authorizationService.AuthorizeAsync(User, project, ProjectOperations.Update);
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+            User,
+            project,
+            ProjectOperations.Update
+        );
         if (!authorizationResult.Succeeded)
         {
             throw new NotFoundException();
@@ -137,8 +152,7 @@ public class ProjectsController : Controller
     }
 
     [HttpPost("projects/delete")]
-    public async Task<ListResponseModel<BulkDeleteResponseModel>> BulkDeleteAsync(
-        [FromBody] List<Guid> ids)
+    public async Task<ListResponseModel<BulkDeleteResponseModel>> BulkDeleteAsync([FromBody] List<Guid> ids)
     {
         var projects = (await _projectRepository.GetManyWithSecretsByIds(ids)).ToList();
         if (!projects.Any() || projects.Count != ids.Count)
@@ -148,8 +162,10 @@ public class ProjectsController : Controller
 
         // Ensure all projects belongs to the same organization
         var organizationId = projects.First().OrganizationId;
-        if (projects.Any(p => p.OrganizationId != organizationId) ||
-            !_currentContext.AccessSecretsManager(organizationId))
+        if (
+            projects.Any(p => p.OrganizationId != organizationId)
+            || !_currentContext.AccessSecretsManager(organizationId)
+        )
         {
             throw new NotFoundException();
         }
@@ -159,8 +175,11 @@ public class ProjectsController : Controller
 
         foreach (var project in projects)
         {
-            var authorizationResult =
-                await _authorizationService.AuthorizeAsync(User, project, ProjectOperations.Delete);
+            var authorizationResult = await _authorizationService.AuthorizeAsync(
+                User,
+                project,
+                ProjectOperations.Delete
+            );
             if (authorizationResult.Succeeded)
             {
                 projectsToDelete.Add(project);

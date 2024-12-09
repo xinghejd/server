@@ -13,7 +13,9 @@ public static class AssemblyHelpers
     static AssemblyHelpers()
     {
         _assemblyMetadataAttributes = Assembly.GetEntryAssembly().GetCustomAttributes<AssemblyMetadataAttribute>();
-        _assemblyInformationalVersionAttributes = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        _assemblyInformationalVersionAttributes = Assembly
+            .GetEntryAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
     }
 
     public static string GetVersion()
@@ -34,8 +36,7 @@ public static class AssemblyHelpers
             {
                 _gitHash = _assemblyMetadataAttributes.Where(i => i.Key == GIT_HASH_ASSEMBLY_KEY).First().Value;
             }
-            catch (Exception)
-            { }
+            catch (Exception) { }
         }
 
         return _gitHash;

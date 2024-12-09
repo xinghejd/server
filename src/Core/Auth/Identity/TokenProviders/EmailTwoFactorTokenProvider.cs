@@ -14,9 +14,9 @@ public class EmailTwoFactorTokenProvider : EmailTokenProvider
 
     public EmailTwoFactorTokenProvider(
         IServiceProvider serviceProvider,
-        [FromKeyedServices("persistent")]
-        IDistributedCache distributedCache) :
-        base(distributedCache)
+        [FromKeyedServices("persistent")] IDistributedCache distributedCache
+    )
+        : base(distributedCache)
     {
         _serviceProvider = serviceProvider;
 
@@ -33,8 +33,9 @@ public class EmailTwoFactorTokenProvider : EmailTokenProvider
             return false;
         }
 
-        return await _serviceProvider.GetRequiredService<IUserService>().
-            TwoFactorProviderIsEnabledAsync(TwoFactorProviderType.Email, user);
+        return await _serviceProvider
+            .GetRequiredService<IUserService>()
+            .TwoFactorProviderIsEnabledAsync(TwoFactorProviderType.Email, user);
     }
 
     public override Task<string> GenerateAsync(string purpose, UserManager<User> manager, User user)
@@ -50,7 +51,8 @@ public class EmailTwoFactorTokenProvider : EmailTokenProvider
 
     private static bool HasProperMetaData(TwoFactorProvider provider)
     {
-        return provider?.MetaData != null && provider.MetaData.ContainsKey("Email") &&
-            !string.IsNullOrWhiteSpace((string)provider.MetaData["Email"]);
+        return provider?.MetaData != null
+            && provider.MetaData.ContainsKey("Email")
+            && !string.IsNullOrWhiteSpace((string)provider.MetaData["Email"]);
     }
 }

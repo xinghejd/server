@@ -28,23 +28,69 @@ public class CipherRepositoryTests
     }
 
     [CiSkippedTheory, EfUserCipherCustomize, BitAutoData]
-    public Task UserCipher_CreateAsync_Works_DataMatches(Cipher cipher, User user, Organization org,
-        CipherCompare equalityComparer, List<EfVaultRepo.CipherRepository> suts, List<EfRepo.UserRepository> efUserRepos,
-        List<EfRepo.OrganizationRepository> efOrgRepos, SqlVaultRepo.CipherRepository sqlCipherRepo,
-        SqlRepo.UserRepository sqlUserRepo, SqlRepo.OrganizationRepository sqlOrgRepo) => CreateAsync_Works_DataMatches(
-            cipher, user, org, equalityComparer, suts, efUserRepos, efOrgRepos, sqlCipherRepo, sqlUserRepo, sqlOrgRepo);
+    public Task UserCipher_CreateAsync_Works_DataMatches(
+        Cipher cipher,
+        User user,
+        Organization org,
+        CipherCompare equalityComparer,
+        List<EfVaultRepo.CipherRepository> suts,
+        List<EfRepo.UserRepository> efUserRepos,
+        List<EfRepo.OrganizationRepository> efOrgRepos,
+        SqlVaultRepo.CipherRepository sqlCipherRepo,
+        SqlRepo.UserRepository sqlUserRepo,
+        SqlRepo.OrganizationRepository sqlOrgRepo
+    ) =>
+        CreateAsync_Works_DataMatches(
+            cipher,
+            user,
+            org,
+            equalityComparer,
+            suts,
+            efUserRepos,
+            efOrgRepos,
+            sqlCipherRepo,
+            sqlUserRepo,
+            sqlOrgRepo
+        );
 
     [CiSkippedTheory, EfOrganizationCipherCustomize, BitAutoData]
-    public Task OrganizationCipher_CreateAsync_Works_DataMatches(Cipher cipher, User user, Organization org,
-        CipherCompare equalityComparer, List<EfVaultRepo.CipherRepository> suts, List<EfRepo.UserRepository> efUserRepos,
-        List<EfRepo.OrganizationRepository> efOrgRepos, SqlVaultRepo.CipherRepository sqlCipherRepo,
-        SqlRepo.UserRepository sqlUserRepo, SqlRepo.OrganizationRepository sqlOrgRepo) => CreateAsync_Works_DataMatches(
-            cipher, user, org, equalityComparer, suts, efUserRepos, efOrgRepos, sqlCipherRepo, sqlUserRepo, sqlOrgRepo);
+    public Task OrganizationCipher_CreateAsync_Works_DataMatches(
+        Cipher cipher,
+        User user,
+        Organization org,
+        CipherCompare equalityComparer,
+        List<EfVaultRepo.CipherRepository> suts,
+        List<EfRepo.UserRepository> efUserRepos,
+        List<EfRepo.OrganizationRepository> efOrgRepos,
+        SqlVaultRepo.CipherRepository sqlCipherRepo,
+        SqlRepo.UserRepository sqlUserRepo,
+        SqlRepo.OrganizationRepository sqlOrgRepo
+    ) =>
+        CreateAsync_Works_DataMatches(
+            cipher,
+            user,
+            org,
+            equalityComparer,
+            suts,
+            efUserRepos,
+            efOrgRepos,
+            sqlCipherRepo,
+            sqlUserRepo,
+            sqlOrgRepo
+        );
 
-    private async Task CreateAsync_Works_DataMatches(Cipher cipher, User user, Organization org,
-        CipherCompare equalityComparer, List<EfVaultRepo.CipherRepository> suts, List<EfRepo.UserRepository> efUserRepos,
-        List<EfRepo.OrganizationRepository> efOrgRepos, SqlVaultRepo.CipherRepository sqlCipherRepo,
-        SqlRepo.UserRepository sqlUserRepo, SqlRepo.OrganizationRepository sqlOrgRepo)
+    private async Task CreateAsync_Works_DataMatches(
+        Cipher cipher,
+        User user,
+        Organization org,
+        CipherCompare equalityComparer,
+        List<EfVaultRepo.CipherRepository> suts,
+        List<EfRepo.UserRepository> efUserRepos,
+        List<EfRepo.OrganizationRepository> efOrgRepos,
+        SqlVaultRepo.CipherRepository sqlCipherRepo,
+        SqlRepo.UserRepository sqlUserRepo,
+        SqlRepo.OrganizationRepository sqlOrgRepo
+    )
     {
         var savedCiphers = new List<Cipher>();
         foreach (var sut in suts)
@@ -87,7 +133,12 @@ public class CipherRepositoryTests
     }
 
     [CiSkippedTheory, EfUserCipherCustomize, BitAutoData]
-    public async Task CreateAsync_BumpsUserAccountRevisionDate(Cipher cipher, User user, List<EfVaultRepo.CipherRepository> suts, List<EfRepo.UserRepository> efUserRepos)
+    public async Task CreateAsync_BumpsUserAccountRevisionDate(
+        Cipher cipher,
+        User user,
+        List<EfVaultRepo.CipherRepository> suts,
+        List<EfRepo.UserRepository> efUserRepos
+    )
     {
         var bumpedUsers = new List<User>();
         foreach (var sut in suts)
@@ -106,13 +157,24 @@ public class CipherRepositoryTests
             bumpedUsers.Add(bumpedUser);
         }
 
-        Assert.True(bumpedUsers.All(u => u.AccountRevisionDate.ToShortDateString() == DateTime.UtcNow.ToShortDateString()));
+        Assert.True(
+            bumpedUsers.All(u => u.AccountRevisionDate.ToShortDateString() == DateTime.UtcNow.ToShortDateString())
+        );
     }
 
     [CiSkippedTheory, EfOrganizationCipherCustomize, BitAutoData]
-    public async Task CreateAsync_BumpsOrgUserAccountRevisionDates(Cipher cipher, List<User> users,
-        List<OrganizationUser> orgUsers, Collection collection, Organization org, List<EfVaultRepo.CipherRepository> suts, List<EfRepo.UserRepository> efUserRepos, List<EfRepo.OrganizationRepository> efOrgRepos,
-        List<EfRepo.OrganizationUserRepository> efOrgUserRepos, List<EfRepo.CollectionRepository> efCollectionRepos)
+    public async Task CreateAsync_BumpsOrgUserAccountRevisionDates(
+        Cipher cipher,
+        List<User> users,
+        List<OrganizationUser> orgUsers,
+        Collection collection,
+        Organization org,
+        List<EfVaultRepo.CipherRepository> suts,
+        List<EfRepo.UserRepository> efUserRepos,
+        List<EfRepo.OrganizationRepository> efOrgRepos,
+        List<EfRepo.OrganizationUserRepository> efOrgUserRepos,
+        List<EfRepo.CollectionRepository> efCollectionRepos
+    )
     {
         var savedCiphers = new List<Cipher>();
         foreach (var sut in suts)
@@ -155,7 +217,7 @@ public class CipherRepositoryTests
                 var collectionUser = new CollectionUser()
                 {
                     CollectionId = efCollection.Id,
-                    OrganizationUserId = ou.Id
+                    OrganizationUserId = ou.Id,
                 };
             }
 
@@ -165,9 +227,11 @@ public class CipherRepositoryTests
 
             var query = new UserBumpAccountRevisionDateByCipherIdQuery(cipher.Id, cipher.OrganizationId.Value);
             var modifiedUsers = await sut.Run(query).ToListAsync();
-            Assert.True(modifiedUsers
-                .All(u => u.AccountRevisionDate.ToShortDateString() ==
-                    DateTime.UtcNow.ToShortDateString()));
+            Assert.True(
+                modifiedUsers.All(u =>
+                    u.AccountRevisionDate.ToShortDateString() == DateTime.UtcNow.ToShortDateString()
+                )
+            );
         }
     }
 
@@ -179,7 +243,8 @@ public class CipherRepositoryTests
         List<EfVaultRepo.CipherRepository> suts,
         List<EfRepo.UserRepository> efUserRepos,
         List<EfRepo.OrganizationRepository> efOrgRepos
-            ) => await DeleteAsync_CipherIsDeleted(cipher, user, org, suts, efUserRepos, efOrgRepos);
+    ) => await DeleteAsync_CipherIsDeleted(cipher, user, org, suts, efUserRepos, efOrgRepos);
+
     [CiSkippedTheory, EfOrganizationCipherCustomize, BitAutoData]
     public async Task OrganizationCipher_DeleteAsync_CipherIsDeleted(
         Cipher cipher,
@@ -188,7 +253,7 @@ public class CipherRepositoryTests
         List<EfVaultRepo.CipherRepository> suts,
         List<EfRepo.UserRepository> efUserRepos,
         List<EfRepo.OrganizationRepository> efOrgRepos
-            ) => await DeleteAsync_CipherIsDeleted(cipher, user, org, suts, efUserRepos, efOrgRepos);
+    ) => await DeleteAsync_CipherIsDeleted(cipher, user, org, suts, efUserRepos, efOrgRepos);
 
     private async Task DeleteAsync_CipherIsDeleted(
         Cipher cipher,
@@ -197,7 +262,7 @@ public class CipherRepositoryTests
         List<EfVaultRepo.CipherRepository> suts,
         List<EfRepo.UserRepository> efUserRepos,
         List<EfRepo.OrganizationRepository> efOrgRepos
-            )
+    )
     {
         foreach (var sut in suts)
         {

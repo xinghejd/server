@@ -7,7 +7,11 @@ namespace Bit.Api.AdminConsole.Models.Response;
 
 public class PendingOrganizationAuthRequestResponseModel : ResponseModel
 {
-    public PendingOrganizationAuthRequestResponseModel(OrganizationAdminAuthRequest authRequest, string obj = "pending-org-auth-request") : base(obj)
+    public PendingOrganizationAuthRequestResponseModel(
+        OrganizationAdminAuthRequest authRequest,
+        string obj = "pending-org-auth-request"
+    )
+        : base(obj)
     {
         if (authRequest == null)
         {
@@ -20,8 +24,12 @@ public class PendingOrganizationAuthRequestResponseModel : ResponseModel
         Email = authRequest.Email;
         PublicKey = authRequest.PublicKey;
         RequestDeviceIdentifier = authRequest.RequestDeviceIdentifier;
-        RequestDeviceType = authRequest.RequestDeviceType.GetType().GetMember(authRequest.RequestDeviceType.ToString())
-            .FirstOrDefault()?.GetCustomAttribute<DisplayAttribute>()?.GetName();
+        RequestDeviceType = authRequest
+            .RequestDeviceType.GetType()
+            .GetMember(authRequest.RequestDeviceType.ToString())
+            .FirstOrDefault()
+            ?.GetCustomAttribute<DisplayAttribute>()
+            ?.GetName();
         RequestIpAddress = authRequest.RequestIpAddress;
         CreationDate = authRequest.CreationDate;
     }

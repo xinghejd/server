@@ -16,23 +16,34 @@ public class SendSponsorshipOfferCommand : ISendSponsorshipOfferCommand
     private readonly IMailService _mailService;
     private readonly IDataProtectorTokenFactory<OrganizationSponsorshipOfferTokenable> _tokenFactory;
 
-    public SendSponsorshipOfferCommand(IUserRepository userRepository,
+    public SendSponsorshipOfferCommand(
+        IUserRepository userRepository,
         IMailService mailService,
-        IDataProtectorTokenFactory<OrganizationSponsorshipOfferTokenable> tokenFactory)
+        IDataProtectorTokenFactory<OrganizationSponsorshipOfferTokenable> tokenFactory
+    )
     {
         _userRepository = userRepository;
         _mailService = mailService;
         _tokenFactory = tokenFactory;
     }
 
-    public async Task BulkSendSponsorshipOfferAsync(string sponsoringOrgName, IEnumerable<OrganizationSponsorship> sponsorships)
+    public async Task BulkSendSponsorshipOfferAsync(
+        string sponsoringOrgName,
+        IEnumerable<OrganizationSponsorship> sponsorships
+    )
     {
         var invites = new List<(string, bool, string)>();
         foreach (var sponsorship in sponsorships)
         {
             var user = await _userRepository.GetByEmailAsync(sponsorship.OfferedToEmail);
             var isExistingAccount = user != null;
-            invites.Add((sponsorship.OfferedToEmail, user != null, _tokenFactory.Protect(new OrganizationSponsorshipOfferTokenable(sponsorship))));
+            invites.Add(
+                (
+                    sponsorship.OfferedToEmail,
+                    user != null,
+                    _tokenFactory.Protect(new OrganizationSponsorshipOfferTokenable(sponsorship))
+                )
+            );
         }
 
         await _mailService.BulkSendFamiliesForEnterpriseOfferEmailAsync(sponsoringOrgName, invites);
@@ -43,12 +54,19 @@ public class SendSponsorshipOfferCommand : ISendSponsorshipOfferCommand
         var user = await _userRepository.GetByEmailAsync(sponsorship.OfferedToEmail);
         var isExistingAccount = user != null;
 
-        await _mailService.SendFamiliesForEnterpriseOfferEmailAsync(sponsoringOrgName, sponsorship.OfferedToEmail,
-            isExistingAccount, _tokenFactory.Protect(new OrganizationSponsorshipOfferTokenable(sponsorship)));
+        await _mailService.SendFamiliesForEnterpriseOfferEmailAsync(
+            sponsoringOrgName,
+            sponsorship.OfferedToEmail,
+            isExistingAccount,
+            _tokenFactory.Protect(new OrganizationSponsorshipOfferTokenable(sponsorship))
+        );
     }
 
-    public async Task SendSponsorshipOfferAsync(Organization sponsoringOrg, OrganizationUser sponsoringOrgUser,
-        OrganizationSponsorship sponsorship)
+    public async Task SendSponsorshipOfferAsync(
+        Organization sponsoringOrg,
+        OrganizationUser sponsoringOrgUser,
+        OrganizationSponsorship sponsorship
+    )
     {
         if (sponsoringOrg == null)
         {

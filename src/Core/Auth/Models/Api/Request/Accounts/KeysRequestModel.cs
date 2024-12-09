@@ -6,6 +6,7 @@ namespace Bit.Core.Auth.Models.Api.Request.Accounts;
 public class KeysRequestModel
 {
     public string PublicKey { get; set; }
+
     [Required]
     public string EncryptedPrivateKey { get; set; }
 

@@ -13,8 +13,11 @@ namespace Bit.Identity.Utilities;
 
 public static class ServiceCollectionExtensions
 {
-    public static IIdentityServerBuilder AddCustomIdentityServerServices(this IServiceCollection services,
-        IWebHostEnvironment env, GlobalSettings globalSettings)
+    public static IIdentityServerBuilder AddCustomIdentityServerServices(
+        this IServiceCollection services,
+        IWebHostEnvironment env,
+        GlobalSettings globalSettings
+    )
     {
         services.AddTransient<IDiscoveryResponseGenerator, DiscoveryResponseGenerator>();
 
@@ -57,15 +60,17 @@ public static class ServiceCollectionExtensions
 
         if (CoreHelpers.SettingHasValue(globalSettings.IdentityServer.CosmosConnectionString))
         {
-            services.AddSingleton<IPersistedGrantStore>(sp =>
-                new PersistedGrantStore(sp.GetRequiredKeyedService<IGrantRepository>("cosmos"),
-                    g => new Core.Auth.Models.Data.GrantItem(g)));
+            services.AddSingleton<IPersistedGrantStore>(sp => new PersistedGrantStore(
+                sp.GetRequiredKeyedService<IGrantRepository>("cosmos"),
+                g => new Core.Auth.Models.Data.GrantItem(g)
+            ));
         }
         else
         {
-            services.AddTransient<IPersistedGrantStore>(sp =>
-                new PersistedGrantStore(sp.GetRequiredService<IGrantRepository>(),
-                    g => new Core.Auth.Entities.Grant(g)));
+            services.AddTransient<IPersistedGrantStore>(sp => new PersistedGrantStore(
+                sp.GetRequiredService<IGrantRepository>(),
+                g => new Core.Auth.Entities.Grant(g)
+            ));
         }
 
         services.AddTransient<ICorsPolicyService, CustomCorsPolicyService>();

@@ -10,7 +10,6 @@ using Bit.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
-
 using static Bit.Core.Billing.Utilities;
 
 namespace Bit.Api.Billing.Controllers;
@@ -25,7 +24,8 @@ public class ProviderBillingController(
     IProviderRepository providerRepository,
     ISubscriberService subscriberService,
     IStripeAdapter stripeAdapter,
-    IUserService userService) : BaseProviderController(currentContext, logger, providerRepository, userService)
+    IUserService userService
+) : BaseProviderController(currentContext, logger, providerRepository, userService)
 {
     [HttpGet("invoices")]
     public async Task<IResult> GetInvoicesAsync([FromRoute] Guid providerId)
@@ -37,10 +37,9 @@ public class ProviderBillingController(
             return result;
         }
 
-        var invoices = await stripeAdapter.InvoiceListAsync(new StripeInvoiceListOptions
-        {
-            Customer = provider.GatewayCustomerId
-        });
+        var invoices = await stripeAdapter.InvoiceListAsync(
+            new StripeInvoiceListOptions { Customer = provider.GatewayCustomerId }
+        );
 
         var response = InvoicesResponse.From(invoices);
 
@@ -64,9 +63,7 @@ public class ProviderBillingController(
             return Error.ServerError("We had a problem generating your invoice CSV. Please contact support.");
         }
 
-        return TypedResults.File(
-            reportContent,
-            "text/csv");
+        return TypedResults.File(reportContent, "text/csv");
     }
 
     [HttpGet("subscription")]
@@ -79,8 +76,10 @@ public class ProviderBillingController(
             return result;
         }
 
-        var subscription = await stripeAdapter.SubscriptionGetAsync(provider.GatewaySubscriptionId,
-            new SubscriptionGetOptions { Expand = ["customer.tax_ids", "test_clock"] });
+        var subscription = await stripeAdapter.SubscriptionGetAsync(
+            provider.GatewaySubscriptionId,
+            new SubscriptionGetOptions { Expand = ["customer.tax_ids", "test_clock"] }
+        );
 
         var providerPlans = await providerPlanRepository.GetByProviderId(provider.Id);
 
@@ -93,7 +92,8 @@ public class ProviderBillingController(
             providerPlans,
             taxInformation,
             subscriptionSuspension,
-            provider);
+            provider
+        );
 
         return TypedResults.Ok(response);
     }
@@ -101,7 +101,8 @@ public class ProviderBillingController(
     [HttpPut("tax-information")]
     public async Task<IResult> UpdateTaxInformationAsync(
         [FromRoute] Guid providerId,
-        [FromBody] TaxInformationRequestBody requestBody)
+        [FromBody] TaxInformationRequestBody requestBody
+    )
     {
         var (provider, result) = await TryGetBillableProviderForAdminOperation(providerId);
 
@@ -122,7 +123,8 @@ public class ProviderBillingController(
             requestBody.Line1,
             requestBody.Line2,
             requestBody.City,
-            requestBody.State);
+            requestBody.State
+        );
 
         await subscriberService.UpdateTaxInformation(provider, taxInformation);
 

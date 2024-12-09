@@ -6,7 +6,8 @@ using Bit.Core.Vault.Repositories;
 
 namespace Bit.Api.KeyManagement.Validators;
 
-public class FolderRotationValidator : IRotationValidator<IEnumerable<FolderWithIdRequestModel>, IEnumerable<Folder>>
+public class FolderRotationValidator
+    : IRotationValidator<IEnumerable<FolderWithIdRequestModel>, IEnumerable<Folder>>
 {
     private readonly IFolderRepository _folderRepository;
 

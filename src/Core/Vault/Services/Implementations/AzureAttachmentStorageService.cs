@@ -15,13 +15,19 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
     public FileUploadType FileUploadType => FileUploadType.Azure;
     public const string EventGridEnabledContainerName = "attachments-v2";
     private const string _defaultContainerName = "attachments";
-    private readonly static string[] _attachmentContainerName = { "attachments", "attachments-v2" };
+    private static readonly string[] _attachmentContainerName = { "attachments", "attachments-v2" };
     private static readonly TimeSpan blobLinkLiveTime = TimeSpan.FromMinutes(1);
     private readonly BlobServiceClient _blobServiceClient;
-    private readonly Dictionary<string, BlobContainerClient> _attachmentContainers = new Dictionary<string, BlobContainerClient>();
+    private readonly Dictionary<string, BlobContainerClient> _attachmentContainers =
+        new Dictionary<string, BlobContainerClient>();
     private readonly ILogger<AzureAttachmentStorageService> _logger;
 
-    private string BlobName(Guid cipherId, CipherAttachment.MetaData attachmentData, Guid? organizationId = null, bool temp = false) =>
+    private string BlobName(
+        Guid cipherId,
+        CipherAttachment.MetaData attachmentData,
+        Guid? organizationId = null,
+        bool temp = false
+    ) =>
         string.Concat(
             temp ? "temp/" : "",
             $"{cipherId}/",
@@ -29,7 +35,9 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
             attachmentData.AttachmentId
         );
 
-    public static (string cipherId, string organizationId, string attachmentId) IdentifiersFromBlobName(string blobName)
+    public static (string cipherId, string organizationId, string attachmentId) IdentifiersFromBlobName(
+        string blobName
+    )
     {
         var parts = blobName.Split('/');
         switch (parts.Length)
@@ -54,16 +62,21 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
 
     public AzureAttachmentStorageService(
         GlobalSettings globalSettings,
-        ILogger<AzureAttachmentStorageService> logger)
+        ILogger<AzureAttachmentStorageService> logger
+    )
     {
         _blobServiceClient = new BlobServiceClient(globalSettings.Attachment.ConnectionString);
         _logger = logger;
     }
 
-    public async Task<string> GetAttachmentDownloadUrlAsync(Cipher cipher, CipherAttachment.MetaData attachmentData)
+    public async Task<string> GetAttachmentDownloadUrlAsync(
+        Cipher cipher,
+        CipherAttachment.MetaData attachmentData
+    )
     {
         await InitAsync(attachmentData.ContainerName);
-        var blobClient = _attachmentContainers[attachmentData.ContainerName].GetBlobClient(BlobName(cipher.Id, attachmentData));
+        var blobClient = _attachmentContainers[attachmentData.ContainerName]
+            .GetBlobClient(BlobName(cipher.Id, attachmentData));
         var sasUri = blobClient.GenerateSasUri(BlobSasPermissions.Read, DateTime.UtcNow.Add(blobLinkLiveTime));
         return sasUri.ToString();
     }
@@ -71,17 +84,26 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
     public async Task<string> GetAttachmentUploadUrlAsync(Cipher cipher, CipherAttachment.MetaData attachmentData)
     {
         await InitAsync(EventGridEnabledContainerName);
-        var blobClient = _attachmentContainers[EventGridEnabledContainerName].GetBlobClient(BlobName(cipher.Id, attachmentData));
+        var blobClient = _attachmentContainers[EventGridEnabledContainerName]
+            .GetBlobClient(BlobName(cipher.Id, attachmentData));
         attachmentData.ContainerName = EventGridEnabledContainerName;
-        var sasUri = blobClient.GenerateSasUri(BlobSasPermissions.Create | BlobSasPermissions.Write, DateTime.UtcNow.Add(blobLinkLiveTime));
+        var sasUri = blobClient.GenerateSasUri(
+            BlobSasPermissions.Create | BlobSasPermissions.Write,
+            DateTime.UtcNow.Add(blobLinkLiveTime)
+        );
         return sasUri.ToString();
     }
 
-    public async Task UploadNewAttachmentAsync(Stream stream, Cipher cipher, CipherAttachment.MetaData attachmentData)
+    public async Task UploadNewAttachmentAsync(
+        Stream stream,
+        Cipher cipher,
+        CipherAttachment.MetaData attachmentData
+    )
     {
         attachmentData.ContainerName = _defaultContainerName;
         await InitAsync(_defaultContainerName);
-        var blobClient = _attachmentContainers[_defaultContainerName].GetBlobClient(BlobName(cipher.Id, attachmentData));
+        var blobClient = _attachmentContainers[_defaultContainerName]
+            .GetBlobClient(BlobName(cipher.Id, attachmentData));
 
         var metadata = new Dictionary<string, string>();
         metadata.Add("cipherId", cipher.Id.ToString());
@@ -96,17 +118,22 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
 
         var headers = new BlobHttpHeaders
         {
-            ContentDisposition = $"attachment; filename=\"{attachmentData.AttachmentId}\""
+            ContentDisposition = $"attachment; filename=\"{attachmentData.AttachmentId}\"",
         };
         await blobClient.UploadAsync(stream, new BlobUploadOptions { Metadata = metadata, HttpHeaders = headers });
     }
 
-    public async Task UploadShareAttachmentAsync(Stream stream, Guid cipherId, Guid organizationId, CipherAttachment.MetaData attachmentData)
+    public async Task UploadShareAttachmentAsync(
+        Stream stream,
+        Guid cipherId,
+        Guid organizationId,
+        CipherAttachment.MetaData attachmentData
+    )
     {
         attachmentData.ContainerName = _defaultContainerName;
         await InitAsync(_defaultContainerName);
-        var blobClient = _attachmentContainers[_defaultContainerName].GetBlobClient(
-            BlobName(cipherId, attachmentData, organizationId, temp: true));
+        var blobClient = _attachmentContainers[_defaultContainerName]
+            .GetBlobClient(BlobName(cipherId, attachmentData, organizationId, temp: true));
 
         var metadata = new Dictionary<string, string>();
         metadata.Add("cipherId", cipherId.ToString());
@@ -114,7 +141,7 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
 
         var headers = new BlobHttpHeaders
         {
-            ContentDisposition = $"attachment; filename=\"{attachmentData.AttachmentId}\""
+            ContentDisposition = $"attachment; filename=\"{attachmentData.AttachmentId}\"",
         };
         await blobClient.UploadAsync(stream, new BlobUploadOptions { Metadata = metadata, HttpHeaders = headers });
     }
@@ -122,8 +149,8 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
     public async Task StartShareAttachmentAsync(Guid cipherId, Guid organizationId, CipherAttachment.MetaData data)
     {
         await InitAsync(data.ContainerName);
-        var source = _attachmentContainers[data.ContainerName].GetBlobClient(
-                BlobName(cipherId, data, organizationId, temp: true));
+        var source = _attachmentContainers[data.ContainerName]
+            .GetBlobClient(BlobName(cipherId, data, organizationId, temp: true));
         if (!await source.ExistsAsync())
         {
             return;
@@ -136,8 +163,8 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
             return;
         }
 
-        var original = _attachmentContainers[_defaultContainerName].GetBlobClient(
-            BlobName(cipherId, data, temp: true));
+        var original = _attachmentContainers[_defaultContainerName]
+            .GetBlobClient(BlobName(cipherId, data, temp: true));
         await original.DeleteIfExistsAsync();
         await original.StartCopyFromUriAsync(dest.Uri);
 
@@ -145,23 +172,27 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
         await dest.StartCopyFromUriAsync(source.Uri);
     }
 
-    public async Task RollbackShareAttachmentAsync(Guid cipherId, Guid organizationId, CipherAttachment.MetaData attachmentData, string originalContainer)
+    public async Task RollbackShareAttachmentAsync(
+        Guid cipherId,
+        Guid organizationId,
+        CipherAttachment.MetaData attachmentData,
+        string originalContainer
+    )
     {
         await InitAsync(attachmentData.ContainerName);
-        var source = _attachmentContainers[attachmentData.ContainerName].GetBlobClient(
-            BlobName(cipherId, attachmentData, organizationId, temp: true));
+        var source = _attachmentContainers[attachmentData.ContainerName]
+            .GetBlobClient(BlobName(cipherId, attachmentData, organizationId, temp: true));
         await source.DeleteIfExistsAsync();
 
         await InitAsync(originalContainer);
-        var original = _attachmentContainers[originalContainer].GetBlobClient(
-            BlobName(cipherId, attachmentData, temp: true));
+        var original = _attachmentContainers[originalContainer]
+            .GetBlobClient(BlobName(cipherId, attachmentData, temp: true));
         if (!await original.ExistsAsync())
         {
             return;
         }
 
-        var dest = _attachmentContainers[originalContainer].GetBlobClient(
-            BlobName(cipherId, attachmentData));
+        var dest = _attachmentContainers[originalContainer].GetBlobClient(BlobName(cipherId, attachmentData));
         await dest.DeleteIfExistsAsync();
         await dest.StartCopyFromUriAsync(original.Uri);
         await original.DeleteIfExistsAsync();
@@ -170,8 +201,8 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
     public async Task DeleteAttachmentAsync(Guid cipherId, CipherAttachment.MetaData attachmentData)
     {
         await InitAsync(attachmentData.ContainerName);
-        var blobClient = _attachmentContainers[attachmentData.ContainerName].GetBlobClient(
-            BlobName(cipherId, attachmentData));
+        var blobClient = _attachmentContainers[attachmentData.ContainerName]
+            .GetBlobClient(BlobName(cipherId, attachmentData));
         await blobClient.DeleteIfExistsAsync();
     }
 
@@ -190,11 +221,16 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
         await InitAsync(_defaultContainerName);
     }
 
-    public async Task<(bool, long?)> ValidateFileAsync(Cipher cipher, CipherAttachment.MetaData attachmentData, long leeway)
+    public async Task<(bool, long?)> ValidateFileAsync(
+        Cipher cipher,
+        CipherAttachment.MetaData attachmentData,
+        long leeway
+    )
     {
         await InitAsync(attachmentData.ContainerName);
 
-        var blobClient = _attachmentContainers[attachmentData.ContainerName].GetBlobClient(BlobName(cipher.Id, attachmentData));
+        var blobClient = _attachmentContainers[attachmentData.ContainerName]
+            .GetBlobClient(BlobName(cipher.Id, attachmentData));
 
         try
         {
@@ -214,7 +250,7 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
 
             var headers = new BlobHttpHeaders
             {
-                ContentDisposition = $"attachment; filename=\"{attachmentData.AttachmentId}\""
+                ContentDisposition = $"attachment; filename=\"{attachmentData.AttachmentId}\"",
             };
             await blobClient.SetHttpHeadersAsync(headers);
 
@@ -256,11 +292,13 @@ public class AzureAttachmentStorageService : IAttachmentStorageService
             _attachmentContainers[containerName] = _blobServiceClient.GetBlobContainerClient(containerName);
             if (containerName == "attachments")
             {
-                await _attachmentContainers[containerName].CreateIfNotExistsAsync(PublicAccessType.Blob, null, null);
+                await _attachmentContainers[containerName]
+                    .CreateIfNotExistsAsync(PublicAccessType.Blob, null, null);
             }
             else
             {
-                await _attachmentContainers[containerName].CreateIfNotExistsAsync(PublicAccessType.None, null, null);
+                await _attachmentContainers[containerName]
+                    .CreateIfNotExistsAsync(PublicAccessType.None, null, null);
             }
         }
     }

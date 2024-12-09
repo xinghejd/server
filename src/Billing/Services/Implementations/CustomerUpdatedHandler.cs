@@ -20,7 +20,8 @@ public class CustomerUpdatedHandler : ICustomerUpdatedHandler
         IReferenceEventService referenceEventService,
         ICurrentContext currentContext,
         IStripeEventService stripeEventService,
-        IStripeEventUtilityService stripeEventUtilityService)
+        IStripeEventUtilityService stripeEventUtilityService
+    )
     {
         _organizationRepository = organizationRepository;
         _referenceEventService = referenceEventService;
@@ -55,6 +56,7 @@ public class CustomerUpdatedHandler : ICustomerUpdatedHandler
         await _organizationRepository.ReplaceAsync(organization);
 
         await _referenceEventService.RaiseEventAsync(
-            new ReferenceEvent(ReferenceEventType.OrganizationEditedInStripe, organization, _currentContext));
+            new ReferenceEvent(ReferenceEventType.OrganizationEditedInStripe, organization, _currentContext)
+        );
     }
 }

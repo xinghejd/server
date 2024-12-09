@@ -51,7 +51,8 @@ public class GlobalSettings : IGlobalSettings
     public virtual SqlSettings SqlServer { get; set; } = new SqlSettings();
     public virtual SqlSettings PostgreSql { get; set; } = new SqlSettings();
     public virtual SqlSettings MySql { get; set; } = new SqlSettings();
-    public virtual SqlSettings Sqlite { get; set; } = new SqlSettings() { ConnectionString = "Data Source=:memory:" };
+    public virtual SqlSettings Sqlite { get; set; } =
+        new SqlSettings() { ConnectionString = "Data Source=:memory:" };
     public virtual MailSettings Mail { get; set; } = new MailSettings();
     public virtual IConnectionStringSettings Storage { get; set; } = new ConnectionStringSettings();
     public virtual ConnectionStringSettings Events { get; set; } = new ConnectionStringSettings();
@@ -242,8 +243,10 @@ public class GlobalSettings : IGlobalSettings
 
         public string ReadOnlyConnectionString
         {
-            get => string.IsNullOrWhiteSpace(_readOnlyConnectionString) ?
-                _connectionString : _readOnlyConnectionString;
+            get =>
+                string.IsNullOrWhiteSpace(_readOnlyConnectionString)
+                    ? _connectionString
+                    : _readOnlyConnectionString;
             set => _readOnlyConnectionString = value.Trim('"');
         }
 
@@ -340,7 +343,8 @@ public class GlobalSettings : IGlobalSettings
         public string CertificatePassword { get; set; }
         public string RedisConnectionString { get; set; }
         public string CosmosConnectionString { get; set; }
-        public string LicenseKey { get; set; } = "eyJhbGciOiJQUzI1NiIsImtpZCI6IklkZW50aXR5U2VydmVyTGljZW5zZWtleS83Y2VhZGJiNzgxMzA0NjllODgwNjg5MTAyNTQxNGYxNiIsInR5cCI6ImxpY2Vuc2Urand0In0.eyJpc3MiOiJodHRwczovL2R1ZW5kZXNvZnR3YXJlLmNvbSIsImF1ZCI6IklkZW50aXR5U2VydmVyIiwiaWF0IjoxNzAxODIwODAwLCJleHAiOjE3MzM0NDMyMDAsImNvbXBhbnlfbmFtZSI6IkJpdHdhcmRlbiBJbmMuIiwiY29udGFjdF9pbmZvIjoiY29udGFjdEBkdWVuZGVzb2Z0d2FyZS5jb20iLCJlZGl0aW9uIjoiU3RhcnRlciIsImlkIjoiNDMxOSIsImZlYXR1cmUiOlsiaXN2IiwidW5saW1pdGVkX2NsaWVudHMiXSwicHJvZHVjdCI6IkJpdHdhcmRlbiJ9.iLA771PffgIh0ClRS8OWHbg2cAgjhgOkUjRRkLNr9dpQXhYZkVKdpUn-Gw9T7grsGcAx0f4p-TQmtcCpbN9EJCF5jlF0-NfsRTp_gmCgQ5eXyiE4DzJp2OCrz_3STf07N1dILwhD3nk9rzcA6SRQ4_kja8wAMHKnD5LisW98r5DfRDBecRs16KS5HUhg99DRMR5fd9ntfydVMTC_E23eEOHVLsR4YhiSXaEINPjFDG1czyOBClJItDW8g9X8qlClZegr630UjnKKg06A4usoL25VFHHn8Ew3v-_-XdlWoWsIpMMVvacwZT8rwkxjIesFNsXG6yzuROIhaxAvB1297A";
+        public string LicenseKey { get; set; } =
+            "eyJhbGciOiJQUzI1NiIsImtpZCI6IklkZW50aXR5U2VydmVyTGljZW5zZWtleS83Y2VhZGJiNzgxMzA0NjllODgwNjg5MTAyNTQxNGYxNiIsInR5cCI6ImxpY2Vuc2Urand0In0.eyJpc3MiOiJodHRwczovL2R1ZW5kZXNvZnR3YXJlLmNvbSIsImF1ZCI6IklkZW50aXR5U2VydmVyIiwiaWF0IjoxNzAxODIwODAwLCJleHAiOjE3MzM0NDMyMDAsImNvbXBhbnlfbmFtZSI6IkJpdHdhcmRlbiBJbmMuIiwiY29udGFjdF9pbmZvIjoiY29udGFjdEBkdWVuZGVzb2Z0d2FyZS5jb20iLCJlZGl0aW9uIjoiU3RhcnRlciIsImlkIjoiNDMxOSIsImZlYXR1cmUiOlsiaXN2IiwidW5saW1pdGVkX2NsaWVudHMiXSwicHJvZHVjdCI6IkJpdHdhcmRlbiJ9.iLA771PffgIh0ClRS8OWHbg2cAgjhgOkUjRRkLNr9dpQXhYZkVKdpUn-Gw9T7grsGcAx0f4p-TQmtcCpbN9EJCF5jlF0-NfsRTp_gmCgQ5eXyiE4DzJp2OCrz_3STf07N1dILwhD3nk9rzcA6SRQ4_kja8wAMHKnD5LisW98r5DfRDBecRs16KS5HUhg99DRMR5fd9ntfydVMTC_E23eEOHVLsR4YhiSXaEINPjFDG1czyOBClJItDW8g9X8qlClZegr630UjnKKg06A4usoL25VFHHn8Ew3v-_-XdlWoWsIpMMVvacwZT8rwkxjIesFNsXG6yzuROIhaxAvB1297A";
     }
 
     public class DataProtectionSettings
@@ -396,6 +400,7 @@ public class GlobalSettings : IGlobalSettings
         /// udp://logging.dev.example.com:514</code>.
         /// </example>
         public string Destination { get; set; }
+
         /// <summary>
         /// The absolute path to a Certificate (DER or Base64 encoded with private key).
         /// </summary>
@@ -404,11 +409,13 @@ public class GlobalSettings : IGlobalSettings
         /// The file format of the certificate may be binary encoded (DER) or base64. If the private key is encrypted, provide the password in <see cref="CertificatePassword"/>,
         /// </remarks>
         public string CertificatePath { get; set; }
+
         /// <summary>
         /// The password for the encrypted private key in the certificate supplied in <see cref="CertificatePath" />.
         /// </summary>
         /// <value></value>
         public string CertificatePassword { get; set; }
+
         /// <summary>
         /// The thumbprint of the certificate in the X.509 certificate store for personal certificates for the user account running Bitwarden.
         /// </summary>
@@ -426,25 +433,28 @@ public class GlobalSettings : IGlobalSettings
             set => _connectionString = value?.Trim('"');
         }
         public string HubName { get; set; }
+
         /// <summary>
         /// Enables TestSend on the Azure Notification Hub, which allows tracing of the request through the hub and to the platform-specific push notification service (PNS).
         /// Enabling this will result in delayed responses because the Hub must wait on delivery to the PNS.  This should ONLY be enabled in a non-production environment, as results are throttled.
         /// </summary>
         public bool EnableSendTracing { get; set; } = false;
+
         /// <summary>
         /// The date and time at which registration will be enabled.
-        /// 
+        ///
         /// **This value should not be updated once set, as it is used to determine installation location of devices.**
-        /// 
+        ///
         /// If null, registration is disabled.
-        /// 
+        ///
         /// </summary>
         public DateTime? RegistrationStartDate { get; set; }
+
         /// <summary>
         /// The date and time at which registration will be disabled.
-        /// 
+        ///
         /// **This value should not be updated once set, as it is used to determine installation location of devices.**
-        /// 
+        ///
         /// If null, hub registration has no yet known expiry.
         /// </summary>
         public DateTime? RegistrationEndDate { get; set; }
@@ -454,7 +464,7 @@ public class GlobalSettings : IGlobalSettings
     {
         /// <summary>
         /// List of Notification Hub settings to use for sending push notifications.
-        /// 
+        ///
         /// Note that hubs on the same namespace share active device limits, so multiple namespaces should be used to increase capacity.
         /// </summary>
         public List<NotificationHubSettings> NotificationHubs { get; set; } = new();
@@ -504,7 +514,6 @@ public class GlobalSettings : IGlobalSettings
             get => string.IsNullOrWhiteSpace(_apiUri) ? "https://api.bitwarden.com" : _apiUri;
             set => _apiUri = value;
         }
-
     }
 
     public class AmazonSettings

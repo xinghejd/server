@@ -43,7 +43,8 @@ public class LicensingService : ILicensingService
         IGlobalSettings globalSettings,
         ILicenseClaimsFactory<Organization> organizationLicenseClaimsFactory,
         IFeatureService featureService,
-        ILicenseClaimsFactory<User> userLicenseClaimsFactory)
+        ILicenseClaimsFactory<User> userLicenseClaimsFactory
+    )
     {
         _userRepository = userRepository;
         _organizationRepository = organizationRepository;
@@ -54,28 +55,46 @@ public class LicensingService : ILicensingService
         _featureService = featureService;
         _userLicenseClaimsFactory = userLicenseClaimsFactory;
 
-        var certThumbprint = environment.IsDevelopment() ?
-            "207E64A231E8AA32AAF68A61037C075EBEBD553F" :
-            "‎B34876439FCDA2846505B2EFBBA6C4A951313EBE";
+        var certThumbprint = environment.IsDevelopment()
+            ? "207E64A231E8AA32AAF68A61037C075EBEBD553F"
+            : "‎B34876439FCDA2846505B2EFBBA6C4A951313EBE";
         if (_globalSettings.SelfHosted)
         {
-            _certificate = CoreHelpers.GetEmbeddedCertificateAsync(environment.IsDevelopment() ? "licensing_dev.cer" : "licensing.cer", null)
-                .GetAwaiter().GetResult();
+            _certificate = CoreHelpers
+                .GetEmbeddedCertificateAsync(
+                    environment.IsDevelopment() ? "licensing_dev.cer" : "licensing.cer",
+                    null
+                )
+                .GetAwaiter()
+                .GetResult();
         }
-        else if (CoreHelpers.SettingHasValue(_globalSettings.Storage?.ConnectionString) &&
-            CoreHelpers.SettingHasValue(_globalSettings.LicenseCertificatePassword))
+        else if (
+            CoreHelpers.SettingHasValue(_globalSettings.Storage?.ConnectionString)
+            && CoreHelpers.SettingHasValue(_globalSettings.LicenseCertificatePassword)
+        )
         {
-            _certificate = CoreHelpers.GetBlobCertificateAsync(globalSettings.Storage.ConnectionString, "certificates",
-                "licensing.pfx", _globalSettings.LicenseCertificatePassword)
-                .GetAwaiter().GetResult();
+            _certificate = CoreHelpers
+                .GetBlobCertificateAsync(
+                    globalSettings.Storage.ConnectionString,
+                    "certificates",
+                    "licensing.pfx",
+                    _globalSettings.LicenseCertificatePassword
+                )
+                .GetAwaiter()
+                .GetResult();
         }
         else
         {
             _certificate = CoreHelpers.GetCertificate(certThumbprint);
         }
 
-        if (_certificate == null || !_certificate.Thumbprint.Equals(CoreHelpers.CleanCertificateThumbprint(certThumbprint),
-            StringComparison.InvariantCultureIgnoreCase))
+        if (
+            _certificate == null
+            || !_certificate.Thumbprint.Equals(
+                CoreHelpers.CleanCertificateThumbprint(certThumbprint),
+                StringComparison.InvariantCultureIgnoreCase
+            )
+        )
         {
             throw new Exception("Invalid licensing certificate.");
         }
@@ -94,8 +113,12 @@ public class LicensingService : ILicensingService
         }
 
         var enabledOrgs = await _organizationRepository.GetManyByEnabledAsync();
-        _logger.LogInformation(Constants.BypassFiltersEventId, null,
-            "Validating licenses for {NumberOfOrganizations} organizations.", enabledOrgs.Count);
+        _logger.LogInformation(
+            Constants.BypassFiltersEventId,
+            null,
+            "Validating licenses for {NumberOfOrganizations} organizations.",
+            enabledOrgs.Count
+        );
 
         var exceptions = new List<Exception>();
 
@@ -137,15 +160,23 @@ public class LicensingService : ILicensingService
 
         if (exceptions.Any())
         {
-            throw new AggregateException("There were one or more exceptions while validating organizations.", exceptions);
+            throw new AggregateException(
+                "There were one or more exceptions while validating organizations.",
+                exceptions
+            );
         }
     }
 
     private async Task DisableOrganizationAsync(Organization org, ILicense license, string reason)
     {
-        _logger.LogInformation(Constants.BypassFiltersEventId, null,
+        _logger.LogInformation(
+            Constants.BypassFiltersEventId,
+            null,
             "Organization {0} ({1}) has an invalid license and is being disabled. Reason: {2}",
-            org.Id, org.DisplayName(), reason);
+            org.Id,
+            org.DisplayName(),
+            reason
+        );
         org.Enabled = false;
         org.ExpirationDate = license?.Expires ?? DateTime.UtcNow;
         org.RevisionDate = DateTime.UtcNow;
@@ -162,8 +193,12 @@ public class LicensingService : ILicensingService
         }
 
         var premiumUsers = await _userRepository.GetManyByPremiumAsync(true);
-        _logger.LogInformation(Constants.BypassFiltersEventId, null,
-            "Validating premium for {0} users.", premiumUsers.Count);
+        _logger.LogInformation(
+            Constants.BypassFiltersEventId,
+            null,
+            "Validating premium for {0} users.",
+            premiumUsers.Count
+        );
 
         foreach (var user in premiumUsers)
         {
@@ -202,8 +237,13 @@ public class LicensingService : ILicensingService
             _userCheckCache.Add(user.Id, now);
         }
 
-        _logger.LogInformation(Constants.BypassFiltersEventId, null,
-            "Validating premium license for user {0}({1}).", user.Id, user.Email);
+        _logger.LogInformation(
+            Constants.BypassFiltersEventId,
+            null,
+            "Validating premium license for user {0}({1}).",
+            user.Id,
+            user.Email
+        );
         return await ProcessUserValidationAsync(user);
     }
 
@@ -234,9 +274,14 @@ public class LicensingService : ILicensingService
 
     private async Task DisablePremiumAsync(User user, ILicense license, string reason)
     {
-        _logger.LogInformation(Constants.BypassFiltersEventId, null,
+        _logger.LogInformation(
+            Constants.BypassFiltersEventId,
+            null,
             "User {0}({1}) has an invalid license and premium is being disabled. Reason: {2}",
-            user.Id, user.Email, reason);
+            user.Id,
+            user.Email,
+            reason
+        );
 
         user.Premium = false;
         user.PremiumExpirationDate = license?.Expires ?? DateTime.UtcNow;
@@ -289,6 +334,7 @@ public class LicensingService : ILicensingService
 
     public Task<OrganizationLicense> ReadOrganizationLicenseAsync(Organization organization) =>
         ReadOrganizationLicenseAsync(organization.Id);
+
     public async Task<OrganizationLicense> ReadOrganizationLicenseAsync(Guid organizationId)
     {
         var filePath = Path.Combine(_globalSettings.LicenseDirectory, "organization", $"{organizationId}.json");
@@ -327,7 +373,7 @@ public class LicensingService : ILicensingService
             ValidAudience = audience,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero,
-            RequireExpirationTime = true
+            RequireExpirationTime = true,
         };
 
         try
@@ -342,7 +388,11 @@ public class LicensingService : ILicensingService
         }
     }
 
-    public async Task<string> CreateOrganizationTokenAsync(Organization organization, Guid installationId, SubscriptionInfo subscriptionInfo)
+    public async Task<string> CreateOrganizationTokenAsync(
+        Organization organization,
+        Guid installationId,
+        SubscriptionInfo subscriptionInfo
+    )
     {
         if (!_featureService.IsEnabled(FeatureFlagKeys.SelfHostLicenseRefactor))
         {
@@ -390,7 +440,7 @@ public class LicensingService : ILicensingService
             Audience = audience,
             NotBefore = DateTime.UtcNow,
             Expires = DateTime.UtcNow.AddYears(1), // Org expiration is a claim
-            SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256Signature)
+            SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256Signature),
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();

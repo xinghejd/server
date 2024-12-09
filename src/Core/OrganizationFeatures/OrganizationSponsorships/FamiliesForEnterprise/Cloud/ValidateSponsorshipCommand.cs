@@ -18,7 +18,9 @@ public class ValidateSponsorshipCommand : CancelSponsorshipCommand, IValidateSpo
         IOrganizationRepository organizationRepository,
         IPaymentService paymentService,
         IMailService mailService,
-        ILogger<ValidateSponsorshipCommand> logger) : base(organizationSponsorshipRepository, organizationRepository)
+        ILogger<ValidateSponsorshipCommand> logger
+    )
+        : base(organizationSponsorshipRepository, organizationRepository)
     {
         _paymentService = paymentService;
         _mailService = mailService;
@@ -35,12 +37,16 @@ public class ValidateSponsorshipCommand : CancelSponsorshipCommand, IValidateSpo
             return false;
         }
 
-        var existingSponsorship = await _organizationSponsorshipRepository
-            .GetBySponsoredOrganizationIdAsync(sponsoredOrganizationId);
+        var existingSponsorship = await _organizationSponsorshipRepository.GetBySponsoredOrganizationIdAsync(
+            sponsoredOrganizationId
+        );
 
         if (existingSponsorship == null)
         {
-            _logger.LogWarning("Existing sponsorship for sponsored Organization {SponsoredOrganizationId} does not exist", sponsoredOrganizationId);
+            _logger.LogWarning(
+                "Existing sponsorship for sponsored Organization {SponsoredOrganizationId} does not exist",
+                sponsoredOrganizationId
+            );
 
             await CancelSponsorshipAsync(sponsoredOrganization, null);
             return false;
@@ -48,7 +54,10 @@ public class ValidateSponsorshipCommand : CancelSponsorshipCommand, IValidateSpo
 
         if (existingSponsorship.SponsoringOrganizationId == null)
         {
-            _logger.LogWarning("Sponsoring OrganizationId is null for sponsored Organization {SponsoredOrganizationId}", sponsoredOrganizationId);
+            _logger.LogWarning(
+                "Sponsoring OrganizationId is null for sponsored Organization {SponsoredOrganizationId}",
+                sponsoredOrganizationId
+            );
 
             await CancelSponsorshipAsync(sponsoredOrganization, existingSponsorship);
             return false;
@@ -56,7 +65,10 @@ public class ValidateSponsorshipCommand : CancelSponsorshipCommand, IValidateSpo
 
         if (existingSponsorship.SponsoringOrganizationUserId == default)
         {
-            _logger.LogWarning("Sponsoring OrganizationUserId is null for sponsored Organization {SponsoredOrganizationId}", sponsoredOrganizationId);
+            _logger.LogWarning(
+                "Sponsoring OrganizationUserId is null for sponsored Organization {SponsoredOrganizationId}",
+                sponsoredOrganizationId
+            );
 
             await CancelSponsorshipAsync(sponsoredOrganization, existingSponsorship);
             return false;
@@ -64,7 +76,10 @@ public class ValidateSponsorshipCommand : CancelSponsorshipCommand, IValidateSpo
 
         if (existingSponsorship.PlanSponsorshipType == null)
         {
-            _logger.LogWarning("PlanSponsorshipType is null for sponsored Organization {SponsoredOrganizationId}", sponsoredOrganizationId);
+            _logger.LogWarning(
+                "PlanSponsorshipType is null for sponsored Organization {SponsoredOrganizationId}",
+                sponsoredOrganizationId
+            );
 
             await CancelSponsorshipAsync(sponsoredOrganization, existingSponsorship);
             return false;
@@ -72,33 +87,46 @@ public class ValidateSponsorshipCommand : CancelSponsorshipCommand, IValidateSpo
 
         if (existingSponsorship.SponsoringOrganizationId == null)
         {
-            _logger.LogWarning("Sponsoring OrganizationId is null for sponsored Organization {SponsoredOrganizationId}", sponsoredOrganizationId);
+            _logger.LogWarning(
+                "Sponsoring OrganizationId is null for sponsored Organization {SponsoredOrganizationId}",
+                sponsoredOrganizationId
+            );
             await CancelSponsorshipAsync(sponsoredOrganization, existingSponsorship);
             return false;
         }
 
         if (existingSponsorship.SponsoringOrganizationUserId == default)
         {
-            _logger.LogWarning("Sponsoring OrganizationUserId is null for sponsored Organization {SponsoredOrganizationId}", sponsoredOrganizationId);
+            _logger.LogWarning(
+                "Sponsoring OrganizationUserId is null for sponsored Organization {SponsoredOrganizationId}",
+                sponsoredOrganizationId
+            );
             await CancelSponsorshipAsync(sponsoredOrganization, existingSponsorship);
             return false;
         }
 
         if (existingSponsorship.PlanSponsorshipType == null)
         {
-            _logger.LogWarning("PlanSponsorshipType is null for sponsored Organization {SponsoredOrganizationId}", sponsoredOrganizationId);
+            _logger.LogWarning(
+                "PlanSponsorshipType is null for sponsored Organization {SponsoredOrganizationId}",
+                sponsoredOrganizationId
+            );
             await CancelSponsorshipAsync(sponsoredOrganization, existingSponsorship);
             return false;
         }
 
         var sponsoredPlan = Utilities.StaticStore.GetSponsoredPlan(existingSponsorship.PlanSponsorshipType.Value);
 
-        var sponsoringOrganization = await _organizationRepository
-            .GetByIdAsync(existingSponsorship.SponsoringOrganizationId.Value);
+        var sponsoringOrganization = await _organizationRepository.GetByIdAsync(
+            existingSponsorship.SponsoringOrganizationId.Value
+        );
 
         if (sponsoringOrganization == null)
         {
-            _logger.LogWarning("Sponsoring Organization {SponsoringOrganizationId} does not exist", existingSponsorship.SponsoringOrganizationId);
+            _logger.LogWarning(
+                "Sponsoring Organization {SponsoringOrganizationId} does not exist",
+                existingSponsorship.SponsoringOrganizationId
+            );
             await CancelSponsorshipAsync(sponsoredOrganization, existingSponsorship);
             return false;
         }
@@ -107,7 +135,10 @@ public class ValidateSponsorshipCommand : CancelSponsorshipCommand, IValidateSpo
 
         if (OrgDisabledForMoreThanGracePeriod(sponsoringOrganization))
         {
-            _logger.LogWarning("Sponsoring Organization {SponsoringOrganizationId} is disabled for more than 3 months.", sponsoringOrganization.Id);
+            _logger.LogWarning(
+                "Sponsoring Organization {SponsoringOrganizationId} is disabled for more than 3 months.",
+                sponsoringOrganization.Id
+            );
             await CancelSponsorshipAsync(sponsoredOrganization, existingSponsorship);
 
             return false;
@@ -115,7 +146,10 @@ public class ValidateSponsorshipCommand : CancelSponsorshipCommand, IValidateSpo
 
         if (sponsoredPlan.SponsoringProductTierType != sponsoringOrgPlan.ProductTier)
         {
-            _logger.LogWarning("Sponsoring Organization {SponsoringOrganizationId} is not on the required product type.", sponsoringOrganization.Id);
+            _logger.LogWarning(
+                "Sponsoring Organization {SponsoringOrganizationId} is not on the required product type.",
+                sponsoringOrganization.Id
+            );
             await CancelSponsorshipAsync(sponsoredOrganization, existingSponsorship);
 
             return false;
@@ -123,7 +157,10 @@ public class ValidateSponsorshipCommand : CancelSponsorshipCommand, IValidateSpo
 
         if (existingSponsorship.ToDelete)
         {
-            _logger.LogWarning("Sponsorship for sponsored Organization {SponsoredOrganizationId} is marked for deletion", sponsoredOrganizationId);
+            _logger.LogWarning(
+                "Sponsorship for sponsored Organization {SponsoredOrganizationId} is marked for deletion",
+                sponsoredOrganizationId
+            );
             await CancelSponsorshipAsync(sponsoredOrganization, existingSponsorship);
 
             return false;
@@ -131,17 +168,26 @@ public class ValidateSponsorshipCommand : CancelSponsorshipCommand, IValidateSpo
 
         if (SponsorshipIsSelfHostedOutOfSync(existingSponsorship))
         {
-            _logger.LogWarning("Sponsorship for sponsored Organization {SponsoredOrganizationId} is out of sync with self-hosted instance.", sponsoredOrganizationId);
+            _logger.LogWarning(
+                "Sponsorship for sponsored Organization {SponsoredOrganizationId} is out of sync with self-hosted instance.",
+                sponsoredOrganizationId
+            );
             await CancelSponsorshipAsync(sponsoredOrganization, existingSponsorship);
 
             return false;
         }
 
-        _logger.LogInformation("Sponsorship for sponsored Organization {SponsoredOrganizationId} is valid", sponsoredOrganizationId);
+        _logger.LogInformation(
+            "Sponsorship for sponsored Organization {SponsoredOrganizationId} is valid",
+            sponsoredOrganizationId
+        );
         return true;
     }
 
-    private async Task CancelSponsorshipAsync(Organization sponsoredOrganization, OrganizationSponsorship sponsorship = null)
+    private async Task CancelSponsorshipAsync(
+        Organization sponsoredOrganization,
+        OrganizationSponsorship sponsorship = null
+    )
     {
         await Task.CompletedTask; // this is intentional
 
@@ -172,17 +218,17 @@ public class ValidateSponsorshipCommand : CancelSponsorshipCommand, IValidateSpo
     /// </summary>
     /// <param name="sponsorship"></param>
     private bool SponsorshipIsSelfHostedOutOfSync(OrganizationSponsorship sponsorship) =>
-        sponsorship.LastSyncDate.HasValue &&
-        DateTime.UtcNow.Subtract(sponsorship.LastSyncDate.Value).TotalDays > 182.5;
+        sponsorship.LastSyncDate.HasValue
+        && DateTime.UtcNow.Subtract(sponsorship.LastSyncDate.Value).TotalDays > 182.5;
 
     /// <summary>
     /// True if Organization is disabled and the expiration date is more than three months ago
     /// </summary>
     /// <param name="organization"></param>
     private bool OrgDisabledForMoreThanGracePeriod(Organization organization) =>
-        !organization.Enabled &&
-        (
-            !organization.ExpirationDate.HasValue ||
-            DateTime.UtcNow.Subtract(organization.ExpirationDate.Value).TotalDays > 93
+        !organization.Enabled
+        && (
+            !organization.ExpirationDate.HasValue
+            || DateTime.UtcNow.Subtract(organization.ExpirationDate.Value).TotalDays > 93
         );
 }

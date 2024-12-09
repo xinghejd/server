@@ -12,9 +12,7 @@ public class MiscController : Controller
     private readonly BitPayClient _bitPayClient;
     private readonly GlobalSettings _globalSettings;
 
-    public MiscController(
-        BitPayClient bitPayClient,
-        GlobalSettings globalSettings)
+    public MiscController(BitPayClient bitPayClient, GlobalSettings globalSettings)
     {
         _bitPayClient = bitPayClient;
         _globalSettings = globalSettings;
@@ -34,10 +32,7 @@ public class MiscController : Controller
     [SelfHosted(NotSelfHostedOnly = true)]
     public async Task<string> PostSetupPayment()
     {
-        var options = new SetupIntentCreateOptions
-        {
-            Usage = "off_session"
-        };
+        var options = new SetupIntentCreateOptions { Usage = "off_session" };
         var service = new SetupIntentService();
         var setupIntent = await service.CreateAsync(options);
         return setupIntent.ClientSecret;

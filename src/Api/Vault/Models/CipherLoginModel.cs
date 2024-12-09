@@ -49,13 +49,16 @@ public class CipherLoginModel
         }
     }
     public List<CipherLoginUriModel> Uris { get; set; }
+
     [EncryptedString]
     [EncryptedStringLength(1000)]
     public string Username { get; set; }
+
     [EncryptedString]
     [EncryptedStringLength(5000)]
     public string Password { get; set; }
     public DateTime? PasswordRevisionDate { get; set; }
+
     [EncryptedString]
     [EncryptedStringLength(1000)]
     public string Totp { get; set; }
@@ -81,6 +84,7 @@ public class CipherLoginModel
         [EncryptedString]
         [EncryptedStringLength(10000)]
         public string Uri { get; set; }
+
         [EncryptedString]
         [EncryptedStringLength(10000)]
         public string UriChecksum { get; set; }
@@ -88,7 +92,12 @@ public class CipherLoginModel
 
         public CipherLoginData.CipherLoginUriData ToCipherLoginUriData()
         {
-            return new CipherLoginData.CipherLoginUriData { Uri = Uri, UriChecksum = UriChecksum, Match = Match, };
+            return new CipherLoginData.CipherLoginUriData
+            {
+                Uri = Uri,
+                UriChecksum = UriChecksum,
+                Match = Match,
+            };
         }
     }
 }

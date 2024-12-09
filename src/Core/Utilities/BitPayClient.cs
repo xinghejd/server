@@ -10,8 +10,10 @@ public class BitPayClient
     {
         if (CoreHelpers.SettingHasValue(globalSettings.BitPay.Token))
         {
-            _bpClient = new BitPayLight.BitPay(globalSettings.BitPay.Token,
-                globalSettings.BitPay.Production ? BitPayLight.Env.Prod : BitPayLight.Env.Test);
+            _bpClient = new BitPayLight.BitPay(
+                globalSettings.BitPay.Token,
+                globalSettings.BitPay.Production ? BitPayLight.Env.Prod : BitPayLight.Env.Test
+            );
         }
     }
 

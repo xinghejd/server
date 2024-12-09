@@ -19,10 +19,12 @@ public class WebAuthnLoginAssertionOptionsTokenableTests
     }
 
     [Theory, BitAutoData]
-    public void Valid_NewlyCreatedToken_ReturnsTrue(WebAuthnLoginAssertionOptionsScope scope, AssertionOptions createOptions)
+    public void Valid_NewlyCreatedToken_ReturnsTrue(
+        WebAuthnLoginAssertionOptionsScope scope,
+        AssertionOptions createOptions
+    )
     {
         var token = new WebAuthnLoginAssertionOptionsTokenable(scope, createOptions);
-
 
         var isValid = token.Valid;
 
@@ -40,7 +42,11 @@ public class WebAuthnLoginAssertionOptionsTokenableTests
     }
 
     [Theory, BitAutoData]
-    public void ValidIsValid_NonMatchingScope_ReturnsFalse(WebAuthnLoginAssertionOptionsScope scope1, WebAuthnLoginAssertionOptionsScope scope2, AssertionOptions createOptions)
+    public void ValidIsValid_NonMatchingScope_ReturnsFalse(
+        WebAuthnLoginAssertionOptionsScope scope1,
+        WebAuthnLoginAssertionOptionsScope scope2,
+        AssertionOptions createOptions
+    )
     {
         var token = new WebAuthnLoginAssertionOptionsTokenable(scope1, createOptions);
 
@@ -50,7 +56,10 @@ public class WebAuthnLoginAssertionOptionsTokenableTests
     }
 
     [Theory, BitAutoData]
-    public void ValidIsValid_SameScope_ReturnsTrue(WebAuthnLoginAssertionOptionsScope scope, AssertionOptions createOptions)
+    public void ValidIsValid_SameScope_ReturnsTrue(
+        WebAuthnLoginAssertionOptionsScope scope,
+        AssertionOptions createOptions
+    )
     {
         var token = new WebAuthnLoginAssertionOptionsTokenable(scope, createOptions);
 

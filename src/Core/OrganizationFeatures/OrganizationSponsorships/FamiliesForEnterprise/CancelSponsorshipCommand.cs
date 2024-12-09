@@ -9,8 +9,10 @@ public abstract class CancelSponsorshipCommand
     protected readonly IOrganizationSponsorshipRepository _organizationSponsorshipRepository;
     protected readonly IOrganizationRepository _organizationRepository;
 
-    public CancelSponsorshipCommand(IOrganizationSponsorshipRepository organizationSponsorshipRepository,
-        IOrganizationRepository organizationRepository)
+    public CancelSponsorshipCommand(
+        IOrganizationSponsorshipRepository organizationSponsorshipRepository,
+        IOrganizationRepository organizationRepository
+    )
     {
         _organizationSponsorshipRepository = organizationSponsorshipRepository;
         _organizationRepository = organizationRepository;

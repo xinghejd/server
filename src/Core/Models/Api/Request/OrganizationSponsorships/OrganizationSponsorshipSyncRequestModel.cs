@@ -10,7 +10,9 @@ public class OrganizationSponsorshipSyncRequestModel
 
     public OrganizationSponsorshipSyncRequestModel() { }
 
-    public OrganizationSponsorshipSyncRequestModel(IEnumerable<OrganizationSponsorshipRequestModel> sponsorshipsBatch)
+    public OrganizationSponsorshipSyncRequestModel(
+        IEnumerable<OrganizationSponsorshipRequestModel> sponsorshipsBatch
+    )
     {
         SponsorshipsBatch = sponsorshipsBatch;
     }
@@ -32,8 +34,7 @@ public class OrganizationSponsorshipSyncRequestModel
         {
             BillingSyncKey = BillingSyncKey,
             SponsoringOrganizationCloudId = SponsoringOrganizationCloudId,
-            SponsorshipsBatch = SponsorshipsBatch.Select(o => o.ToOrganizationSponsorship())
+            SponsorshipsBatch = SponsorshipsBatch.Select(o => o.ToOrganizationSponsorship()),
         };
     }
-
 }

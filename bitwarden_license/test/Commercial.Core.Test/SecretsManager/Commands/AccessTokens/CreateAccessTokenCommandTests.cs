@@ -16,7 +16,9 @@ public class CreateServiceAccountCommandTests
     [Theory]
     [BitAutoData]
     public async Task CreateAsync_NoServiceAccountId_ThrowsBadRequestException(
-        SutProvider<CreateAccessTokenCommand> sutProvider, ApiKey data)
+        SutProvider<CreateAccessTokenCommand> sutProvider,
+        ApiKey data
+    )
     {
         data.ServiceAccountId = null;
 
@@ -31,7 +33,9 @@ public class CreateServiceAccountCommandTests
     {
         await sutProvider.Sut.CreateAsync(data);
 
-        await sutProvider.GetDependency<IApiKeyRepository>().Received(1)
+        await sutProvider
+            .GetDependency<IApiKeyRepository>()
+            .Received(1)
             .CreateAsync(Arg.Is(AssertHelper.AssertPropertyEqual(data)));
     }
 }

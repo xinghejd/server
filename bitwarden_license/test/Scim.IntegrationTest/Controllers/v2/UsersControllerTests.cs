@@ -40,19 +40,27 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
             Active = true,
             Emails = new List<BaseScimUserModel.EmailModel>
             {
-                new BaseScimUserModel.EmailModel { Primary = true, Type = "work", Value = "user1@example.com" }
+                new BaseScimUserModel.EmailModel
+                {
+                    Primary = true,
+                    Type = "work",
+                    Value = "user1@example.com",
+                },
             },
             Groups = new List<string>(),
             Name = new BaseScimUserModel.NameModel("Test User 1"),
             UserName = "user1@example.com",
-            Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
         };
 
         var context = await _factory.UsersGetAsync(ScimApplicationFactory.TestOrganizationId1, organizationUserId);
 
         Assert.Equal(StatusCodes.Status200OK, context.Response.StatusCode);
 
-        var responseModel = JsonSerializer.Deserialize<ScimUserResponseModel>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimUserResponseModel>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
 
         Assert.Contains("application/scim+json", context.Response.Headers.ContentType.ToString());
@@ -66,14 +74,17 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
         {
             Status = StatusCodes.Status404NotFound,
             Detail = "User not found.",
-            Schemas = new List<string> { ScimConstants.Scim2SchemaError }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaError },
         };
 
         var context = await _factory.UsersGetAsync(ScimApplicationFactory.TestOrganizationId1, organizationUserId);
 
         Assert.Equal(StatusCodes.Status404NotFound, context.Response.StatusCode);
 
-        var responseModel = JsonSerializer.Deserialize<ScimErrorResponseModel>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimErrorResponseModel>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
     }
 
@@ -99,12 +110,17 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
                     Active = true,
                     Emails = new List<BaseScimUserModel.EmailModel>
                     {
-                        new BaseScimUserModel.EmailModel { Primary = true, Type = "work", Value = "user1@example.com" }
+                        new BaseScimUserModel.EmailModel
+                        {
+                            Primary = true,
+                            Type = "work",
+                            Value = "user1@example.com",
+                        },
                     },
                     Groups = new List<string>(),
                     Name = new BaseScimUserModel.NameModel("Test User 1"),
                     UserName = "user1@example.com",
-                    Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
+                    Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
                 },
                 new ScimUserResponseModel
                 {
@@ -114,22 +130,35 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
                     Active = true,
                     Emails = new List<BaseScimUserModel.EmailModel>
                     {
-                        new BaseScimUserModel.EmailModel { Primary = true, Type = "work", Value = "user2@example.com" }
+                        new BaseScimUserModel.EmailModel
+                        {
+                            Primary = true,
+                            Type = "work",
+                            Value = "user2@example.com",
+                        },
                     },
                     Groups = new List<string>(),
                     Name = new BaseScimUserModel.NameModel("Test User 2"),
                     UserName = "user2@example.com",
-                    Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
-                }
+                    Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
+                },
             },
-            Schemas = new List<string> { ScimConstants.Scim2SchemaListResponse }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaListResponse },
         };
 
-        var context = await _factory.UsersGetListAsync(ScimApplicationFactory.TestOrganizationId1, filter, itemsPerPage, startIndex);
+        var context = await _factory.UsersGetListAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            filter,
+            itemsPerPage,
+            startIndex
+        );
 
         Assert.Equal(StatusCodes.Status200OK, context.Response.StatusCode);
 
-        var responseModel = JsonSerializer.Deserialize<ScimListResponseModel<ScimUserResponseModel>>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimListResponseModel<ScimUserResponseModel>>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
     }
 
@@ -154,22 +183,35 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
                     Active = true,
                     Emails = new List<BaseScimUserModel.EmailModel>
                     {
-                        new BaseScimUserModel.EmailModel { Primary = true, Type = "work", Value = "user2@example.com" }
+                        new BaseScimUserModel.EmailModel
+                        {
+                            Primary = true,
+                            Type = "work",
+                            Value = "user2@example.com",
+                        },
                     },
                     Groups = new List<string>(),
                     Name = new BaseScimUserModel.NameModel("Test User 2"),
                     UserName = "user2@example.com",
-                    Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
-                }
+                    Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
+                },
             },
-            Schemas = new List<string> { ScimConstants.Scim2SchemaListResponse }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaListResponse },
         };
 
-        var context = await _factory.UsersGetListAsync(ScimApplicationFactory.TestOrganizationId1, filter, itemsPerPage, startIndex);
+        var context = await _factory.UsersGetListAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            filter,
+            itemsPerPage,
+            startIndex
+        );
 
         Assert.Equal(StatusCodes.Status200OK, context.Response.StatusCode);
 
-        var responseModel = JsonSerializer.Deserialize<ScimListResponseModel<ScimUserResponseModel>>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimListResponseModel<ScimUserResponseModel>>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
     }
 
@@ -194,22 +236,35 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
                     Active = false,
                     Emails = new List<BaseScimUserModel.EmailModel>
                     {
-                        new BaseScimUserModel.EmailModel { Primary = true, Type = "work", Value = "user3@example.com" }
+                        new BaseScimUserModel.EmailModel
+                        {
+                            Primary = true,
+                            Type = "work",
+                            Value = "user3@example.com",
+                        },
                     },
                     Groups = new List<string>(),
                     Name = new BaseScimUserModel.NameModel("Test User 3"),
                     UserName = "user3@example.com",
-                    Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
-                }
+                    Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
+                },
             },
-            Schemas = new List<string> { ScimConstants.Scim2SchemaListResponse }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaListResponse },
         };
 
-        var context = await _factory.UsersGetListAsync(ScimApplicationFactory.TestOrganizationId1, filter, itemsPerPage, startIndex);
+        var context = await _factory.UsersGetListAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            filter,
+            itemsPerPage,
+            startIndex
+        );
 
         Assert.Equal(StatusCodes.Status200OK, context.Response.StatusCode);
 
-        var responseModel = JsonSerializer.Deserialize<ScimListResponseModel<ScimUserResponseModel>>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimListResponseModel<ScimUserResponseModel>>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
     }
 
@@ -225,14 +280,22 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
             TotalResults = 0,
             StartIndex = startIndex.Value,
             Resources = new List<ScimUserResponseModel>(),
-            Schemas = new List<string> { ScimConstants.Scim2SchemaListResponse }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaListResponse },
         };
 
-        var context = await _factory.UsersGetListAsync(ScimApplicationFactory.TestOrganizationId1, filter, itemsPerPage, startIndex);
+        var context = await _factory.UsersGetListAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            filter,
+            itemsPerPage,
+            startIndex
+        );
 
         Assert.Equal(StatusCodes.Status200OK, context.Response.StatusCode);
 
-        var responseModel = JsonSerializer.Deserialize<ScimListResponseModel<ScimUserResponseModel>>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimListResponseModel<ScimUserResponseModel>>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
     }
 
@@ -257,22 +320,35 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
                     Active = true,
                     Emails = new List<BaseScimUserModel.EmailModel>
                     {
-                        new BaseScimUserModel.EmailModel { Primary = true, Type = "work", Value = "user2@example.com" }
+                        new BaseScimUserModel.EmailModel
+                        {
+                            Primary = true,
+                            Type = "work",
+                            Value = "user2@example.com",
+                        },
                     },
                     Groups = new List<string>(),
                     Name = new BaseScimUserModel.NameModel("Test User 2"),
                     UserName = "user2@example.com",
-                    Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
-                }
+                    Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
+                },
             },
-            Schemas = new List<string> { ScimConstants.Scim2SchemaListResponse }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaListResponse },
         };
 
-        var context = await _factory.UsersGetListAsync(ScimApplicationFactory.TestOrganizationId1, filter, itemsPerPage, startIndex);
+        var context = await _factory.UsersGetListAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            filter,
+            itemsPerPage,
+            startIndex
+        );
 
         Assert.Equal(StatusCodes.Status200OK, context.Response.StatusCode);
 
-        var responseModel = JsonSerializer.Deserialize<ScimListResponseModel<ScimUserResponseModel>>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimListResponseModel<ScimUserResponseModel>>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
     }
 
@@ -289,7 +365,7 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
             Emails = new List<BaseScimUserModel.EmailModel> { new BaseScimUserModel.EmailModel(email) },
             ExternalId = externalId,
             Active = true,
-            Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
         };
         var expectedResponse = new ScimUserResponseModel
         {
@@ -298,12 +374,17 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
             Active = true,
             Emails = new List<BaseScimUserModel.EmailModel>
             {
-                new BaseScimUserModel.EmailModel { Primary = true, Type = "work", Value = email }
+                new BaseScimUserModel.EmailModel
+                {
+                    Primary = true,
+                    Type = "work",
+                    Value = email,
+                },
             },
             Groups = new List<string>(),
             Name = new BaseScimUserModel.NameModel(),
             UserName = email,
-            Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
         };
 
         var context = await _factory.UsersPostAsync(ScimApplicationFactory.TestOrganizationId1, inputModel);
@@ -313,7 +394,10 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
         // Verifying that the response includes a header with the URL of the created Group
         Assert.Contains(context.Response.Headers, h => h.Key == "Location");
 
-        var responseModel = JsonSerializer.Deserialize<ScimUserResponseModel>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimUserResponseModel>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel, "Id");
 
         var databaseContext = _factory.GetDatabaseContext();
@@ -335,7 +419,7 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
             Emails = new List<BaseScimUserModel.EmailModel> { new BaseScimUserModel.EmailModel(email) },
             ExternalId = externalId,
             Active = true,
-            Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
         };
 
         var context = await _factory.UsersPostAsync(ScimApplicationFactory.TestOrganizationId1, inputModel);
@@ -352,7 +436,7 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
             DisplayName = displayName,
             ExternalId = null,
             Active = false,
-            Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
         };
 
         var context = await _factory.UsersPostAsync(ScimApplicationFactory.TestOrganizationId1, inputModel);
@@ -371,7 +455,7 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
             Emails = new List<BaseScimUserModel.EmailModel> { new BaseScimUserModel.EmailModel(email) },
             ExternalId = externalId,
             Schemas = null,
-            Active = true
+            Active = true,
         };
 
         var context = await _factory.UsersPostAsync(ScimApplicationFactory.TestOrganizationId1, inputModel);
@@ -386,10 +470,7 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
     public async Task Put_RevokeUser_Success()
     {
         var organizationUserId = ScimApplicationFactory.TestOrganizationUserId2;
-        var inputModel = new ScimUserRequestModel
-        {
-            Active = false
-        };
+        var inputModel = new ScimUserRequestModel { Active = false };
         var expectedResponse = new ScimUserResponseModel
         {
             Id = ScimApplicationFactory.TestOrganizationUserId2,
@@ -398,17 +479,29 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
             Active = false,
             Emails = new List<BaseScimUserModel.EmailModel>
             {
-                new BaseScimUserModel.EmailModel { Primary = true, Type = "work", Value = "user2@example.com" }
+                new BaseScimUserModel.EmailModel
+                {
+                    Primary = true,
+                    Type = "work",
+                    Value = "user2@example.com",
+                },
             },
             Groups = new List<string>(),
             Name = new BaseScimUserModel.NameModel("Test User 2"),
             UserName = "user2@example.com",
-            Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
         };
 
-        var context = await _factory.UsersPutAsync(ScimApplicationFactory.TestOrganizationId1, organizationUserId, inputModel);
+        var context = await _factory.UsersPutAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            organizationUserId,
+            inputModel
+        );
 
-        var responseModel = JsonSerializer.Deserialize<ScimUserResponseModel>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimUserResponseModel>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         Assert.Equal(StatusCodes.Status200OK, context.Response.StatusCode);
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
 
@@ -421,10 +514,7 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
     public async Task Put_RestoreUser_Success()
     {
         var organizationUserId = ScimApplicationFactory.TestOrganizationUserId3;
-        var inputModel = new ScimUserRequestModel
-        {
-            Active = true
-        };
+        var inputModel = new ScimUserRequestModel { Active = true };
         var expectedResponse = new ScimUserResponseModel
         {
             Id = ScimApplicationFactory.TestOrganizationUserId3,
@@ -433,17 +523,29 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
             Active = true,
             Emails = new List<BaseScimUserModel.EmailModel>
             {
-                new BaseScimUserModel.EmailModel { Primary = true, Type = "work", Value = "user3@example.com" }
+                new BaseScimUserModel.EmailModel
+                {
+                    Primary = true,
+                    Type = "work",
+                    Value = "user3@example.com",
+                },
             },
             Groups = new List<string>(),
             Name = new BaseScimUserModel.NameModel("Test User 3"),
             UserName = "user3@example.com",
-            Schemas = new List<string> { ScimConstants.Scim2SchemaUser }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaUser },
         };
 
-        var context = await _factory.UsersPutAsync(ScimApplicationFactory.TestOrganizationId1, organizationUserId, inputModel);
+        var context = await _factory.UsersPutAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            organizationUserId,
+            inputModel
+        );
 
-        var responseModel = JsonSerializer.Deserialize<ScimUserResponseModel>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimUserResponseModel>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         Assert.Equal(StatusCodes.Status200OK, context.Response.StatusCode);
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
 
@@ -460,20 +562,27 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
         {
             DisplayName = "Test Group 1",
             ExternalId = "AA",
-            Schemas = new List<string>()
+            Schemas = new List<string>(),
         };
         var expectedResponse = new ScimErrorResponseModel
         {
             Status = StatusCodes.Status404NotFound,
             Detail = "User not found.",
-            Schemas = new List<string> { ScimConstants.Scim2SchemaError }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaError },
         };
 
-        var context = await _factory.UsersPutAsync(ScimApplicationFactory.TestOrganizationId1, organizationUserId, inputModel);
+        var context = await _factory.UsersPutAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            organizationUserId,
+            inputModel
+        );
 
         Assert.Equal(StatusCodes.Status404NotFound, context.Response.StatusCode);
 
-        var responseModel = JsonSerializer.Deserialize<ScimErrorResponseModel>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimErrorResponseModel>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
     }
 
@@ -485,12 +594,20 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
         {
             Operations = new List<ScimPatchModel.OperationModel>()
             {
-                new ScimPatchModel.OperationModel { Op = "replace", Value = JsonDocument.Parse("{\"active\":false}").RootElement  },
+                new ScimPatchModel.OperationModel
+                {
+                    Op = "replace",
+                    Value = JsonDocument.Parse("{\"active\":false}").RootElement,
+                },
             },
-            Schemas = new List<string>()
+            Schemas = new List<string>(),
         };
 
-        var context = await _factory.UsersPatchAsync(ScimApplicationFactory.TestOrganizationId1, organizationUserId, inputModel);
+        var context = await _factory.UsersPatchAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            organizationUserId,
+            inputModel
+        );
 
         Assert.Equal(StatusCodes.Status204NoContent, context.Response.StatusCode);
 
@@ -508,12 +625,20 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
         {
             Operations = new List<ScimPatchModel.OperationModel>()
             {
-                new ScimPatchModel.OperationModel { Op = "replace", Value = JsonDocument.Parse("{\"active\":true}").RootElement  },
+                new ScimPatchModel.OperationModel
+                {
+                    Op = "replace",
+                    Value = JsonDocument.Parse("{\"active\":true}").RootElement,
+                },
             },
-            Schemas = new List<string>()
+            Schemas = new List<string>(),
         };
 
-        var context = await _factory.UsersPatchAsync(ScimApplicationFactory.TestOrganizationId1, organizationUserId, inputModel);
+        var context = await _factory.UsersPatchAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            organizationUserId,
+            inputModel
+        );
 
         Assert.Equal(StatusCodes.Status204NoContent, context.Response.StatusCode);
 
@@ -530,20 +655,27 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
         var inputModel = new Models.ScimPatchModel
         {
             Operations = new List<ScimPatchModel.OperationModel>(),
-            Schemas = new List<string>()
+            Schemas = new List<string>(),
         };
         var expectedResponse = new ScimErrorResponseModel
         {
             Status = StatusCodes.Status404NotFound,
             Detail = "User not found.",
-            Schemas = new List<string> { ScimConstants.Scim2SchemaError }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaError },
         };
 
-        var context = await _factory.UsersPatchAsync(ScimApplicationFactory.TestOrganizationId1, organizationUserId, inputModel);
+        var context = await _factory.UsersPatchAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            organizationUserId,
+            inputModel
+        );
 
         Assert.Equal(StatusCodes.Status404NotFound, context.Response.StatusCode);
 
-        var responseModel = JsonSerializer.Deserialize<ScimErrorResponseModel>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimErrorResponseModel>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
     }
 
@@ -553,7 +685,11 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
         var organizationUserId = ScimApplicationFactory.TestOrganizationUserId1;
         var inputModel = new ScimUserRequestModel();
 
-        var context = await _factory.UsersDeleteAsync(ScimApplicationFactory.TestOrganizationId1, organizationUserId, inputModel);
+        var context = await _factory.UsersDeleteAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            organizationUserId,
+            inputModel
+        );
 
         Assert.Equal(StatusCodes.Status204NoContent, context.Response.StatusCode);
 
@@ -571,14 +707,21 @@ public class UsersControllerTests : IClassFixture<ScimApplicationFactory>, IAsyn
         {
             Status = StatusCodes.Status404NotFound,
             Detail = "User not found.",
-            Schemas = new List<string> { ScimConstants.Scim2SchemaError }
+            Schemas = new List<string> { ScimConstants.Scim2SchemaError },
         };
 
-        var context = await _factory.UsersDeleteAsync(ScimApplicationFactory.TestOrganizationId1, organizationUserId, inputModel);
+        var context = await _factory.UsersDeleteAsync(
+            ScimApplicationFactory.TestOrganizationId1,
+            organizationUserId,
+            inputModel
+        );
 
         Assert.Equal(StatusCodes.Status404NotFound, context.Response.StatusCode);
 
-        var responseModel = JsonSerializer.Deserialize<ScimErrorResponseModel>(context.Response.Body, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var responseModel = JsonSerializer.Deserialize<ScimErrorResponseModel>(
+            context.Response.Body,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+        );
         AssertHelper.AssertPropertyEqual(expectedResponse, responseModel);
 
         var databaseContext = _factory.GetDatabaseContext();

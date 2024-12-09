@@ -21,7 +21,8 @@ public class OrganizationBillingController(
     IOrganizationRepository organizationRepository,
     IPaymentService paymentService,
     ISubscriberService subscriberService,
-    IPaymentHistoryService paymentHistoryService) : BaseBillingController
+    IPaymentHistoryService paymentHistoryService
+) : BaseBillingController
 {
     [HttpGet("metadata")]
     public async Task<IResult> GetMetadataAsync([FromRoute] Guid organizationId)
@@ -64,7 +65,11 @@ public class OrganizationBillingController(
     }
 
     [HttpGet("invoices")]
-    public async Task<IResult> GetInvoicesAsync([FromRoute] Guid organizationId, [FromQuery] string? status = null, [FromQuery] string? startAfter = null)
+    public async Task<IResult> GetInvoicesAsync(
+        [FromRoute] Guid organizationId,
+        [FromQuery] string? status = null,
+        [FromQuery] string? startAfter = null
+    )
     {
         if (!await currentContext.ViewBillingHistory(organizationId))
         {
@@ -78,17 +83,16 @@ public class OrganizationBillingController(
             return TypedResults.NotFound();
         }
 
-        var invoices = await paymentHistoryService.GetInvoiceHistoryAsync(
-            organization,
-            5,
-            status,
-            startAfter);
+        var invoices = await paymentHistoryService.GetInvoiceHistoryAsync(organization, 5, status, startAfter);
 
         return TypedResults.Ok(invoices);
     }
 
     [HttpGet("transactions")]
-    public async Task<IResult> GetTransactionsAsync([FromRoute] Guid organizationId, [FromQuery] DateTime? startAfter = null)
+    public async Task<IResult> GetTransactionsAsync(
+        [FromRoute] Guid organizationId,
+        [FromQuery] DateTime? startAfter = null
+    )
     {
         if (!await currentContext.ViewBillingHistory(organizationId))
         {
@@ -102,10 +106,7 @@ public class OrganizationBillingController(
             return TypedResults.NotFound();
         }
 
-        var transactions = await paymentHistoryService.GetTransactionHistoryAsync(
-            organization,
-            5,
-            startAfter);
+        var transactions = await paymentHistoryService.GetTransactionHistoryAsync(organization, 5, startAfter);
 
         return TypedResults.Ok(transactions);
     }
@@ -163,7 +164,8 @@ public class OrganizationBillingController(
     [HttpPut("payment-method")]
     public async Task<IResult> UpdatePaymentMethodAsync(
         [FromRoute] Guid organizationId,
-        [FromBody] UpdatePaymentMethodRequestBody requestBody)
+        [FromBody] UpdatePaymentMethodRequestBody requestBody
+    )
     {
         if (!featureService.IsEnabled(FeatureFlagKeys.AC2476_DeprecateStripeSourcesAPI))
         {
@@ -194,7 +196,8 @@ public class OrganizationBillingController(
     [HttpPost("payment-method/verify-bank-account")]
     public async Task<IResult> VerifyBankAccountAsync(
         [FromRoute] Guid organizationId,
-        [FromBody] VerifyBankAccountRequestBody requestBody)
+        [FromBody] VerifyBankAccountRequestBody requestBody
+    )
     {
         if (!featureService.IsEnabled(FeatureFlagKeys.AC2476_DeprecateStripeSourcesAPI))
         {
@@ -253,7 +256,8 @@ public class OrganizationBillingController(
     [HttpPut("tax-information")]
     public async Task<IResult> UpdateTaxInformationAsync(
         [FromRoute] Guid organizationId,
-        [FromBody] TaxInformationRequestBody requestBody)
+        [FromBody] TaxInformationRequestBody requestBody
+    )
     {
         if (!featureService.IsEnabled(FeatureFlagKeys.AC2476_DeprecateStripeSourcesAPI))
         {

@@ -28,7 +28,8 @@ public class EmergencyAccessController : Controller
         IUserService userService,
         IEmergencyAccessRepository emergencyAccessRepository,
         IEmergencyAccessService emergencyAccessService,
-        IGlobalSettings globalSettings)
+        IGlobalSettings globalSettings
+    )
     {
         _userService = userService;
         _emergencyAccessRepository = emergencyAccessRepository;
@@ -42,8 +43,7 @@ public class EmergencyAccessController : Controller
         var userId = _userService.GetProperUserId(User);
         var granteeDetails = await _emergencyAccessRepository.GetManyDetailsByGrantorIdAsync(userId.Value);
 
-        var responses = granteeDetails.Select(d =>
-            new EmergencyAccessGranteeDetailsResponseModel(d));
+        var responses = granteeDetails.Select(d => new EmergencyAccessGranteeDetailsResponseModel(d));
 
         return new ListResponseModel<EmergencyAccessGranteeDetailsResponseModel>(responses);
     }
@@ -167,15 +167,18 @@ public class EmergencyAccessController : Controller
     {
         var user = await _userService.GetUserByPrincipalAsync(User);
         var viewResult = await _emergencyAccessService.ViewAsync(id, user);
-        return new EmergencyAccessViewResponseModel(_globalSettings, viewResult.EmergencyAccess, viewResult.Ciphers);
+        return new EmergencyAccessViewResponseModel(
+            _globalSettings,
+            viewResult.EmergencyAccess,
+            viewResult.Ciphers
+        );
     }
 
     [HttpGet("{id}/{cipherId}/attachment/{attachmentId}")]
     public async Task<AttachmentResponseModel> GetAttachmentData(Guid id, Guid cipherId, string attachmentId)
     {
         var user = await _userService.GetUserByPrincipalAsync(User);
-        var result =
-            await _emergencyAccessService.GetAttachmentDownloadAsync(id, cipherId, attachmentId, user);
+        var result = await _emergencyAccessService.GetAttachmentDownloadAsync(id, cipherId, attachmentId, user);
         return new AttachmentResponseModel(result);
     }
 }

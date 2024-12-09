@@ -10,9 +10,8 @@ namespace Bit.Admin.Billing.Controllers;
 [Authorize]
 [Route("process-stripe-events")]
 [SelfHosted(NotSelfHostedOnly = true)]
-public class ProcessStripeEventsController(
-    IHttpClientFactory httpClientFactory,
-    IGlobalSettings globalSettings) : Controller
+public class ProcessStripeEventsController(IHttpClientFactory httpClientFactory, IGlobalSettings globalSettings)
+    : Controller
 {
     [HttpGet]
     public ActionResult Index()
@@ -30,10 +29,10 @@ public class ProcessStripeEventsController(
 
         var endpoint = model.Inspect ? $"{baseEndpoint}/inspect" : $"{baseEndpoint}/process";
 
-        var (response, failedResponseMessage) = await PostAsync(endpoint, new EventsRequestBody
-        {
-            EventIds = eventIds
-        });
+        var (response, failedResponseMessage) = await PostAsync(
+            endpoint,
+            new EventsRequestBody { EventIds = eventIds }
+        );
 
         if (response == null)
         {
@@ -47,7 +46,8 @@ public class ProcessStripeEventsController(
 
     private async Task<(EventsResponseBody, HttpResponseMessage)> PostAsync(
         string endpoint,
-        EventsRequestBody requestModel)
+        EventsRequestBody requestModel
+    )
     {
         var client = httpClientFactory.CreateClient("InternalBilling");
         client.BaseAddress = new Uri(globalSettings.BaseServiceUri.InternalBilling);

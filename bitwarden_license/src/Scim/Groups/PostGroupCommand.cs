@@ -21,7 +21,8 @@ public class PostGroupCommand : IPostGroupCommand
         IGroupRepository groupRepository,
         IOrganizationRepository organizationRepository,
         IScimContext scimContext,
-        ICreateGroupCommand createGroupCommand)
+        ICreateGroupCommand createGroupCommand
+    )
     {
         _groupRepository = groupRepository;
         _scimContext = scimContext;

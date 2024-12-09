@@ -25,7 +25,8 @@ public class AuthRequestsController : Controller
         IUserService userService,
         IAuthRequestRepository authRequestRepository,
         IGlobalSettings globalSettings,
-        IAuthRequestService authRequestService)
+        IAuthRequestService authRequestService
+    )
     {
         _userService = userService;
         _authRequestRepository = authRequestRepository;
@@ -38,7 +39,9 @@ public class AuthRequestsController : Controller
     {
         var userId = _userService.GetProperUserId(User).Value;
         var authRequests = await _authRequestRepository.GetManyByUserIdAsync(userId);
-        var responses = authRequests.Select(a => new AuthRequestResponseModel(a, _globalSettings.BaseServiceUri.Vault)).ToList();
+        var responses = authRequests
+            .Select(a => new AuthRequestResponseModel(a, _globalSettings.BaseServiceUri.Vault))
+            .ToList();
         return new ListResponseModel<AuthRequestResponseModel>(responses);
     }
 

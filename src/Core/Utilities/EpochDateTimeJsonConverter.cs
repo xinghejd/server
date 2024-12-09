@@ -9,6 +9,7 @@ public class EpochDateTimeJsonConverter : JsonConverter<DateTime>
     {
         return CoreHelpers.FromEpocMilliseconds(reader.GetInt64());
     }
+
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
     {
         writer.WriteNumberValue(CoreHelpers.ToEpocMilliseconds(value));

@@ -29,7 +29,8 @@ public class SsoConfigService : ISsoConfigService
         IOrganizationRepository organizationRepository,
         IOrganizationUserRepository organizationUserRepository,
         IEventService eventService,
-        ISavePolicyCommand savePolicyCommand)
+        ISavePolicyCommand savePolicyCommand
+    )
     {
         _ssoConfigRepository = ssoConfigRepository;
         _policyRepository = policyRepository;
@@ -55,7 +56,8 @@ public class SsoConfigService : ISsoConfigService
         }
 
         var oldConfig = await _ssoConfigRepository.GetByOrganizationIdAsync(config.OrganizationId);
-        var disabledKeyConnector = oldConfig?.GetData()?.MemberDecryptionType == MemberDecryptionType.KeyConnector && !useKeyConnector;
+        var disabledKeyConnector =
+            oldConfig?.GetData()?.MemberDecryptionType == MemberDecryptionType.KeyConnector && !useKeyConnector;
         if (disabledKeyConnector && await AnyOrgUserHasKeyConnectorEnabledAsync(config.OrganizationId))
         {
             throw new BadRequestException("Key Connector cannot be disabled at this moment.");
@@ -64,13 +66,14 @@ public class SsoConfigService : ISsoConfigService
         // Automatically enable account recovery, SSO required, and single org policies if trusted device encryption is selected
         if (config.GetData().MemberDecryptionType == MemberDecryptionType.TrustedDeviceEncryption)
         {
-
-            await _savePolicyCommand.SaveAsync(new()
-            {
-                OrganizationId = config.OrganizationId,
-                Type = PolicyType.SingleOrg,
-                Enabled = true
-            });
+            await _savePolicyCommand.SaveAsync(
+                new()
+                {
+                    OrganizationId = config.OrganizationId,
+                    Type = PolicyType.SingleOrg,
+                    Enabled = true,
+                }
+            );
 
             var resetPasswordPolicy = new PolicyUpdate
             {
@@ -81,12 +84,14 @@ public class SsoConfigService : ISsoConfigService
             resetPasswordPolicy.SetDataModel(new ResetPasswordDataModel { AutoEnrollEnabled = true });
             await _savePolicyCommand.SaveAsync(resetPasswordPolicy);
 
-            await _savePolicyCommand.SaveAsync(new()
-            {
-                OrganizationId = config.OrganizationId,
-                Type = PolicyType.RequireSso,
-                Enabled = true
-            });
+            await _savePolicyCommand.SaveAsync(
+                new()
+                {
+                    OrganizationId = config.OrganizationId,
+                    Type = PolicyType.RequireSso,
+                    Enabled = true,
+                }
+            );
         }
 
         await LogEventsAsync(config, oldConfig);
@@ -95,8 +100,7 @@ public class SsoConfigService : ISsoConfigService
 
     private async Task<bool> AnyOrgUserHasKeyConnectorEnabledAsync(Guid organizationId)
     {
-        var userDetails =
-            await _organizationUserRepository.GetManyDetailsByOrganizationAsync(organizationId);
+        var userDetails = await _organizationUserRepository.GetManyDetailsByOrganizationAsync(organizationId);
         return userDetails.Any(u => u.UsesKeyConnector);
     }
 
@@ -107,16 +111,24 @@ public class SsoConfigService : ISsoConfigService
             throw new BadRequestException("Organization cannot use Key Connector.");
         }
 
-        var singleOrgPolicy = await _policyRepository.GetByOrganizationIdTypeAsync(config.OrganizationId, PolicyType.SingleOrg);
+        var singleOrgPolicy = await _policyRepository.GetByOrganizationIdTypeAsync(
+            config.OrganizationId,
+            PolicyType.SingleOrg
+        );
         if (singleOrgPolicy is not { Enabled: true })
         {
             throw new BadRequestException("Key Connector requires the Single Organization policy to be enabled.");
         }
 
-        var ssoPolicy = await _policyRepository.GetByOrganizationIdTypeAsync(config.OrganizationId, PolicyType.RequireSso);
+        var ssoPolicy = await _policyRepository.GetByOrganizationIdTypeAsync(
+            config.OrganizationId,
+            PolicyType.RequireSso
+        );
         if (ssoPolicy is not { Enabled: true })
         {
-            throw new BadRequestException("Key Connector requires the Single Sign-On Authentication policy to be enabled.");
+            throw new BadRequestException(
+                "Key Connector requires the Single Sign-On Authentication policy to be enabled."
+            );
         }
 
         if (!config.Enabled)
@@ -135,7 +147,8 @@ public class SsoConfigService : ISsoConfigService
         }
 
         var keyConnectorEnabled = config.GetData().MemberDecryptionType == MemberDecryptionType.KeyConnector;
-        var oldKeyConnectorEnabled = oldConfig?.GetData()?.MemberDecryptionType == MemberDecryptionType.KeyConnector;
+        var oldKeyConnectorEnabled =
+            oldConfig?.GetData()?.MemberDecryptionType == MemberDecryptionType.KeyConnector;
         if (oldKeyConnectorEnabled != keyConnectorEnabled)
         {
             var e = keyConnectorEnabled

@@ -37,6 +37,7 @@ public class InstallationDeviceEntity : ITableEntity
     {
         return deviceId != null && deviceId.Length == 73 && deviceId[36] == '_';
     }
+
     public static bool TryParse(string deviceId, out InstallationDeviceEntity installationDeviceEntity)
     {
         installationDeviceEntity = null;

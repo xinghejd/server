@@ -7,10 +7,7 @@ public static class DisplayAttributeHelpers
 {
     public static DisplayAttribute GetDisplayAttribute(this Enum enumValue)
     {
-        return enumValue.GetType()
-            .GetMember(enumValue.ToString())
-            .First()
-            .GetCustomAttribute<DisplayAttribute>();
+        return enumValue.GetType().GetMember(enumValue.ToString()).First().GetCustomAttribute<DisplayAttribute>();
     }
 
     public static DisplayAttribute GetDisplayAttribute<T>(this string property)

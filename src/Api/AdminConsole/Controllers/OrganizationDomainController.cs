@@ -35,7 +35,8 @@ public class OrganizationDomainController : Controller
         IGetOrganizationDomainByOrganizationIdQuery getOrganizationDomainByOrganizationIdQuery,
         ICurrentContext currentContext,
         IOrganizationRepository organizationRepository,
-        IOrganizationDomainRepository organizationDomainRepository)
+        IOrganizationDomainRepository organizationDomainRepository
+    )
     {
         _createOrganizationDomainCommand = createOrganizationDomainCommand;
         _verifyOrganizationDomainCommand = verifyOrganizationDomainCommand;
@@ -52,8 +53,7 @@ public class OrganizationDomainController : Controller
     {
         await ValidateOrganizationAccessAsync(orgId);
 
-        var domains = await _getOrganizationDomainByOrganizationIdQuery
-            .GetDomainsByOrganizationIdAsync(orgId);
+        var domains = await _getOrganizationDomainByOrganizationIdQuery.GetDomainsByOrganizationIdAsync(orgId);
         var response = domains.Select(x => new OrganizationDomainResponseModel(x)).ToList();
         return new ListResponseModel<OrganizationDomainResponseModel>(response);
     }
@@ -63,8 +63,11 @@ public class OrganizationDomainController : Controller
     {
         await ValidateOrganizationAccessAsync(orgId);
 
-        var organizationDomain = await _getOrganizationDomainByIdAndOrganizationIdQuery
-            .GetOrganizationDomainByIdOrganizationIdAsync(id, orgId);
+        var organizationDomain =
+            await _getOrganizationDomainByIdAndOrganizationIdQuery.GetOrganizationDomainByIdOrganizationIdAsync(
+                id,
+                orgId
+            );
         if (organizationDomain is null)
         {
             throw new NotFoundException();
@@ -74,15 +77,17 @@ public class OrganizationDomainController : Controller
     }
 
     [HttpPost("{orgId}/domain")]
-    public async Task<OrganizationDomainResponseModel> Post(Guid orgId,
-        [FromBody] OrganizationDomainRequestModel model)
+    public async Task<OrganizationDomainResponseModel> Post(
+        Guid orgId,
+        [FromBody] OrganizationDomainRequestModel model
+    )
     {
         await ValidateOrganizationAccessAsync(orgId);
 
         var organizationDomain = new OrganizationDomain
         {
             OrganizationId = orgId,
-            DomainName = model.DomainName.ToLower()
+            DomainName = model.DomainName.ToLower(),
         };
 
         organizationDomain = await _createOrganizationDomainCommand.CreateAsync(organizationDomain);
@@ -101,7 +106,9 @@ public class OrganizationDomainController : Controller
             throw new NotFoundException();
         }
 
-        organizationDomain = await _verifyOrganizationDomainCommand.UserVerifyOrganizationDomainAsync(organizationDomain);
+        organizationDomain = await _verifyOrganizationDomainCommand.UserVerifyOrganizationDomainAsync(
+            organizationDomain
+        );
 
         return new OrganizationDomainResponseModel(organizationDomain);
     }
@@ -124,7 +131,8 @@ public class OrganizationDomainController : Controller
     [AllowAnonymous]
     [HttpPost("domain/sso/details")] // must be post to accept email cleanly
     public async Task<OrganizationDomainSsoDetailsResponseModel> GetOrgDomainSsoDetails(
-        [FromBody] OrganizationDomainSsoDetailsRequestModel model)
+        [FromBody] OrganizationDomainSsoDetailsRequestModel model
+    )
     {
         var ssoResult = await _organizationDomainRepository.GetOrganizationDomainSsoDetailsAsync(model.Email);
         if (ssoResult is null)
@@ -139,14 +147,16 @@ public class OrganizationDomainController : Controller
     [HttpPost("domain/sso/verified")]
     [RequireFeature(FeatureFlagKeys.VerifiedSsoDomainEndpoint)]
     public async Task<VerifiedOrganizationDomainSsoDetailsResponseModel> GetVerifiedOrgDomainSsoDetailsAsync(
-        [FromBody] OrganizationDomainSsoDetailsRequestModel model)
+        [FromBody] OrganizationDomainSsoDetailsRequestModel model
+    )
     {
-        var ssoResults = (await _organizationDomainRepository
-            .GetVerifiedOrganizationDomainSsoDetailsAsync(model.Email))
-            .ToList();
+        var ssoResults = (
+            await _organizationDomainRepository.GetVerifiedOrganizationDomainSsoDetailsAsync(model.Email)
+        ).ToList();
 
         return new VerifiedOrganizationDomainSsoDetailsResponseModel(
-            ssoResults.Select(ssoResult => new VerifiedOrganizationDomainSsoDetailResponseModel(ssoResult)));
+            ssoResults.Select(ssoResult => new VerifiedOrganizationDomainSsoDetailResponseModel(ssoResult))
+        );
     }
 
     private async Task ValidateOrganizationAccessAsync(Guid orgIdGuid)

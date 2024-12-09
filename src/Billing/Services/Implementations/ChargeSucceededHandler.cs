@@ -17,7 +17,8 @@ public class ChargeSucceededHandler : IChargeSucceededHandler
         ILogger<ChargeSucceededHandler> logger,
         IStripeEventService stripeEventService,
         ITransactionRepository transactionRepository,
-        IStripeEventUtilityService stripeEventUtilityService)
+        IStripeEventUtilityService stripeEventUtilityService
+    )
     {
         _logger = logger;
         _stripeEventService = stripeEventService;
@@ -39,14 +40,21 @@ public class ChargeSucceededHandler : IChargeSucceededHandler
             return;
         }
 
-        var (organizationId, userId, providerId) = await _stripeEventUtilityService.GetEntityIdsFromChargeAsync(charge);
+        var (organizationId, userId, providerId) = await _stripeEventUtilityService.GetEntityIdsFromChargeAsync(
+            charge
+        );
         if (!organizationId.HasValue && !userId.HasValue && !providerId.HasValue)
         {
             _logger.LogWarning("Charge success has no subscriber ids. {ChargeId}", charge.Id);
             return;
         }
 
-        var transaction = _stripeEventUtilityService.FromChargeToTransaction(charge, organizationId, userId, providerId);
+        var transaction = _stripeEventUtilityService.FromChargeToTransaction(
+            charge,
+            organizationId,
+            userId,
+            providerId
+        );
         if (!transaction.PaymentMethodType.HasValue)
         {
             _logger.LogWarning("Charge success from unsupported source/method. {ChargeId}", charge.Id);
@@ -61,7 +69,8 @@ public class ChargeSucceededHandler : IChargeSucceededHandler
         {
             _logger.LogWarning(
                 "Charge success could not create transaction as entity may have been deleted. {ChargeId}",
-                charge.Id);
+                charge.Id
+            );
         }
     }
 }

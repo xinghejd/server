@@ -20,7 +20,8 @@ public class TrashController : Controller
         ICurrentContext currentContext,
         ISecretRepository secretRepository,
         IEmptyTrashCommand emptyTrashCommand,
-        IRestoreTrashCommand restoreTrashCommand)
+        IRestoreTrashCommand restoreTrashCommand
+    )
     {
         _currentContext = currentContext;
         _secretRepository = secretRepository;

@@ -24,7 +24,8 @@ public class EfMigrationTesterService : IMigrationTesterService
     public EfMigrationTesterService(
         DatabaseContext databaseContext,
         SupportedDatabaseProviders databaseType,
-        string migrationName)
+        string migrationName
+    )
     {
         _databaseContext = databaseContext;
         _databaseType = databaseType;

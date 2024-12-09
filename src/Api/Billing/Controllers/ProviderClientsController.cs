@@ -20,12 +20,14 @@ public class ProviderClientsController(
     IProviderOrganizationRepository providerOrganizationRepository,
     IProviderRepository providerRepository,
     IProviderService providerService,
-    IUserService userService) : BaseProviderController(currentContext, logger, providerRepository, userService)
+    IUserService userService
+) : BaseProviderController(currentContext, logger, providerRepository, userService)
 {
     [HttpPost]
     public async Task<IResult> CreateAsync(
         [FromRoute] Guid providerId,
-        [FromBody] CreateClientOrganizationRequestBody requestBody)
+        [FromBody] CreateClientOrganizationRequestBody requestBody
+    )
     {
         var (provider, result) = await TryGetBillableProviderForAdminOperation(providerId);
 
@@ -52,25 +54,21 @@ public class ProviderClientsController(
             PublicKey = requestBody.KeyPair.PublicKey,
             PrivateKey = requestBody.KeyPair.EncryptedPrivateKey,
             CollectionName = requestBody.CollectionName,
-            IsFromProvider = true
+            IsFromProvider = true,
         };
 
         var providerOrganization = await providerService.CreateOrganizationAsync(
             providerId,
             organizationSignup,
             requestBody.OwnerEmail,
-            user);
+            user
+        );
 
         var clientOrganization = await organizationRepository.GetByIdAsync(providerOrganization.OrganizationId);
 
-        await providerBillingService.ScaleSeats(
-            provider,
-            requestBody.PlanType,
-            requestBody.Seats);
+        await providerBillingService.ScaleSeats(provider, requestBody.PlanType, requestBody.Seats);
 
-        await providerBillingService.CreateCustomerForClientOrganization(
-            provider,
-            clientOrganization);
+        await providerBillingService.CreateCustomerForClientOrganization(provider, clientOrganization);
 
         clientOrganization.Status = OrganizationStatusType.Managed;
 
@@ -83,7 +81,8 @@ public class ProviderClientsController(
     public async Task<IResult> UpdateAsync(
         [FromRoute] Guid providerId,
         [FromRoute] Guid providerOrganizationId,
-        [FromBody] UpdateClientOrganizationRequestBody requestBody)
+        [FromBody] UpdateClientOrganizationRequestBody requestBody
+    )
     {
         var (provider, result) = await TryGetBillableProviderForServiceUserOperation(providerId);
 
@@ -111,7 +110,8 @@ public class ProviderClientsController(
         var seatAdjustmentResultsInPurchase = await providerBillingService.SeatAdjustmentResultsInPurchase(
             provider,
             clientOrganization.PlanType,
-            seatAdjustment);
+            seatAdjustment
+        );
 
         if (seatAdjustmentResultsInPurchase && !currentContext.ProviderProviderAdmin(provider.Id))
         {

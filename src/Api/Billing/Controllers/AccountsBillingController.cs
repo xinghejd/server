@@ -13,7 +13,8 @@ namespace Bit.Api.Billing.Controllers;
 public class AccountsBillingController(
     IPaymentService paymentService,
     IUserService userService,
-    IPaymentHistoryService paymentHistoryService) : Controller
+    IPaymentHistoryService paymentHistoryService
+) : Controller
 {
     [HttpGet("history")]
     [SelfHosted(NotSelfHostedOnly = true)]
@@ -44,7 +45,10 @@ public class AccountsBillingController(
     }
 
     [HttpGet("invoices")]
-    public async Task<IResult> GetInvoicesAsync([FromQuery] string? status = null, [FromQuery] string? startAfter = null)
+    public async Task<IResult> GetInvoicesAsync(
+        [FromQuery] string? status = null,
+        [FromQuery] string? startAfter = null
+    )
     {
         var user = await userService.GetUserByPrincipalAsync(User);
         if (user == null)
@@ -52,11 +56,7 @@ public class AccountsBillingController(
             throw new UnauthorizedAccessException();
         }
 
-        var invoices = await paymentHistoryService.GetInvoiceHistoryAsync(
-            user,
-            5,
-            status,
-            startAfter);
+        var invoices = await paymentHistoryService.GetInvoiceHistoryAsync(user, 5, status, startAfter);
 
         return TypedResults.Ok(invoices);
     }
@@ -70,10 +70,7 @@ public class AccountsBillingController(
             throw new UnauthorizedAccessException();
         }
 
-        var transactions = await paymentHistoryService.GetTransactionHistoryAsync(
-            user,
-            5,
-            startAfter);
+        var transactions = await paymentHistoryService.GetTransactionHistoryAsync(user, 5, startAfter);
 
         return TypedResults.Ok(transactions);
     }

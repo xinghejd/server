@@ -14,14 +14,12 @@ public class EmailTokenProvider : IUserTwoFactorTokenProvider<User>
     private readonly IDistributedCache _distributedCache;
     private readonly DistributedCacheEntryOptions _distributedCacheEntryOptions;
 
-    public EmailTokenProvider(
-        [FromKeyedServices("persistent")]
-        IDistributedCache distributedCache)
+    public EmailTokenProvider([FromKeyedServices("persistent")] IDistributedCache distributedCache)
     {
         _distributedCache = distributedCache;
         _distributedCacheEntryOptions = new DistributedCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
         };
     }
 

@@ -14,8 +14,6 @@ public class NotificationMapperProfile : Profile
 {
     public NotificationMapperProfile()
     {
-        CreateMap<Core.NotificationCenter.Entities.Notification, Notification>()
-            .PreserveReferences()
-            .ReverseMap();
+        CreateMap<Core.NotificationCenter.Entities.Notification, Notification>().PreserveReferences().ReverseMap();
     }
 }

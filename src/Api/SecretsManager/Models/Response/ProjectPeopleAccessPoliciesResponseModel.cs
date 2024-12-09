@@ -24,9 +24,8 @@ public class ProjectPeopleAccessPoliciesResponseModel : ResponseModel
         }
     }
 
-    public ProjectPeopleAccessPoliciesResponseModel() : base(_objectName)
-    {
-    }
+    public ProjectPeopleAccessPoliciesResponseModel()
+        : base(_objectName) { }
 
     public List<UserAccessPolicyResponseModel> UserAccessPolicies { get; set; } = new();
 

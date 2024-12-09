@@ -14,21 +14,27 @@ public class DeleteAuthRequestsJob : BaseJob
     public DeleteAuthRequestsJob(
         IAuthRequestRepository authrepo,
         IGlobalSettings globalSettings,
-        ILogger<DeleteAuthRequestsJob> logger)
+        ILogger<DeleteAuthRequestsJob> logger
+    )
         : base(logger)
     {
         _authRepo = authrepo;
         _globalSettings = globalSettings;
     }
 
-    protected async override Task ExecuteJobAsync(IJobExecutionContext context)
+    protected override async Task ExecuteJobAsync(IJobExecutionContext context)
     {
         _logger.LogInformation(Constants.BypassFiltersEventId, "Execute job task: DeleteAuthRequestsJob: Start");
         var count = await _authRepo.DeleteExpiredAsync(
             _globalSettings.PasswordlessAuth.UserRequestExpiration,
             _globalSettings.PasswordlessAuth.AdminRequestExpiration,
-            _globalSettings.PasswordlessAuth.AfterAdminApprovalExpiration);
-        _logger.LogInformation(Constants.BypassFiltersEventId, "{Count} records deleted from AuthRequests.", count);
+            _globalSettings.PasswordlessAuth.AfterAdminApprovalExpiration
+        );
+        _logger.LogInformation(
+            Constants.BypassFiltersEventId,
+            "{Count} records deleted from AuthRequests.",
+            count
+        );
         _logger.LogInformation(Constants.BypassFiltersEventId, "Execute job task: DeleteAuthRequestsJob: End");
     }
 }

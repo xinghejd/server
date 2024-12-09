@@ -6,8 +6,7 @@ namespace Bit.Scim.Models;
 public class ScimGroupRequestModel : BaseScimGroupModel
 {
     public ScimGroupRequestModel()
-        : base(false)
-    { }
+        : base(false) { }
 
     public Group ToGroup(Guid organizationId)
     {
@@ -16,7 +15,7 @@ public class ScimGroupRequestModel : BaseScimGroupModel
         {
             Name = DisplayName,
             ExternalId = externalId,
-            OrganizationId = organizationId
+            OrganizationId = organizationId,
         };
     }
 

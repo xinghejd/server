@@ -7,25 +7,35 @@ namespace Bit.Core.SecretsManager.Repositories.Noop;
 
 public class NoopSecretRepository : ISecretRepository
 {
-    public Task<IEnumerable<SecretPermissionDetails>> GetManyDetailsByOrganizationIdAsync(Guid organizationId, Guid userId,
-        AccessClientType accessType)
+    public Task<IEnumerable<SecretPermissionDetails>> GetManyDetailsByOrganizationIdAsync(
+        Guid organizationId,
+        Guid userId,
+        AccessClientType accessType
+    )
     {
         return Task.FromResult(null as IEnumerable<SecretPermissionDetails>);
     }
 
-    public Task<IEnumerable<SecretPermissionDetails>> GetManyDetailsByOrganizationIdInTrashAsync(Guid organizationId)
+    public Task<IEnumerable<SecretPermissionDetails>> GetManyDetailsByOrganizationIdInTrashAsync(
+        Guid organizationId
+    )
     {
         return Task.FromResult(null as IEnumerable<SecretPermissionDetails>);
     }
 
-    public Task<IEnumerable<Secret>> GetManyByOrganizationIdAsync(Guid organizationId, Guid userId,
-        AccessClientType accessType)
+    public Task<IEnumerable<Secret>> GetManyByOrganizationIdAsync(
+        Guid organizationId,
+        Guid userId,
+        AccessClientType accessType
+    )
     {
         return Task.FromResult(null as IEnumerable<Secret>);
     }
 
-    public Task<IEnumerable<Secret>> GetManyByOrganizationIdInTrashByIdsAsync(Guid organizationId,
-        IEnumerable<Guid> ids)
+    public Task<IEnumerable<Secret>> GetManyByOrganizationIdInTrashByIdsAsync(
+        Guid organizationId,
+        IEnumerable<Guid> ids
+    )
     {
         return Task.FromResult(null as IEnumerable<Secret>);
     }
@@ -35,8 +45,11 @@ public class NoopSecretRepository : ISecretRepository
         return Task.FromResult(null as IEnumerable<Secret>);
     }
 
-    public Task<IEnumerable<SecretPermissionDetails>> GetManyDetailsByProjectIdAsync(Guid projectId, Guid userId,
-        AccessClientType accessType)
+    public Task<IEnumerable<SecretPermissionDetails>> GetManyDetailsByProjectIdAsync(
+        Guid projectId,
+        Guid userId,
+        AccessClientType accessType
+    )
     {
         return Task.FromResult(null as IEnumerable<SecretPermissionDetails>);
     }
@@ -81,8 +94,11 @@ public class NoopSecretRepository : ISecretRepository
         return Task.FromResult((false, false));
     }
 
-    public Task<Dictionary<Guid, (bool Read, bool Write)>> AccessToSecretsAsync(IEnumerable<Guid> ids,
-        Guid userId, AccessClientType accessType)
+    public Task<Dictionary<Guid, (bool Read, bool Write)>> AccessToSecretsAsync(
+        IEnumerable<Guid> ids,
+        Guid userId,
+        AccessClientType accessType
+    )
     {
         return Task.FromResult(null as Dictionary<Guid, (bool Read, bool Write)>);
     }
@@ -97,8 +113,11 @@ public class NoopSecretRepository : ISecretRepository
         return Task.FromResult(0);
     }
 
-    public Task<int> GetSecretsCountByOrganizationIdAsync(Guid organizationId, Guid userId,
-        AccessClientType accessType)
+    public Task<int> GetSecretsCountByOrganizationIdAsync(
+        Guid organizationId,
+        Guid userId,
+        AccessClientType accessType
+    )
     {
         return Task.FromResult(0);
     }

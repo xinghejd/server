@@ -7,10 +7,11 @@ namespace Bit.Icons.Models;
 // ref: https://github.com/danesparza/domainname-parser
 public class DomainName
 {
-    private const string IpRegex = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-        "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-        "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
-        "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+    private const string IpRegex =
+        "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
+        + "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
+        + "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\."
+        + "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
 
     private string _subDomain = string.Empty;
     private string _domain = string.Empty;
@@ -75,8 +76,13 @@ public class DomainName
         return retval;
     }
 
-    private static void ParseDomainName(string domainString, out string TLD, out string SLD,
-        out string SubDomain, out TLDRule MatchingRule)
+    private static void ParseDomainName(
+        string domainString,
+        out string TLD,
+        out string SLD,
+        out string SubDomain,
+        out TLDRule MatchingRule
+    )
     {
         // Make sure domain is all lowercase
         domainString = domainString.ToLower();
@@ -154,7 +160,7 @@ public class DomainName
     {
         //  Split our domain into parts (based on the '.')
         //  ...Put these parts in a list
-        //  ...Make sure these parts are in reverse order 
+        //  ...Make sure these parts are in reverse order
         //     (we'll be checking rules from the right-most pat of the domain)
         var lstDomainParts = domainString.Split('.').ToList();
         lstDomainParts.Reverse();
@@ -189,9 +195,7 @@ public class DomainName
         }
 
         //  Sort our matches list (longest rule wins, according to :
-        var results = from match in ruleMatches
-                      orderby match.Name.Length descending
-                      select match;
+        var results = from match in ruleMatches orderby match.Name.Length descending select match;
 
         //  Take the top result (our primary match):
         var primaryMatch = results.Take(1).SingleOrDefault();
@@ -237,7 +241,7 @@ public class DomainName
         {
             Normal,
             Wildcard,
-            Exception
+            Exception,
         }
     }
 
@@ -295,8 +299,9 @@ public class DomainName
             //  Strip out any lines that are:
             //  a.) A comment
             //  b.) Blank
-            var rulesStrings = ruleStrings
-                .Where(ruleString => !ruleString.StartsWith("//") && ruleString.Trim().Length != 0);
+            var rulesStrings = ruleStrings.Where(ruleString =>
+                !ruleString.StartsWith("//") && ruleString.Trim().Length != 0
+            );
             foreach (var ruleString in rulesStrings)
             {
                 var result = new TLDRule(ruleString);
@@ -304,8 +309,9 @@ public class DomainName
             }
 
             //  Return our results:
-            Debug.WriteLine(string.Format("Loaded {0} rules into cache.",
-                results.Values.Sum(r => r.Values.Count)));
+            Debug.WriteLine(
+                string.Format("Loaded {0} rules into cache.", results.Values.Sum(r => r.Values.Count))
+            );
             return results;
         }
 

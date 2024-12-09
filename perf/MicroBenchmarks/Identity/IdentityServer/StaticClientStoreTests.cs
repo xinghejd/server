@@ -20,8 +20,6 @@ public class StaticClientStoreTests
     [Benchmark]
     public Client? TryGetValue()
     {
-        return _store.ApiClients.TryGetValue(ClientId, out var client)
-          ? client
-          : null;
+        return _store.ApiClients.TryGetValue(ClientId, out var client) ? client : null;
     }
 }

@@ -11,10 +11,7 @@ public class UserViewModelTests
     [BitAutoData]
     public void IsTwoFactorEnabled_GivenUserAndIsInLookup_WhenUserHasTwoFactorEnabled_ThenReturnsTrue(User user)
     {
-        var lookup = new List<(Guid, bool)>
-        {
-            (user.Id, true)
-        };
+        var lookup = new List<(Guid, bool)> { (user.Id, true) };
 
         var actual = UserViewModel.IsTwoFactorEnabled(user, lookup);
 
@@ -23,12 +20,11 @@ public class UserViewModelTests
 
     [Theory]
     [BitAutoData]
-    public void IsTwoFactorEnabled_GivenUserAndIsInLookup_WhenUserDoesNotHaveTwoFactorEnabled_ThenReturnsFalse(User user)
+    public void IsTwoFactorEnabled_GivenUserAndIsInLookup_WhenUserDoesNotHaveTwoFactorEnabled_ThenReturnsFalse(
+        User user
+    )
     {
-        var lookup = new List<(Guid, bool)>
-        {
-            (Guid.NewGuid(), true)
-        };
+        var lookup = new List<(Guid, bool)> { (Guid.NewGuid(), true) };
 
         var actual = UserViewModel.IsTwoFactorEnabled(user, lookup);
 
@@ -37,7 +33,9 @@ public class UserViewModelTests
 
     [Theory]
     [BitAutoData]
-    public void IsTwoFactorEnabled_GivenUserAndIsNotInLookup_WhenUserDoesNotHaveTwoFactorEnabled_ThenReturnsFalse(User user)
+    public void IsTwoFactorEnabled_GivenUserAndIsNotInLookup_WhenUserDoesNotHaveTwoFactorEnabled_ThenReturnsFalse(
+        User user
+    )
     {
         var lookup = new List<(Guid, bool)>();
 
@@ -109,7 +107,6 @@ public class UserViewModelTests
     [BitAutoData]
     public void MapUserViewModel_WithVerifiedDomain_ReturnsUserViewModel(User user)
     {
-
         var verifiedDomain = true;
 
         var actual = UserViewModel.MapViewModel(user, true, Array.Empty<Cipher>(), verifiedDomain);

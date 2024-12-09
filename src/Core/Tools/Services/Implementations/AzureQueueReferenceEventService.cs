@@ -14,8 +14,7 @@ public class AzureQueueReferenceEventService : IReferenceEventService
     private readonly QueueClient _queueClient;
     private readonly GlobalSettings _globalSettings;
 
-    public AzureQueueReferenceEventService(
-        GlobalSettings globalSettings)
+    public AzureQueueReferenceEventService(GlobalSettings globalSettings)
     {
         _queueClient = new QueueClient(globalSettings.Events.ConnectionString, _queueName);
         _globalSettings = globalSettings;

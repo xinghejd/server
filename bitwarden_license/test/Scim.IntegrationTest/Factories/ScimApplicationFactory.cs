@@ -18,7 +18,7 @@ namespace Bit.Scim.IntegrationTest.Factories;
 
 public class ScimApplicationFactory : WebApplicationFactoryBase<Startup>
 {
-    public readonly new TestServer Server;
+    public new readonly TestServer Server;
 
     public static readonly Guid TestUserId1 = Guid.Parse("2e8173db-8e8d-4de1-ac38-91b15c6d8dcb");
     public static readonly Guid TestUserId2 = Guid.Parse("b57846fc-0e94-4c93-9de5-9d0389eeadfb");
@@ -46,10 +46,13 @@ public class ScimApplicationFactory : WebApplicationFactoryBase<Startup>
                 // Override to bypass SCIM authorization
                 services.AddAuthorization(config =>
                 {
-                    config.AddPolicy("Scim", policy =>
-                    {
-                        policy.RequireAssertion(a => true);
-                    });
+                    config.AddPolicy(
+                        "Scim",
+                        policy =>
+                        {
+                            policy.RequireAssertion(a => true);
+                        }
+                    );
                 });
 
                 var mailService = services.First(sd => sd.ServiceType == typeof(IMailService));
@@ -66,7 +69,12 @@ public class ScimApplicationFactory : WebApplicationFactoryBase<Startup>
         return await Server.GetAsync($"/v2/{organizationId}/groups/{id}");
     }
 
-    public async Task<HttpContext> GroupsGetListAsync(Guid organizationId, string filter, int? count, int? startIndex)
+    public async Task<HttpContext> GroupsGetListAsync(
+        Guid organizationId,
+        string filter,
+        int? count,
+        int? startIndex
+    )
     {
         var queryString = new QueryString("?");
 
@@ -85,17 +93,28 @@ public class ScimApplicationFactory : WebApplicationFactoryBase<Startup>
             queryString = queryString.Add("startIndex", startIndex.ToString());
         }
 
-        return await Server.GetAsync($"/v2/{organizationId}/groups", httpContext => httpContext.Request.QueryString = queryString);
+        return await Server.GetAsync(
+            $"/v2/{organizationId}/groups",
+            httpContext => httpContext.Request.QueryString = queryString
+        );
     }
 
     public async Task<HttpContext> GroupsPostAsync(Guid organizationId, ScimGroupRequestModel model)
     {
-        return await Server.PostAsync($"/v2/{organizationId}/groups", GetStringContent(model), httpContext => httpContext.Request.Headers.Append(HeaderNames.UserAgent, "Okta"));
+        return await Server.PostAsync(
+            $"/v2/{organizationId}/groups",
+            GetStringContent(model),
+            httpContext => httpContext.Request.Headers.Append(HeaderNames.UserAgent, "Okta")
+        );
     }
 
     public async Task<HttpContext> GroupsPutAsync(Guid organizationId, Guid id, ScimGroupRequestModel model)
     {
-        return await Server.PutAsync($"/v2/{organizationId}/groups/{id}", GetStringContent(model), httpContext => httpContext.Request.Headers.Append(HeaderNames.UserAgent, "Okta"));
+        return await Server.PutAsync(
+            $"/v2/{organizationId}/groups/{id}",
+            GetStringContent(model),
+            httpContext => httpContext.Request.Headers.Append(HeaderNames.UserAgent, "Okta")
+        );
     }
 
     public async Task<HttpContext> GroupsPatchAsync(Guid organizationId, Guid id, ScimPatchModel model)
@@ -113,7 +132,12 @@ public class ScimApplicationFactory : WebApplicationFactoryBase<Startup>
         return await Server.GetAsync($"/v2/{organizationId}/users/{id}");
     }
 
-    public async Task<HttpContext> UsersGetListAsync(Guid organizationId, string filter, int? count, int? startIndex)
+    public async Task<HttpContext> UsersGetListAsync(
+        Guid organizationId,
+        string filter,
+        int? count,
+        int? startIndex
+    )
     {
         var queryString = new QueryString("?");
 
@@ -132,7 +156,10 @@ public class ScimApplicationFactory : WebApplicationFactoryBase<Startup>
             queryString = queryString.Add("startIndex", startIndex.ToString());
         }
 
-        return await Server.GetAsync($"/v2/{organizationId}/users", httpContext => httpContext.Request.QueryString = queryString);
+        return await Server.GetAsync(
+            $"/v2/{organizationId}/users",
+            httpContext => httpContext.Request.QueryString = queryString
+        );
     }
 
     public async Task<HttpContext> UsersPostAsync(Guid organizationId, ScimUserRequestModel model)
@@ -180,10 +207,38 @@ public class ScimApplicationFactory : WebApplicationFactoryBase<Startup>
     {
         return new List<Infrastructure.EntityFramework.Models.User>()
         {
-            new Infrastructure.EntityFramework.Models.User { Id = TestUserId1, Name = "Test User 1", ApiKey = "", Email = "user1@example.com", SecurityStamp = "" },
-            new Infrastructure.EntityFramework.Models.User { Id = TestUserId2, Name = "Test User 2", ApiKey = "", Email = "user2@example.com", SecurityStamp = "" },
-            new Infrastructure.EntityFramework.Models.User { Id = TestUserId3, Name = "Test User 3", ApiKey = "", Email = "user3@example.com", SecurityStamp = "" },
-            new Infrastructure.EntityFramework.Models.User { Id = TestUserId4, Name = "Test User 4", ApiKey = "", Email = "user4@example.com", SecurityStamp = "" },
+            new Infrastructure.EntityFramework.Models.User
+            {
+                Id = TestUserId1,
+                Name = "Test User 1",
+                ApiKey = "",
+                Email = "user1@example.com",
+                SecurityStamp = "",
+            },
+            new Infrastructure.EntityFramework.Models.User
+            {
+                Id = TestUserId2,
+                Name = "Test User 2",
+                ApiKey = "",
+                Email = "user2@example.com",
+                SecurityStamp = "",
+            },
+            new Infrastructure.EntityFramework.Models.User
+            {
+                Id = TestUserId3,
+                Name = "Test User 3",
+                ApiKey = "",
+                Email = "user3@example.com",
+                SecurityStamp = "",
+            },
+            new Infrastructure.EntityFramework.Models.User
+            {
+                Id = TestUserId4,
+                Name = "Test User 4",
+                ApiKey = "",
+                Email = "user4@example.com",
+                SecurityStamp = "",
+            },
         };
     }
 
@@ -191,9 +246,27 @@ public class ScimApplicationFactory : WebApplicationFactoryBase<Startup>
     {
         return new List<Infrastructure.EntityFramework.Models.Group>()
         {
-            new Infrastructure.EntityFramework.Models.Group { Id = TestGroupId1, OrganizationId = TestOrganizationId1, Name = "Test Group 1", ExternalId = "A" },
-            new Infrastructure.EntityFramework.Models.Group { Id = TestGroupId2, OrganizationId = TestOrganizationId1, Name = "Test Group 2", ExternalId = "B" },
-            new Infrastructure.EntityFramework.Models.Group { Id = TestGroupId3, OrganizationId = TestOrganizationId1, Name = "Test Group 3", ExternalId = "C" }
+            new Infrastructure.EntityFramework.Models.Group
+            {
+                Id = TestGroupId1,
+                OrganizationId = TestOrganizationId1,
+                Name = "Test Group 1",
+                ExternalId = "A",
+            },
+            new Infrastructure.EntityFramework.Models.Group
+            {
+                Id = TestGroupId2,
+                OrganizationId = TestOrganizationId1,
+                Name = "Test Group 2",
+                ExternalId = "B",
+            },
+            new Infrastructure.EntityFramework.Models.Group
+            {
+                Id = TestGroupId3,
+                OrganizationId = TestOrganizationId1,
+                Name = "Test Group 3",
+                ExternalId = "C",
+            },
         };
     }
 
@@ -216,10 +289,42 @@ public class ScimApplicationFactory : WebApplicationFactoryBase<Startup>
     {
         return new List<Infrastructure.EntityFramework.Models.OrganizationUser>()
         {
-            new Infrastructure.EntityFramework.Models.OrganizationUser { Id = TestOrganizationUserId1, OrganizationId = TestOrganizationId1, UserId = TestUserId1, Status = Core.Enums.OrganizationUserStatusType.Confirmed, ExternalId = "UA", Email = "user1@example.com" },
-            new Infrastructure.EntityFramework.Models.OrganizationUser { Id = TestOrganizationUserId2, OrganizationId = TestOrganizationId1, UserId = TestUserId2, Status = Core.Enums.OrganizationUserStatusType.Confirmed, ExternalId = "UB", Email = "user2@example.com" },
-            new Infrastructure.EntityFramework.Models.OrganizationUser { Id = TestOrganizationUserId3, OrganizationId = TestOrganizationId1, UserId = TestUserId3, Status = Core.Enums.OrganizationUserStatusType.Revoked, ExternalId = "UC", Email = "user3@example.com" },
-            new Infrastructure.EntityFramework.Models.OrganizationUser { Id = TestOrganizationUserId4, OrganizationId = TestOrganizationId1, UserId = TestUserId4, Status = Core.Enums.OrganizationUserStatusType.Confirmed, ExternalId = "UD", Email = "user4@example.com" },
+            new Infrastructure.EntityFramework.Models.OrganizationUser
+            {
+                Id = TestOrganizationUserId1,
+                OrganizationId = TestOrganizationId1,
+                UserId = TestUserId1,
+                Status = Core.Enums.OrganizationUserStatusType.Confirmed,
+                ExternalId = "UA",
+                Email = "user1@example.com",
+            },
+            new Infrastructure.EntityFramework.Models.OrganizationUser
+            {
+                Id = TestOrganizationUserId2,
+                OrganizationId = TestOrganizationId1,
+                UserId = TestUserId2,
+                Status = Core.Enums.OrganizationUserStatusType.Confirmed,
+                ExternalId = "UB",
+                Email = "user2@example.com",
+            },
+            new Infrastructure.EntityFramework.Models.OrganizationUser
+            {
+                Id = TestOrganizationUserId3,
+                OrganizationId = TestOrganizationId1,
+                UserId = TestUserId3,
+                Status = Core.Enums.OrganizationUserStatusType.Revoked,
+                ExternalId = "UC",
+                Email = "user3@example.com",
+            },
+            new Infrastructure.EntityFramework.Models.OrganizationUser
+            {
+                Id = TestOrganizationUserId4,
+                OrganizationId = TestOrganizationId1,
+                UserId = TestUserId4,
+                Status = Core.Enums.OrganizationUserStatusType.Confirmed,
+                ExternalId = "UD",
+                Email = "user4@example.com",
+            },
         };
     }
 
@@ -227,27 +332,38 @@ public class ScimApplicationFactory : WebApplicationFactoryBase<Startup>
     {
         return new List<Infrastructure.EntityFramework.Models.GroupUser>()
         {
-            new Infrastructure.EntityFramework.Models.GroupUser { GroupId = TestGroupId1, OrganizationUserId = TestOrganizationUserId1 },
-            new Infrastructure.EntityFramework.Models.GroupUser { GroupId = TestGroupId1, OrganizationUserId = TestOrganizationUserId4 }
+            new Infrastructure.EntityFramework.Models.GroupUser
+            {
+                GroupId = TestGroupId1,
+                OrganizationUserId = TestOrganizationUserId1,
+            },
+            new Infrastructure.EntityFramework.Models.GroupUser
+            {
+                GroupId = TestGroupId1,
+                OrganizationUserId = TestOrganizationUserId4,
+            },
         };
     }
 
-    private static StringContent GetStringContent(object obj) => new(JsonSerializer.Serialize(obj), Encoding.Default, MediaTypeNames.Application.Json);
+    private static StringContent GetStringContent(object obj) =>
+        new(JsonSerializer.Serialize(obj), Encoding.Default, MediaTypeNames.Application.Json);
 
     public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        public TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
-            ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
-            : base(options, logger, encoder, clock)
-        {
-        }
+        public TestAuthHandler(
+            IOptionsMonitor<AuthenticationSchemeOptions> options,
+            ILoggerFactory logger,
+            UrlEncoder encoder,
+            ISystemClock clock
+        )
+            : base(options, logger, encoder, clock) { }
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             var claims = new[]
             {
                 new Claim(ClaimTypes.Name, "Test user"),
-                new Claim("orgadmin", TestOrganizationId1.ToString())
+                new Claim("orgadmin", TestOrganizationId1.ToString()),
             };
             var identity = new ClaimsIdentity(claims, "Test");
             var principal = new ClaimsPrincipal(identity);

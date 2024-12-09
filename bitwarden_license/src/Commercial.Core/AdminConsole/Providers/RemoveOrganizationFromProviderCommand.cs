@@ -38,7 +38,8 @@ public class RemoveOrganizationFromProviderCommand : IRemoveOrganizationFromProv
         IFeatureService featureService,
         IProviderBillingService providerBillingService,
         ISubscriberService subscriberService,
-        IHasConfirmedOwnersExceptQuery hasConfirmedOwnersExceptQuery)
+        IHasConfirmedOwnersExceptQuery hasConfirmedOwnersExceptQuery
+    )
     {
         _eventService = eventService;
         _mailService = mailService;
@@ -55,26 +56,33 @@ public class RemoveOrganizationFromProviderCommand : IRemoveOrganizationFromProv
     public async Task RemoveOrganizationFromProvider(
         Provider provider,
         ProviderOrganization providerOrganization,
-        Organization organization)
+        Organization organization
+    )
     {
-        if (provider == null ||
-            providerOrganization == null ||
-            organization == null ||
-            providerOrganization.ProviderId != provider.Id)
+        if (
+            provider == null
+            || providerOrganization == null
+            || organization == null
+            || providerOrganization.ProviderId != provider.Id
+        )
         {
             throw new BadRequestException("Failed to remove organization. Please contact support.");
         }
 
-        if (!await _hasConfirmedOwnersExceptQuery.HasConfirmedOwnersExceptAsync(
+        if (
+            !await _hasConfirmedOwnersExceptQuery.HasConfirmedOwnersExceptAsync(
                 providerOrganization.OrganizationId,
                 Array.Empty<Guid>(),
-                includeProvider: false))
+                includeProvider: false
+            )
+        )
         {
             throw new BadRequestException("Organization must have at least one confirmed owner.");
         }
 
-        var organizationOwnerEmails =
-            (await _organizationRepository.GetOwnerEmailAddressesById(organization.Id)).ToList();
+        var organizationOwnerEmails = (
+            await _organizationRepository.GetOwnerEmailAddressesById(organization.Id)
+        ).ToList();
 
         organization.BillingEmail = organizationOwnerEmails.MinBy(email => email);
 
@@ -86,7 +94,8 @@ public class RemoveOrganizationFromProviderCommand : IRemoveOrganizationFromProv
 
         await _eventService.LogProviderOrganizationEventAsync(
             providerOrganization,
-            EventType.ProviderOrganization_Removed);
+            EventType.ProviderOrganization_Removed
+        );
     }
 
     /// <summary>
@@ -98,17 +107,19 @@ public class RemoveOrganizationFromProviderCommand : IRemoveOrganizationFromProv
     private async Task ResetOrganizationBillingAsync(
         Organization organization,
         Provider provider,
-        IEnumerable<string> organizationOwnerEmails)
+        IEnumerable<string> organizationOwnerEmails
+    )
     {
-        if (provider.IsBillable() &&
-            organization.IsValidClient() &&
-            !string.IsNullOrEmpty(organization.GatewayCustomerId))
+        if (
+            provider.IsBillable()
+            && organization.IsValidClient()
+            && !string.IsNullOrEmpty(organization.GatewayCustomerId)
+        )
         {
-            await _stripeAdapter.CustomerUpdateAsync(organization.GatewayCustomerId, new CustomerUpdateOptions
-            {
-                Description = string.Empty,
-                Email = organization.BillingEmail
-            });
+            await _stripeAdapter.CustomerUpdateAsync(
+                organization.GatewayCustomerId,
+                new CustomerUpdateOptions { Description = string.Empty, Email = organization.BillingEmail }
+            );
 
             var plan = StaticStore.GetPlan(organization.PlanType).PasswordManager;
 
@@ -118,13 +129,13 @@ public class RemoveOrganizationFromProviderCommand : IRemoveOrganizationFromProv
                 CollectionMethod = StripeConstants.CollectionMethod.SendInvoice,
                 DaysUntilDue = 30,
                 AutomaticTax = new SubscriptionAutomaticTaxOptions { Enabled = true },
-                Metadata = new Dictionary<string, string>
-                {
-                    { "organizationId", organization.Id.ToString() }
-                },
+                Metadata = new Dictionary<string, string> { { "organizationId", organization.Id.ToString() } },
                 OffSession = true,
                 ProrationBehavior = StripeConstants.ProrationBehavior.CreateProrations,
-                Items = [new SubscriptionItemOptions { Price = plan.StripeSeatPlanId, Quantity = organization.Seats }]
+                Items =
+                [
+                    new SubscriptionItemOptions { Price = plan.StripeSeatPlanId, Quantity = organization.Seats },
+                ],
             };
 
             var subscription = await _stripeAdapter.SubscriptionCreateAsync(subscriptionCreateOptions);
@@ -137,22 +148,28 @@ public class RemoveOrganizationFromProviderCommand : IRemoveOrganizationFromProv
         else if (organization.IsStripeEnabled())
         {
             var subscription = await _stripeAdapter.SubscriptionGetAsync(organization.GatewaySubscriptionId);
-            if (subscription.Status is StripeConstants.SubscriptionStatus.Canceled or StripeConstants.SubscriptionStatus.IncompleteExpired)
+            if (
+                subscription.Status
+                is StripeConstants.SubscriptionStatus.Canceled
+                    or StripeConstants.SubscriptionStatus.IncompleteExpired
+            )
             {
                 return;
             }
 
-            await _stripeAdapter.CustomerUpdateAsync(organization.GatewayCustomerId, new CustomerUpdateOptions
-            {
-                Coupon = string.Empty,
-                Email = organization.BillingEmail
-            });
+            await _stripeAdapter.CustomerUpdateAsync(
+                organization.GatewayCustomerId,
+                new CustomerUpdateOptions { Coupon = string.Empty, Email = organization.BillingEmail }
+            );
 
-            await _stripeAdapter.SubscriptionUpdateAsync(organization.GatewaySubscriptionId, new SubscriptionUpdateOptions
-            {
-                CollectionMethod = StripeConstants.CollectionMethod.SendInvoice,
-                DaysUntilDue = 30
-            });
+            await _stripeAdapter.SubscriptionUpdateAsync(
+                organization.GatewaySubscriptionId,
+                new SubscriptionUpdateOptions
+                {
+                    CollectionMethod = StripeConstants.CollectionMethod.SendInvoice,
+                    DaysUntilDue = 30,
+                }
+            );
 
             await _subscriberService.RemovePaymentSource(organization);
         }
@@ -161,6 +178,7 @@ public class RemoveOrganizationFromProviderCommand : IRemoveOrganizationFromProv
             organization.Id,
             organization.Name,
             provider.Name,
-            organizationOwnerEmails);
+            organizationOwnerEmails
+        );
     }
 }

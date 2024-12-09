@@ -13,6 +13,8 @@ public class GetOrganizationDomainByIdOrganizationIdQuery : IGetOrganizationDoma
         _organizationDomainRepository = organizationDomainRepository;
     }
 
-    public async Task<OrganizationDomain> GetOrganizationDomainByIdOrganizationIdAsync(Guid id, Guid organizationId)
-        => await _organizationDomainRepository.GetDomainByIdOrganizationIdAsync(id, organizationId);
+    public async Task<OrganizationDomain> GetOrganizationDomainByIdOrganizationIdAsync(
+        Guid id,
+        Guid organizationId
+    ) => await _organizationDomainRepository.GetDomainByIdOrganizationIdAsync(id, organizationId);
 }

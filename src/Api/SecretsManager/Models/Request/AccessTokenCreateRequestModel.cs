@@ -39,8 +39,7 @@ public class AccessTokenCreateRequestModel : IValidatableObject
     {
         if (ExpireAt != null && ExpireAt <= DateTime.UtcNow)
         {
-            yield return new ValidationResult(
-               $"Please select an expiration date that is in the future.");
+            yield return new ValidationResult($"Please select an expiration date that is in the future.");
         }
     }
 }

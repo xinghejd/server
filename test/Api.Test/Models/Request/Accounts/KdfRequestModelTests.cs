@@ -39,7 +39,13 @@ public class KdfRequestModelTests
     [InlineData(KdfType.Argon2id, 10, 14, 0, 1)] // Too small of a parallelism value
     [InlineData(KdfType.Argon2id, 10, 1025, 8, 1)] // Too much memory
     [InlineData(KdfType.Argon2id, 10, 512, 17, 1)] // Too big of a parallelism value
-    public void Validate_Fails(KdfType? kdfType, int? kdfIterations, int? kdfMemory, int? kdfParallelism, int expectedFailures)
+    public void Validate_Fails(
+        KdfType? kdfType,
+        int? kdfIterations,
+        int? kdfMemory,
+        int? kdfParallelism,
+        int expectedFailures
+    )
     {
         var model = new KdfRequestModel
         {

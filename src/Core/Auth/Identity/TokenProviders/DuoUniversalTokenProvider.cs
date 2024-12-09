@@ -13,11 +13,12 @@ namespace Bit.Core.Auth.Identity.TokenProviders;
 public class DuoUniversalTokenProvider(
     IServiceProvider serviceProvider,
     IDataProtectorTokenFactory<DuoUserStateTokenable> tokenDataFactory,
-    IDuoUniversalTokenService duoUniversalTokenService) : IUserTwoFactorTokenProvider<User>
+    IDuoUniversalTokenService duoUniversalTokenService
+) : IUserTwoFactorTokenProvider<User>
 {
     /// <summary>
     /// We need the IServiceProvider to resolve the IUserService. There is a complex dependency dance
-    /// occurring between IUserService, which extends the UserManager<User>, and the usage of the 
+    /// occurring between IUserService, which extends the UserManager<User>, and the usage of the
     /// UserManager<User> within this class. Trying to resolve the IUserService using the DI pipeline
     /// will not allow the server to start and it will hang and give no helpful indication as to the problem.
     /// </summary>
@@ -53,7 +54,12 @@ public class DuoUniversalTokenProvider(
         {
             return false;
         }
-        return await _duoUniversalTokenService.RequestDuoValidationAsync(duoClient, _tokenDataFactory, user, token);
+        return await _duoUniversalTokenService.RequestDuoValidationAsync(
+            duoClient,
+            _tokenDataFactory,
+            user,
+            token
+        );
     }
 
     /// <summary>

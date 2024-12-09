@@ -47,7 +47,9 @@ public class DataTableBuilder<T>
 
             if (!TryGetPropertyInfo(columnExpression, out var propertyInfo))
             {
-                throw new ArgumentException($"Could not determine the property info from the given expression '{columnExpression}'.");
+                throw new ArgumentException(
+                    $"Could not determine the property info from the given expression '{columnExpression}'."
+                );
             }
 
             // Unwrap possible Nullable<T>
@@ -62,14 +64,19 @@ public class DataTableBuilder<T>
 
             if (!columnBuilders.TryAdd(propertyInfo.Name, (type, columnExpression.Compile())))
             {
-                throw new ArgumentException($"Property with name '{propertyInfo.Name}' was already added, properties can only be added once.");
+                throw new ArgumentException(
+                    $"Property with name '{propertyInfo.Name}' was already added, properties can only be added once."
+                );
             }
         }
 
         _columnBuilders = columnBuilders.ToFrozenDictionary();
     }
 
-    private static bool TryGetPropertyInfo(Expression<Func<T, object?>> columnExpression, [MaybeNullWhen(false)] out PropertyInfo property)
+    private static bool TryGetPropertyInfo(
+        Expression<Func<T, object?>> columnExpression,
+        [MaybeNullWhen(false)] out PropertyInfo property
+    )
     {
         property = null;
 
@@ -81,7 +88,7 @@ public class DataTableBuilder<T>
             return true;
         }
 
-        // Value type properties will implicitly box into the object so 
+        // Value type properties will implicitly box into the object so
         // we need to look past the Convert expression
         // i => (System.Object?)i.Id
         if (
@@ -212,8 +219,11 @@ public static class DapperHelpers
         return table;
     }
 
-    public static DataTable BuildTable<T>(this IEnumerable<T> entities, DataTable table,
-        List<(string name, Type type, Func<T, object?> getter)> columnData)
+    public static DataTable BuildTable<T>(
+        this IEnumerable<T> entities,
+        DataTable table,
+        List<(string name, Type type, Func<T, object?> getter)> columnData
+    )
     {
         foreach (var (name, type, getter) in columnData)
         {

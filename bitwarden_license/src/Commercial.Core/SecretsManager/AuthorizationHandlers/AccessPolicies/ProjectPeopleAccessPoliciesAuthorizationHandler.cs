@@ -9,20 +9,20 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Bit.Commercial.Core.SecretsManager.AuthorizationHandlers.AccessPolicies;
 
-public class
-    ProjectPeopleAccessPoliciesAuthorizationHandler : AuthorizationHandler<
-        ProjectPeopleAccessPoliciesOperationRequirement,
-        ProjectPeopleAccessPolicies>
+public class ProjectPeopleAccessPoliciesAuthorizationHandler
+    : AuthorizationHandler<ProjectPeopleAccessPoliciesOperationRequirement, ProjectPeopleAccessPolicies>
 {
     private readonly IAccessClientQuery _accessClientQuery;
     private readonly ICurrentContext _currentContext;
     private readonly IProjectRepository _projectRepository;
     private readonly ISameOrganizationQuery _sameOrganizationQuery;
 
-    public ProjectPeopleAccessPoliciesAuthorizationHandler(ICurrentContext currentContext,
+    public ProjectPeopleAccessPoliciesAuthorizationHandler(
+        ICurrentContext currentContext,
         IAccessClientQuery accessClientQuery,
         ISameOrganizationQuery sameOrganizationQuery,
-        IProjectRepository projectRepository)
+        IProjectRepository projectRepository
+    )
     {
         _currentContext = currentContext;
         _accessClientQuery = accessClientQuery;
@@ -30,9 +30,11 @@ public class
         _projectRepository = projectRepository;
     }
 
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,
+    protected override async Task HandleRequirementAsync(
+        AuthorizationHandlerContext context,
         ProjectPeopleAccessPoliciesOperationRequirement requirement,
-        ProjectPeopleAccessPolicies resource)
+        ProjectPeopleAccessPolicies resource
+    )
     {
         if (!_currentContext.AccessSecretsManager(resource.OrganizationId))
         {
@@ -40,8 +42,10 @@ public class
         }
 
         // Only users and admins should be able to manipulate access policies
-        var (accessClient, userId) =
-            await _accessClientQuery.GetAccessClientAsync(context.User, resource.OrganizationId);
+        var (accessClient, userId) = await _accessClientQuery.GetAccessClientAsync(
+            context.User,
+            resource.OrganizationId
+        );
         if (accessClient != AccessClientType.User && accessClient != AccessClientType.NoAccessCheck)
         {
             return;
@@ -53,14 +57,20 @@ public class
                 await CanReplaceProjectPeopleAsync(context, requirement, resource, accessClient, userId);
                 break;
             default:
-                throw new ArgumentException("Unsupported operation requirement type provided.",
-                    nameof(requirement));
+                throw new ArgumentException(
+                    "Unsupported operation requirement type provided.",
+                    nameof(requirement)
+                );
         }
     }
 
-    private async Task CanReplaceProjectPeopleAsync(AuthorizationHandlerContext context,
-        ProjectPeopleAccessPoliciesOperationRequirement requirement, ProjectPeopleAccessPolicies resource,
-        AccessClientType accessClient, Guid userId)
+    private async Task CanReplaceProjectPeopleAsync(
+        AuthorizationHandlerContext context,
+        ProjectPeopleAccessPoliciesOperationRequirement requirement,
+        ProjectPeopleAccessPolicies resource,
+        AccessClientType accessClient,
+        Guid userId
+    )
     {
         var access = await _projectRepository.AccessToProjectAsync(resource.Id, userId, accessClient);
         if (access.Write)

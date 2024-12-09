@@ -12,9 +12,7 @@ public class SecretsSyncQuery : ISecretsSyncQuery
     private readonly ISecretRepository _secretRepository;
     private readonly IServiceAccountRepository _serviceAccountRepository;
 
-    public SecretsSyncQuery(
-        ISecretRepository secretRepository,
-        IServiceAccountRepository serviceAccountRepository)
+    public SecretsSyncQuery(ISecretRepository secretRepository, IServiceAccountRepository serviceAccountRepository)
     {
         _secretRepository = secretRepository;
         _serviceAccountRepository = serviceAccountRepository;
@@ -41,10 +39,15 @@ public class SecretsSyncQuery : ISecretsSyncQuery
         return (HasChanges: false, null);
     }
 
-    private async Task<(bool HasChanges, IEnumerable<Secret>? Secrets)> GetSecretsAsync(SecretsSyncRequest syncRequest)
+    private async Task<(bool HasChanges, IEnumerable<Secret>? Secrets)> GetSecretsAsync(
+        SecretsSyncRequest syncRequest
+    )
     {
-        var secrets = await _secretRepository.GetManyByOrganizationIdAsync(syncRequest.OrganizationId,
-            syncRequest.ServiceAccountId, syncRequest.AccessClientType);
+        var secrets = await _secretRepository.GetManyByOrganizationIdAsync(
+            syncRequest.OrganizationId,
+            syncRequest.ServiceAccountId,
+            syncRequest.AccessClientType
+        );
         return (HasChanges: true, Secrets: secrets);
     }
 }

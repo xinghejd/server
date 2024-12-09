@@ -9,13 +9,16 @@ namespace Bit.Api.Models.Response;
 
 public class ProfileResponseModel : ResponseModel
 {
-    public ProfileResponseModel(User user,
+    public ProfileResponseModel(
+        User user,
         IEnumerable<OrganizationUserOrganizationDetails> organizationsUserDetails,
         IEnumerable<ProviderUserProviderDetails> providerUserDetails,
         IEnumerable<ProviderUserOrganizationDetails> providerUserOrganizationDetails,
         bool twoFactorEnabled,
         bool premiumFromOrganization,
-        IEnumerable<Guid> organizationIdsManagingUser) : base("profile")
+        IEnumerable<Guid> organizationIdsManagingUser
+    )
+        : base("profile")
     {
         if (user == null)
         {
@@ -37,15 +40,18 @@ public class ProfileResponseModel : ResponseModel
         UsesKeyConnector = user.UsesKeyConnector;
         AvatarColor = user.AvatarColor;
         CreationDate = user.CreationDate;
-        Organizations = organizationsUserDetails?.Select(o => new ProfileOrganizationResponseModel(o, organizationIdsManagingUser));
+        Organizations = organizationsUserDetails?.Select(o => new ProfileOrganizationResponseModel(
+            o,
+            organizationIdsManagingUser
+        ));
         Providers = providerUserDetails?.Select(p => new ProfileProviderResponseModel(p));
-        ProviderOrganizations =
-            providerUserOrganizationDetails?.Select(po => new ProfileProviderOrganizationResponseModel(po));
+        ProviderOrganizations = providerUserOrganizationDetails?.Select(
+            po => new ProfileProviderOrganizationResponseModel(po)
+        );
     }
 
-    public ProfileResponseModel() : base("profile")
-    {
-    }
+    public ProfileResponseModel()
+        : base("profile") { }
 
     public Guid Id { get; set; }
     public string Name { get; set; }

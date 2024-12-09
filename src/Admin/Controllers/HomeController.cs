@@ -23,21 +23,19 @@ public class HomeController : Controller
     [Authorize]
     public IActionResult Index()
     {
-        return View(new HomeModel
-        {
-            GlobalSettings = _globalSettings,
-            CurrentVersion = Core.Utilities.AssemblyHelpers.GetVersion()
-        });
+        return View(
+            new HomeModel
+            {
+                GlobalSettings = _globalSettings,
+                CurrentVersion = Core.Utilities.AssemblyHelpers.GetVersion(),
+            }
+        );
     }
 
     public IActionResult Error()
     {
-        return View(new ErrorViewModel
-        {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
-        });
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
-
 
     public async Task<IActionResult> GetLatestVersion(ProjectType project, CancellationToken cancellationToken)
     {
@@ -47,7 +45,9 @@ public class HomeController : Controller
             var response = await _httpClient.GetAsync(requestUri, cancellationToken);
             if (response.IsSuccessStatusCode)
             {
-                var latestVersions = JsonConvert.DeserializeObject<LatestVersions>(await response.Content.ReadAsStringAsync());
+                var latestVersions = JsonConvert.DeserializeObject<LatestVersions>(
+                    await response.Content.ReadAsStringAsync()
+                );
                 return project switch
                 {
                     ProjectType.Core => new JsonResult(latestVersions.Versions.CoreVersion),
@@ -59,7 +59,10 @@ public class HomeController : Controller
         catch (HttpRequestException e)
         {
             _logger.LogError(e, $"Error encountered while sending GET request to {requestUri}");
-            return new JsonResult("Unable to fetch latest version") { StatusCode = StatusCodes.Status500InternalServerError };
+            return new JsonResult("Unable to fetch latest version")
+            {
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
         }
 
         return new JsonResult("-");
@@ -73,7 +76,10 @@ public class HomeController : Controller
             var response = await _httpClient.GetAsync(requestUri, cancellationToken);
             if (response.IsSuccessStatusCode)
             {
-                using var jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+                using var jsonDocument = await JsonDocument.ParseAsync(
+                    await response.Content.ReadAsStreamAsync(cancellationToken),
+                    cancellationToken: cancellationToken
+                );
                 var root = jsonDocument.RootElement;
                 return new JsonResult(root.GetProperty("version").GetString());
             }
@@ -81,7 +87,10 @@ public class HomeController : Controller
         catch (HttpRequestException e)
         {
             _logger.LogError(e, $"Error encountered while sending GET request to {requestUri}");
-            return new JsonResult("Unable to fetch installed version") { StatusCode = StatusCodes.Status500InternalServerError };
+            return new JsonResult("Unable to fetch installed version")
+            {
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
         }
 
         return new JsonResult("-");

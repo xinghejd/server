@@ -11,16 +11,15 @@ namespace Bit.Infrastructure.EntityFramework.Repositories;
 public class TaxRateRepository : Repository<Core.Entities.TaxRate, TaxRate, string>, ITaxRateRepository
 {
     public TaxRateRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
-        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.TaxRates)
-    { }
+        : base(serviceScopeFactory, mapper, (DatabaseContext context) => context.TaxRates) { }
 
     public async Task ArchiveAsync(Core.Entities.TaxRate model)
     {
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            await dbContext.TaxRates
-                .Where(tr => tr.Id == model.Id)
+            await dbContext
+                .TaxRates.Where(tr => tr.Id == model.Id)
                 .ExecuteUpdateAsync(property => property.SetProperty(tr => tr.Active, false));
         }
     }
@@ -30,9 +29,7 @@ public class TaxRateRepository : Repository<Core.Entities.TaxRate, TaxRate, stri
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var results = await dbContext.TaxRates
-                .Where(t => t.Active)
-                .ToListAsync();
+            var results = await dbContext.TaxRates.Where(t => t.Active).ToListAsync();
             return Mapper.Map<List<Core.Entities.TaxRate>>(results);
         }
     }
@@ -42,10 +39,10 @@ public class TaxRateRepository : Repository<Core.Entities.TaxRate, TaxRate, stri
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var results = await dbContext.TaxRates
-                .Where(t => t.Active &&
-                    t.Country == taxRate.Country &&
-                    t.PostalCode == taxRate.PostalCode)
+            var results = await dbContext
+                .TaxRates.Where(t =>
+                    t.Active && t.Country == taxRate.Country && t.PostalCode == taxRate.PostalCode
+                )
                 .ToListAsync();
             return Mapper.Map<List<Core.Entities.TaxRate>>(results);
         }
@@ -56,11 +53,12 @@ public class TaxRateRepository : Repository<Core.Entities.TaxRate, TaxRate, stri
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var results = await dbContext.TaxRates
-                .Skip(skip)
+            var results = await dbContext
+                .TaxRates.Skip(skip)
                 .Take(count)
                 .Where(t => t.Active)
-                .OrderBy(t => t.Country).ThenByDescending(t => t.PostalCode)
+                .OrderBy(t => t.Country)
+                .ThenByDescending(t => t.PostalCode)
                 .ToListAsync();
             return Mapper.Map<List<Core.Entities.TaxRate>>(results);
         }

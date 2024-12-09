@@ -16,28 +16,40 @@ public class ValidateBillingSyncKeyCommandTests
 {
     [Theory]
     [BitAutoData]
-    public async Task ValidateBillingSyncKeyAsync_NullOrganization_Throws(SutProvider<ValidateBillingSyncKeyCommand> sutProvider)
+    public async Task ValidateBillingSyncKeyAsync_NullOrganization_Throws(
+        SutProvider<ValidateBillingSyncKeyCommand> sutProvider
+    )
     {
-        await Assert.ThrowsAsync<BadRequestException>(() => sutProvider.Sut.ValidateBillingSyncKeyAsync(null, null));
+        await Assert.ThrowsAsync<BadRequestException>(
+            () => sutProvider.Sut.ValidateBillingSyncKeyAsync(null, null)
+        );
     }
 
     [Theory]
     [BitAutoData((string)null)]
     [BitAutoData("")]
     [BitAutoData("       ")]
-    public async Task ValidateBillingSyncKeyAsync_BadString_ReturnsFalse(string billingSyncKey, SutProvider<ValidateBillingSyncKeyCommand> sutProvider)
+    public async Task ValidateBillingSyncKeyAsync_BadString_ReturnsFalse(
+        string billingSyncKey,
+        SutProvider<ValidateBillingSyncKeyCommand> sutProvider
+    )
     {
         Assert.False(await sutProvider.Sut.ValidateBillingSyncKeyAsync(new Organization(), billingSyncKey));
     }
 
     [Theory]
     [BitAutoData]
-    public async Task ValidateBillingSyncKeyAsync_KeyEquals_ReturnsTrue(SutProvider<ValidateBillingSyncKeyCommand> sutProvider,
-        Organization organization, OrganizationApiKey orgApiKey, string billingSyncKey)
+    public async Task ValidateBillingSyncKeyAsync_KeyEquals_ReturnsTrue(
+        SutProvider<ValidateBillingSyncKeyCommand> sutProvider,
+        Organization organization,
+        OrganizationApiKey orgApiKey,
+        string billingSyncKey
+    )
     {
         orgApiKey.ApiKey = billingSyncKey;
 
-        sutProvider.GetDependency<IOrganizationApiKeyRepository>()
+        sutProvider
+            .GetDependency<IOrganizationApiKeyRepository>()
             .GetManyByOrganizationIdTypeAsync(organization.Id, OrganizationApiKeyType.BillingSync)
             .Returns(new[] { orgApiKey });
 
@@ -46,10 +58,15 @@ public class ValidateBillingSyncKeyCommandTests
 
     [Theory]
     [BitAutoData]
-    public async Task ValidateBillingSyncKeyAsync_KeyDoesNotEqual_ReturnsFalse(SutProvider<ValidateBillingSyncKeyCommand> sutProvider,
-        Organization organization, OrganizationApiKey orgApiKey, string billingSyncKey)
+    public async Task ValidateBillingSyncKeyAsync_KeyDoesNotEqual_ReturnsFalse(
+        SutProvider<ValidateBillingSyncKeyCommand> sutProvider,
+        Organization organization,
+        OrganizationApiKey orgApiKey,
+        string billingSyncKey
+    )
     {
-        sutProvider.GetDependency<IOrganizationApiKeyRepository>()
+        sutProvider
+            .GetDependency<IOrganizationApiKeyRepository>()
             .GetManyByOrganizationIdTypeAsync(organization.Id, OrganizationApiKeyType.BillingSync)
             .Returns(new[] { orgApiKey });
 

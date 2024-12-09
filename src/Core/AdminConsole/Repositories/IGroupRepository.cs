@@ -10,8 +10,9 @@ public interface IGroupRepository : IRepository<Group, Guid>
 {
     Task<Tuple<Group?, ICollection<CollectionAccessSelection>>> GetByIdWithCollectionsAsync(Guid id);
     Task<ICollection<Group>> GetManyByOrganizationIdAsync(Guid organizationId);
-    Task<ICollection<Tuple<Group, ICollection<CollectionAccessSelection>>>> GetManyWithCollectionsByOrganizationIdAsync(
-        Guid organizationId);
+    Task<
+        ICollection<Tuple<Group, ICollection<CollectionAccessSelection>>>
+    > GetManyWithCollectionsByOrganizationIdAsync(Guid organizationId);
     Task<ICollection<Group>> GetManyByManyIds(IEnumerable<Guid> groupIds);
     Task<ICollection<Guid>> GetManyIdsByUserIdAsync(Guid organizationUserId);
     Task<ICollection<Guid>> GetManyUserIdsByIdAsync(Guid id);

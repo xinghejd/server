@@ -28,10 +28,10 @@ internal class OrganizationUserBuilder : ISpecimenBuilder
             var fixture = new Fixture();
             var orgUser = fixture.WithAutoNSubstitutions().Create<OrganizationUser>();
             var orgUserPermissions = fixture.WithAutoNSubstitutions().Create<Permissions>();
-            orgUser.Permissions = JsonSerializer.Serialize(orgUserPermissions, new JsonSerializerOptions()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            });
+            orgUser.Permissions = JsonSerializer.Serialize(
+                orgUserPermissions,
+                new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+            );
             return orgUser;
         }
         else if (type == typeof(List<OrganizationUserCustomization>))
@@ -42,10 +42,10 @@ internal class OrganizationUserBuilder : ISpecimenBuilder
             {
                 var providers = fixture.Create<Dictionary<TwoFactorProviderType, TwoFactorProvider>>();
                 var orgUserPermissions = fixture.WithAutoNSubstitutions().Create<Permissions>();
-                orgUser.Permissions = JsonSerializer.Serialize(orgUserPermissions, new JsonSerializerOptions()
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                });
+                orgUser.Permissions = JsonSerializer.Serialize(
+                    orgUserPermissions,
+                    new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+                );
             }
             return orgUsers;
         }
@@ -70,13 +70,12 @@ internal class EfOrganizationUser : ICustomization
 
 internal class EfOrganizationUserAutoDataAttribute : CustomAutoDataAttribute
 {
-    public EfOrganizationUserAutoDataAttribute() : base(new SutProviderCustomization(), new EfOrganizationUser())
-    { }
+    public EfOrganizationUserAutoDataAttribute()
+        : base(new SutProviderCustomization(), new EfOrganizationUser()) { }
 }
 
 internal class InlineEfOrganizationUserAutoDataAttribute : InlineCustomAutoDataAttribute
 {
-    public InlineEfOrganizationUserAutoDataAttribute(params object[] values) : base(new[] { typeof(SutProviderCustomization),
-        typeof(EfOrganizationUser) }, values)
-    { }
+    public InlineEfOrganizationUserAutoDataAttribute(params object[] values)
+        : base(new[] { typeof(SutProviderCustomization), typeof(EfOrganizationUser) }, values) { }
 }

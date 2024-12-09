@@ -8,6 +8,7 @@ public class KdfRequestModel : PasswordRequestModel, IValidatableObject
 {
     [Required]
     public KdfType? Kdf { get; set; }
+
     [Required]
     public int? KdfIterations { get; set; }
     public int? KdfMemory { get; set; }

@@ -57,7 +57,11 @@ public class WebAuthnTokenProvider : IUserTwoFactorTokenProvider<User>
             AppID = CoreHelpers.U2fAppIdUrl(_globalSettings),
         };
 
-        var options = _fido2.GetAssertionOptions(existingCredentials, UserVerificationRequirement.Discouraged, exts);
+        var options = _fido2.GetAssertionOptions(
+            existingCredentials,
+            UserVerificationRequirement.Discouraged,
+            exts
+        );
 
         // TODO: Remove this when newtonsoft legacy converters are gone
         provider.MetaData["login"] = JsonSerializer.Serialize(options);
@@ -86,8 +90,10 @@ public class WebAuthnTokenProvider : IUserTwoFactorTokenProvider<User>
             return false;
         }
 
-        var clientResponse = JsonSerializer.Deserialize<AuthenticatorAssertionRawResponse>(token,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var clientResponse = JsonSerializer.Deserialize<AuthenticatorAssertionRawResponse>(
+            token,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
 
         var jsonOptions = provider.MetaData["login"].ToString();
         var options = AssertionOptions.FromJson(jsonOptions);
@@ -105,7 +111,13 @@ public class WebAuthnTokenProvider : IUserTwoFactorTokenProvider<User>
 
         try
         {
-            var res = await _fido2.MakeAssertionAsync(clientResponse, options, webAuthCred.Item2.PublicKey, webAuthCred.Item2.SignatureCounter, callback);
+            var res = await _fido2.MakeAssertionAsync(
+                clientResponse,
+                options,
+                webAuthCred.Item2.PublicKey,
+                webAuthCred.Item2.SignatureCounter,
+                callback
+            );
 
             provider.MetaData.Remove("login");
 
@@ -123,7 +135,6 @@ public class WebAuthnTokenProvider : IUserTwoFactorTokenProvider<User>
         {
             return false;
         }
-
     }
 
     private bool HasProperMetaData(TwoFactorProvider provider)

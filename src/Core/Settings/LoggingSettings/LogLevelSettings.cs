@@ -1,5 +1,4 @@
-﻿
-namespace Bit.Core.Settings.LoggingSettings;
+﻿namespace Bit.Core.Settings.LoggingSettings;
 
 public class LogLevelSettings : ILogLevelSettings
 {
@@ -10,7 +9,9 @@ public class LogLevelSettings : ILogLevelSettings
     public ISsoLogLevelSettings SsoSettings { get; set; } = new SsoLogLevelSettings();
     public IAdminLogLevelSettings AdminSettings { get; set; } = new AdminLogLevelSettings();
     public IEventsLogLevelSettings EventsSettings { get; set; } = new EventsLogLevelSettings();
-    public IEventsProcessorLogLevelSettings EventsProcessorSettings { get; set; } = new EventsProcessorLogLevelSettings();
+    public IEventsProcessorLogLevelSettings EventsProcessorSettings { get; set; } =
+        new EventsProcessorLogLevelSettings();
     public IIconsLogLevelSettings IconsSettings { get; set; } = new IconsLogLevelSettings();
-    public INotificationsLogLevelSettings NotificationsSettings { get; set; } = new NotificationsLogLevelSettings();
+    public INotificationsLogLevelSettings NotificationsSettings { get; set; } =
+        new NotificationsLogLevelSettings();
 }

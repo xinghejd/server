@@ -62,10 +62,12 @@ public class TaxInfoTests
     [InlineData("US", "PH", null, "us_ein")]
     [InlineData("ZA", "PH", null, "za_vat")]
     [InlineData("ABCDEF", "PH", null, null)]
-    public void GetTaxIdType_Success(string billingAddressCountry,
+    public void GetTaxIdType_Success(
+        string billingAddressCountry,
         string taxIdNumber,
         string billingAddressState,
-        string expectedTaxIdType)
+        string expectedTaxIdType
+    )
     {
         var taxInfo = new TaxInfo
         {
@@ -103,11 +105,7 @@ public class TaxInfoTests
     [InlineData("    ", "US", false)]
     public void HasTaxId_ReturnsExpected(string taxIdNumber, string billingAddressCountry, bool expected)
     {
-        var taxInfo = new TaxInfo
-        {
-            TaxIdNumber = taxIdNumber,
-            BillingAddressCountry = billingAddressCountry,
-        };
+        var taxInfo = new TaxInfo { TaxIdNumber = taxIdNumber, BillingAddressCountry = billingAddressCountry };
 
         Assert.Equal(expected, taxInfo.HasTaxId);
     }

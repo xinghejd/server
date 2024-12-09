@@ -91,10 +91,12 @@ public class EncryptedStringAttributeTests
         var underlyingType = typeof(EncryptionType).GetEnumUnderlyingType();
         var expectedType = typeof(byte);
 
-        Assert.True(underlyingType == expectedType,
-            $"Hello future person, it seems you have changed the underlying type for {nameof(EncryptionType)}, " +
-            $"that is totally fine you just also need to change the line for {expectedType.Name}.TryParse in " +
-            $"{nameof(EncryptedStringAttribute)} to {underlyingType.Name}.TryParse (but you can probably use the alias)" +
-            "and then update this test!");
+        Assert.True(
+            underlyingType == expectedType,
+            $"Hello future person, it seems you have changed the underlying type for {nameof(EncryptionType)}, "
+                + $"that is totally fine you just also need to change the line for {expectedType.Name}.TryParse in "
+                + $"{nameof(EncryptedStringAttribute)} to {underlyingType.Name}.TryParse (but you can probably use the alias)"
+                + "and then update this test!"
+        );
     }
 }

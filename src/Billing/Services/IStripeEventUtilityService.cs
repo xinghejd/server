@@ -1,5 +1,6 @@
 ﻿using Stripe;
 using Transaction = Bit.Core.Entities.Transaction;
+
 namespace Bit.Billing.Services;
 
 public interface IStripeEventUtilityService
@@ -46,7 +47,6 @@ public interface IStripeEventUtilityService
     /// <returns>A task representing the asynchronous operation. The task result contains a boolean value indicating whether the invoice payment attempt was successful.</returns>
     Task<bool> AttemptToPayInvoiceAsync(Invoice invoice, bool attemptToPayWithStripe = false);
 
-
     /// <summary>
     /// Determines whether an invoice should be attempted to be paid based on certain criteria.
     /// </summary>
@@ -63,5 +63,4 @@ public interface IStripeEventUtilityService
     /// The ID for the premium annual plan via the App Store.
     /// </summary>
     const string PremiumPlanIdAppStore = "premium-annually-app";
-
 }

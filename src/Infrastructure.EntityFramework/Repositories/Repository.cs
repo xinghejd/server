@@ -14,7 +14,11 @@ public abstract class Repository<T, TEntity, TId> : BaseEntityFrameworkRepositor
     where T : class, ITableObject<TId>
     where TEntity : class, ITableObject<TId>
 {
-    public Repository(IServiceScopeFactory serviceScopeFactory, IMapper mapper, Func<DatabaseContext, DbSet<TEntity>> getDbSet)
+    public Repository(
+        IServiceScopeFactory serviceScopeFactory,
+        IMapper mapper,
+        Func<DatabaseContext, DbSet<TEntity>> getDbSet
+    )
         : base(serviceScopeFactory, mapper)
     {
         GetDbSet = getDbSet;

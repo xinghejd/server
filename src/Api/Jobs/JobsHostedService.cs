@@ -11,54 +11,60 @@ public class JobsHostedService : BaseJobsHostedService
         GlobalSettings globalSettings,
         IServiceProvider serviceProvider,
         ILogger<JobsHostedService> logger,
-        ILogger<JobListener> listenerLogger)
+        ILogger<JobListener> listenerLogger
+    )
         : base(globalSettings, serviceProvider, logger, listenerLogger) { }
 
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
-        var everyTopOfTheHourTrigger = TriggerBuilder.Create()
+        var everyTopOfTheHourTrigger = TriggerBuilder
+            .Create()
             .WithIdentity("EveryTopOfTheHourTrigger")
             .StartNow()
             .WithCronSchedule("0 0 * * * ?")
             .Build();
-        var emergencyAccessNotificationTrigger = TriggerBuilder.Create()
+        var emergencyAccessNotificationTrigger = TriggerBuilder
+            .Create()
             .WithIdentity("EmergencyAccessNotificationTrigger")
             .StartNow()
             .WithCronSchedule("0 0 * * * ?")
             .Build();
-        var emergencyAccessTimeoutTrigger = TriggerBuilder.Create()
+        var emergencyAccessTimeoutTrigger = TriggerBuilder
+            .Create()
             .WithIdentity("EmergencyAccessTimeoutTrigger")
             .StartNow()
             .WithCronSchedule("0 0 * * * ?")
             .Build();
-        var everyTopOfTheSixthHourTrigger = TriggerBuilder.Create()
+        var everyTopOfTheSixthHourTrigger = TriggerBuilder
+            .Create()
             .WithIdentity("EveryTopOfTheSixthHourTrigger")
             .StartNow()
             .WithCronSchedule("0 0 */6 * * ?")
             .Build();
-        var everyTwelfthHourAndThirtyMinutesTrigger = TriggerBuilder.Create()
+        var everyTwelfthHourAndThirtyMinutesTrigger = TriggerBuilder
+            .Create()
             .WithIdentity("EveryTwelfthHourAndThirtyMinutesTrigger")
             .StartNow()
             .WithCronSchedule("0 30 */12 * * ?")
             .Build();
-        var smTrashCleanupTrigger = TriggerBuilder.Create()
+        var smTrashCleanupTrigger = TriggerBuilder
+            .Create()
             .WithIdentity("SMTrashCleanupTrigger")
             .StartNow()
             .WithCronSchedule("0 0 22 * * ?")
             .Build();
-        var randomDailySponsorshipSyncTrigger = TriggerBuilder.Create()
+        var randomDailySponsorshipSyncTrigger = TriggerBuilder
+            .Create()
             .WithIdentity("RandomDailySponsorshipSyncTrigger")
             .StartAt(DateBuilder.FutureDate(new Random().Next(24), IntervalUnit.Hour))
-            .WithSimpleSchedule(x => x
-                .WithIntervalInHours(24)
-                .RepeatForever())
+            .WithSimpleSchedule(x => x.WithIntervalInHours(24).RepeatForever())
             .Build();
-        var validateOrganizationDomainTrigger = TriggerBuilder.Create()
+        var validateOrganizationDomainTrigger = TriggerBuilder
+            .Create()
             .WithIdentity("ValidateOrganizationDomainTrigger")
             .StartNow()
             .WithCronSchedule("0 0 * * * ?")
             .Build();
-
 
         var jobs = new List<Tuple<Type, ITrigger>>
         {
@@ -72,7 +78,9 @@ public class JobsHostedService : BaseJobsHostedService
 
         if (_globalSettings.SelfHosted && _globalSettings.EnableCloudCommunication)
         {
-            jobs.Add(new Tuple<Type, ITrigger>(typeof(SelfHostedSponsorshipSyncJob), randomDailySponsorshipSyncTrigger));
+            jobs.Add(
+                new Tuple<Type, ITrigger>(typeof(SelfHostedSponsorshipSyncJob), randomDailySponsorshipSyncTrigger)
+            );
         }
 
 #if !OSS

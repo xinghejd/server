@@ -26,8 +26,10 @@ public class OrganizationRepositoryTests
     [CiSkippedTheory, EfOrganizationAutoData]
     public async Task CreateAsync_Works_DataMatches(
         Organization organization,
-        SqlRepo.OrganizationRepository sqlOrganizationRepo, OrganizationCompare equalityComparer,
-        List<EfRepo.OrganizationRepository> suts)
+        SqlRepo.OrganizationRepository sqlOrganizationRepo,
+        OrganizationCompare equalityComparer,
+        List<EfRepo.OrganizationRepository> suts
+    )
     {
         var savedOrganizations = new List<Organization>();
         foreach (var sut in suts)
@@ -47,9 +49,13 @@ public class OrganizationRepositoryTests
     }
 
     [CiSkippedTheory, EfOrganizationAutoData]
-    public async Task ReplaceAsync_Works_DataMatches(Organization postOrganization,
-        Organization replaceOrganization, SqlRepo.OrganizationRepository sqlOrganizationRepo,
-        OrganizationCompare equalityComparer, List<EfRepo.OrganizationRepository> suts)
+    public async Task ReplaceAsync_Works_DataMatches(
+        Organization postOrganization,
+        Organization replaceOrganization,
+        SqlRepo.OrganizationRepository sqlOrganizationRepo,
+        OrganizationCompare equalityComparer,
+        List<EfRepo.OrganizationRepository> suts
+    )
     {
         var savedOrganizations = new List<Organization>();
         foreach (var sut in suts)
@@ -75,8 +81,11 @@ public class OrganizationRepositoryTests
     }
 
     [CiSkippedTheory, EfOrganizationAutoData]
-    public async Task DeleteAsync_Works_DataMatches(Organization organization,
-        SqlRepo.OrganizationRepository sqlOrganizationRepo, List<EfRepo.OrganizationRepository> suts)
+    public async Task DeleteAsync_Works_DataMatches(
+        Organization organization,
+        SqlRepo.OrganizationRepository sqlOrganizationRepo,
+        List<EfRepo.OrganizationRepository> suts
+    )
     {
         foreach (var sut in suts)
         {
@@ -104,9 +113,12 @@ public class OrganizationRepositoryTests
     }
 
     [CiSkippedTheory, EfOrganizationAutoData]
-    public async Task GetByIdentifierAsync_Works_DataMatches(Organization organization,
-        SqlRepo.OrganizationRepository sqlOrganizationRepo, OrganizationCompare equalityComparer,
-        List<EfRepo.OrganizationRepository> suts)
+    public async Task GetByIdentifierAsync_Works_DataMatches(
+        Organization organization,
+        SqlRepo.OrganizationRepository sqlOrganizationRepo,
+        OrganizationCompare equalityComparer,
+        List<EfRepo.OrganizationRepository> suts
+    )
     {
         var returnedOrgs = new List<Organization>();
         foreach (var sut in suts)
@@ -126,8 +138,11 @@ public class OrganizationRepositoryTests
     }
 
     [CiSkippedTheory, EfOrganizationAutoData]
-    public async Task GetManyByEnabledAsync_Works_DataMatches(Organization organization,
-        SqlRepo.OrganizationRepository sqlOrganizationRepo, List<EfRepo.OrganizationRepository> suts)
+    public async Task GetManyByEnabledAsync_Works_DataMatches(
+        Organization organization,
+        SqlRepo.OrganizationRepository sqlOrganizationRepo,
+        List<EfRepo.OrganizationRepository> suts
+    )
     {
         var returnedOrgs = new List<Organization>();
         foreach (var sut in suts)
@@ -147,7 +162,10 @@ public class OrganizationRepositoryTests
 
     // testing data matches here would require manipulating all organization abilities in the db
     [CiSkippedTheory, EfOrganizationAutoData]
-    public async Task GetManyAbilitiesAsync_Works(SqlRepo.OrganizationRepository sqlOrganizationRepo, List<EfRepo.OrganizationRepository> suts)
+    public async Task GetManyAbilitiesAsync_Works(
+        SqlRepo.OrganizationRepository sqlOrganizationRepo,
+        List<EfRepo.OrganizationRepository> suts
+    )
     {
         var list = new List<OrganizationAbility>();
         foreach (var sut in suts)
@@ -160,9 +178,17 @@ public class OrganizationRepositoryTests
     }
 
     [CiSkippedTheory, EfOrganizationUserAutoData]
-    public async Task SearchUnassignedAsync_Works(OrganizationUser orgUser, User user, Organization org,
-        List<EfRepo.OrganizationUserRepository> efOrgUserRepos, List<EfRepo.OrganizationRepository> efOrgRepos, List<EfRepo.UserRepository> efUserRepos,
-        SqlRepo.OrganizationUserRepository sqlOrgUserRepo, SqlRepo.OrganizationRepository sqlOrgRepo, SqlRepo.UserRepository sqlUserRepo)
+    public async Task SearchUnassignedAsync_Works(
+        OrganizationUser orgUser,
+        User user,
+        Organization org,
+        List<EfRepo.OrganizationUserRepository> efOrgUserRepos,
+        List<EfRepo.OrganizationRepository> efOrgRepos,
+        List<EfRepo.UserRepository> efUserRepos,
+        SqlRepo.OrganizationUserRepository sqlOrgUserRepo,
+        SqlRepo.OrganizationRepository sqlOrgRepo,
+        SqlRepo.UserRepository sqlUserRepo
+    )
     {
         orgUser.Type = OrganizationUserType.Owner;
         org.PlanType = PlanType.EnterpriseAnnually;

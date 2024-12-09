@@ -10,10 +10,19 @@ namespace Bit.Api.Utilities;
 public static class ApiHelpers
 {
     public static string EventGridKey { get; set; }
-    public async static Task<T> ReadJsonFileFromBody<T>(HttpContext httpContext, IFormFile file, long maxSize = 51200)
+
+    public static async Task<T> ReadJsonFileFromBody<T>(
+        HttpContext httpContext,
+        IFormFile file,
+        long maxSize = 51200
+    )
     {
         T obj = default(T);
-        if (file != null && httpContext.Request.ContentLength.HasValue && httpContext.Request.ContentLength.Value <= maxSize)
+        if (
+            file != null
+            && httpContext.Request.ContentLength.HasValue
+            && httpContext.Request.ContentLength.Value <= maxSize
+        )
         {
             try
             {
@@ -33,8 +42,10 @@ public static class ApiHelpers
     /// <param name="eventTypeHandlers">Dictionary of eventType strings and their associated handlers.</param>
     /// <returns>OkObjectResult</returns>
     /// <remarks>Reference https://docs.microsoft.com/en-us/azure/event-grid/receive-events</remarks>
-    public async static Task<ObjectResult> HandleAzureEvents(HttpRequest request,
-        Dictionary<string, Func<EventGridEvent, Task>> eventTypeHandlers)
+    public async static Task<ObjectResult> HandleAzureEvents(
+        HttpRequest request,
+        Dictionary<string, Func<EventGridEvent, Task>> eventTypeHandlers
+    )
     {
         var queryKey = request.Query["key"];
 
@@ -55,7 +66,7 @@ public static class ApiHelpers
                     // Might want to enable additional validation: subject, topic etc.
                     var responseData = new SubscriptionValidationResponse()
                     {
-                        ValidationResponse = eventData.ValidationCode
+                        ValidationResponse = eventData.ValidationCode,
                     };
 
                     return new OkObjectResult(responseData);

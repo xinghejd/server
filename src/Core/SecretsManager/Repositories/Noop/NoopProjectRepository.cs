@@ -6,14 +6,20 @@ namespace Bit.Core.SecretsManager.Repositories.Noop;
 
 public class NoopProjectRepository : IProjectRepository
 {
-    public Task<IEnumerable<ProjectPermissionDetails>> GetManyByOrganizationIdAsync(Guid organizationId, Guid userId,
-        AccessClientType accessType)
+    public Task<IEnumerable<ProjectPermissionDetails>> GetManyByOrganizationIdAsync(
+        Guid organizationId,
+        Guid userId,
+        AccessClientType accessType
+    )
     {
         return Task.FromResult(null as IEnumerable<ProjectPermissionDetails>);
     }
 
-    public Task<IEnumerable<Project>> GetManyByOrganizationIdWriteAccessAsync(Guid organizationId, Guid userId,
-        AccessClientType accessType)
+    public Task<IEnumerable<Project>> GetManyByOrganizationIdWriteAccessAsync(
+        Guid organizationId,
+        Guid userId,
+        AccessClientType accessType
+    )
     {
         return Task.FromResult(null as IEnumerable<Project>);
     }
@@ -63,8 +69,11 @@ public class NoopProjectRepository : IProjectRepository
         return Task.FromResult(0);
     }
 
-    public Task<int> GetProjectCountByOrganizationIdAsync(Guid organizationId, Guid userId,
-        AccessClientType accessType)
+    public Task<int> GetProjectCountByOrganizationIdAsync(
+        Guid organizationId,
+        Guid userId,
+        AccessClientType accessType
+    )
     {
         return Task.FromResult(0);
     }
@@ -74,8 +83,11 @@ public class NoopProjectRepository : IProjectRepository
         return Task.FromResult(null as ProjectCounts);
     }
 
-    public Task<Dictionary<Guid, (bool Read, bool Write)>> AccessToProjectsAsync(IEnumerable<Guid> projectIds,
-        Guid userId, AccessClientType accessType)
+    public Task<Dictionary<Guid, (bool Read, bool Write)>> AccessToProjectsAsync(
+        IEnumerable<Guid> projectIds,
+        Guid userId,
+        AccessClientType accessType
+    )
     {
         return Task.FromResult(null as Dictionary<Guid, (bool Read, bool Write)>);
     }

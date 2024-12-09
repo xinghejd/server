@@ -5,12 +5,18 @@ namespace Bit.Sso.Utilities;
 
 public static class OpenIdConnectOptionsExtensions
 {
-    public static async Task<bool> CouldHandleAsync(this OpenIdConnectOptions options, string scheme, HttpContext context)
+    public static async Task<bool> CouldHandleAsync(
+        this OpenIdConnectOptions options,
+        string scheme,
+        HttpContext context
+    )
     {
         // Determine this is a valid request for our handler
-        if (options.CallbackPath != context.Request.Path &&
-            options.RemoteSignOutPath != context.Request.Path &&
-            options.SignedOutCallbackPath != context.Request.Path)
+        if (
+            options.CallbackPath != context.Request.Path
+            && options.RemoteSignOutPath != context.Request.Path
+            && options.SignedOutCallbackPath != context.Request.Path
+        )
         {
             return false;
         }
@@ -26,15 +32,24 @@ public static class OpenIdConnectOptionsExtensions
             OpenIdConnectMessage message = null;
             if (string.Equals(context.Request.Method, "GET", StringComparison.OrdinalIgnoreCase))
             {
-                message = new OpenIdConnectMessage(context.Request.Query.Select(pair => new KeyValuePair<string, string[]>(pair.Key, pair.Value)));
+                message = new OpenIdConnectMessage(
+                    context.Request.Query.Select(pair => new KeyValuePair<string, string[]>(pair.Key, pair.Value))
+                );
             }
-            else if (string.Equals(context.Request.Method, "POST", StringComparison.OrdinalIgnoreCase) &&
-                !string.IsNullOrEmpty(context.Request.ContentType) &&
-                context.Request.ContentType.StartsWith("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase) &&
-                context.Request.Body.CanRead)
+            else if (
+                string.Equals(context.Request.Method, "POST", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrEmpty(context.Request.ContentType)
+                && context.Request.ContentType.StartsWith(
+                    "application/x-www-form-urlencoded",
+                    StringComparison.OrdinalIgnoreCase
+                )
+                && context.Request.Body.CanRead
+            )
             {
                 var form = await context.Request.ReadFormAsync();
-                message = new OpenIdConnectMessage(form.Select(pair => new KeyValuePair<string, string[]>(pair.Key, pair.Value)));
+                message = new OpenIdConnectMessage(
+                    form.Select(pair => new KeyValuePair<string, string[]>(pair.Key, pair.Value))
+                );
             }
 
             var state = message?.State;

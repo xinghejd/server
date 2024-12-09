@@ -17,6 +17,7 @@ public class VerifiedOrganizationDomainSsoDetailResponseModel : ResponseModel
         OrganizationIdentifier = data.OrganizationIdentifier;
         OrganizationName = data.OrganizationName;
     }
+
     public string DomainName { get; }
     public string OrganizationIdentifier { get; }
     public string OrganizationName { get; }

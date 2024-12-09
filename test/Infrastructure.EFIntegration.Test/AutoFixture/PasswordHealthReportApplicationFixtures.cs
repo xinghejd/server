@@ -63,20 +63,22 @@ internal class EfPasswordHealthReportApplicationApplicableToUser : ICustomizatio
 
 internal class EfPasswordHealthReportApplicationAutoDataAttribute : CustomAutoDataAttribute
 {
-    public EfPasswordHealthReportApplicationAutoDataAttribute() : base(new SutProviderCustomization(), new EfPasswordHealthReportApplication())
-    { }
+    public EfPasswordHealthReportApplicationAutoDataAttribute()
+        : base(new SutProviderCustomization(), new EfPasswordHealthReportApplication()) { }
 }
 
-internal class EfPasswordHealthReportApplicationApplicableToUserInlineAutoDataAttribute : InlineCustomAutoDataAttribute
+internal class EfPasswordHealthReportApplicationApplicableToUserInlineAutoDataAttribute
+    : InlineCustomAutoDataAttribute
 {
-    public EfPasswordHealthReportApplicationApplicableToUserInlineAutoDataAttribute(params object[] values) :
-        base(new[] { typeof(SutProviderCustomization), typeof(EfPasswordHealthReportApplicationApplicableToUser) }, values)
-    { }
+    public EfPasswordHealthReportApplicationApplicableToUserInlineAutoDataAttribute(params object[] values)
+        : base(
+            new[] { typeof(SutProviderCustomization), typeof(EfPasswordHealthReportApplicationApplicableToUser) },
+            values
+        ) { }
 }
 
 internal class InlineEfPasswordHealthReportApplicationAutoDataAttribute : InlineCustomAutoDataAttribute
 {
-    public InlineEfPasswordHealthReportApplicationAutoDataAttribute(params object[] values) : base(new[] { typeof(SutProviderCustomization),
-        typeof(EfPolicy) }, values)
-    { }
+    public InlineEfPasswordHealthReportApplicationAutoDataAttribute(params object[] values)
+        : base(new[] { typeof(SutProviderCustomization), typeof(EfPolicy) }, values) { }
 }

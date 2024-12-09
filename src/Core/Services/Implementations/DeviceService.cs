@@ -11,9 +11,7 @@ public class DeviceService : IDeviceService
     private readonly IDeviceRepository _deviceRepository;
     private readonly IPushRegistrationService _pushRegistrationService;
 
-    public DeviceService(
-        IDeviceRepository deviceRepository,
-        IPushRegistrationService pushRegistrationService)
+    public DeviceService(IDeviceRepository deviceRepository, IPushRegistrationService pushRegistrationService)
     {
         _deviceRepository = deviceRepository;
         _pushRegistrationService = pushRegistrationService;
@@ -31,8 +29,13 @@ public class DeviceService : IDeviceService
             await _deviceRepository.ReplaceAsync(device);
         }
 
-        await _pushRegistrationService.CreateOrUpdateRegistrationAsync(device.PushToken, device.Id.ToString(),
-            device.UserId.ToString(), device.Identifier, device.Type);
+        await _pushRegistrationService.CreateOrUpdateRegistrationAsync(
+            device.PushToken,
+            device.Id.ToString(),
+            device.UserId.ToString(),
+            device.Identifier,
+            device.Type
+        );
     }
 
     public async Task ClearTokenAsync(Device device)
@@ -56,10 +59,12 @@ public class DeviceService : IDeviceService
         await _pushRegistrationService.DeleteRegistrationAsync(device.Id.ToString());
     }
 
-    public async Task UpdateDevicesTrustAsync(string currentDeviceIdentifier,
+    public async Task UpdateDevicesTrustAsync(
+        string currentDeviceIdentifier,
         Guid currentUserId,
         DeviceKeysUpdateRequestModel currentDeviceUpdate,
-        IEnumerable<OtherDeviceKeysUpdateRequestModel> alteredDevices)
+        IEnumerable<OtherDeviceKeysUpdateRequestModel> alteredDevices
+    )
     {
         var existingDevices = await _deviceRepository.GetManyByUserIdAsync(currentUserId);
 

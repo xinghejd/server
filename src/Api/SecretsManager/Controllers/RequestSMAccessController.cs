@@ -20,7 +20,12 @@ public class RequestSMAccessController : Controller
     private readonly ICurrentContext _currentContext;
 
     public RequestSMAccessController(
-        IRequestSMAccessCommand requestSMAccessCommand, IUserService userService, IOrganizationRepository organizationRepository, IOrganizationUserRepository organizationUserRepository, ICurrentContext currentContext)
+        IRequestSMAccessCommand requestSMAccessCommand,
+        IUserService userService,
+        IOrganizationRepository organizationRepository,
+        IOrganizationUserRepository organizationUserRepository,
+        ICurrentContext currentContext
+    )
     {
         _requestSMAccessCommand = requestSMAccessCommand;
         _userService = userService;

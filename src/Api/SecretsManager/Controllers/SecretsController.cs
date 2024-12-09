@@ -56,7 +56,8 @@ public class SecretsController : Controller
         IUserService userService,
         IEventService eventService,
         IReferenceEventService referenceEventService,
-        IAuthorizationService authorizationService)
+        IAuthorizationService authorizationService
+    )
     {
         _currentContext = currentContext;
         _projectRepository = projectRepository;
@@ -72,7 +73,6 @@ public class SecretsController : Controller
         _eventService = eventService;
         _referenceEventService = referenceEventService;
         _authorizationService = authorizationService;
-
     }
 
     [HttpGet("organizations/{organizationId}/secrets")]
@@ -87,17 +87,27 @@ public class SecretsController : Controller
         var orgAdmin = await _currentContext.OrganizationAdmin(organizationId);
         var accessClient = AccessClientHelper.ToAccessClient(_currentContext.IdentityClientType, orgAdmin);
 
-        var secrets = await _secretRepository.GetManyDetailsByOrganizationIdAsync(organizationId, userId, accessClient);
+        var secrets = await _secretRepository.GetManyDetailsByOrganizationIdAsync(
+            organizationId,
+            userId,
+            accessClient
+        );
 
         return new SecretWithProjectsListResponseModel(secrets);
     }
 
     [HttpPost("organizations/{organizationId}/secrets")]
-    public async Task<SecretResponseModel> CreateAsync([FromRoute] Guid organizationId,
-        [FromBody] SecretCreateRequestModel createRequest)
+    public async Task<SecretResponseModel> CreateAsync(
+        [FromRoute] Guid organizationId,
+        [FromBody] SecretCreateRequestModel createRequest
+    )
     {
         var secret = createRequest.ToSecret(organizationId);
-        var authorizationResult = await _authorizationService.AuthorizeAsync(User, secret, SecretOperations.Create);
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+            User,
+            secret,
+            SecretOperations.Create
+        );
         if (!authorizationResult.Succeeded)
         {
             throw new NotFoundException();
@@ -107,11 +117,14 @@ public class SecretsController : Controller
         if (createRequest.AccessPoliciesRequests != null)
         {
             secret.SetNewId();
-            accessPoliciesUpdates =
-                new SecretAccessPoliciesUpdates(
-                    createRequest.AccessPoliciesRequests.ToSecretAccessPolicies(secret.Id, organizationId));
-            var accessPolicyAuthorizationResult = await _authorizationService.AuthorizeAsync(User,
-                accessPoliciesUpdates, SecretAccessPoliciesOperations.Create);
+            accessPoliciesUpdates = new SecretAccessPoliciesUpdates(
+                createRequest.AccessPoliciesRequests.ToSecretAccessPolicies(secret.Id, organizationId)
+            );
+            var accessPolicyAuthorizationResult = await _authorizationService.AuthorizeAsync(
+                User,
+                accessPoliciesUpdates,
+                SecretAccessPoliciesOperations.Create
+            );
             if (!accessPolicyAuthorizationResult.Succeeded)
             {
                 throw new NotFoundException();
@@ -150,7 +163,9 @@ public class SecretsController : Controller
             await _eventService.LogServiceAccountSecretEventAsync(userId, secret, EventType.Secret_Retrieved);
 
             var org = await _organizationRepository.GetByIdAsync(secret.OrganizationId);
-            await _referenceEventService.RaiseEventAsync(new ReferenceEvent(ReferenceEventType.SmServiceAccountAccessedSecret, org, _currentContext));
+            await _referenceEventService.RaiseEventAsync(
+                new ReferenceEvent(ReferenceEventType.SmServiceAccountAccessedSecret, org, _currentContext)
+            );
         }
 
         return new SecretResponseModel(secret, access.Read, access.Write);
@@ -175,7 +190,10 @@ public class SecretsController : Controller
     }
 
     [HttpPut("secrets/{id}")]
-    public async Task<SecretResponseModel> UpdateSecretAsync([FromRoute] Guid id, [FromBody] SecretUpdateRequestModel updateRequest)
+    public async Task<SecretResponseModel> UpdateSecretAsync(
+        [FromRoute] Guid id,
+        [FromBody] SecretUpdateRequestModel updateRequest
+    )
     {
         var secret = await _secretRepository.GetByIdAsync(id);
         if (secret == null)
@@ -184,7 +202,11 @@ public class SecretsController : Controller
         }
 
         var updatedSecret = updateRequest.ToSecret(secret);
-        var authorizationResult = await _authorizationService.AuthorizeAsync(User, updatedSecret, SecretOperations.Update);
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+            User,
+            updatedSecret,
+            SecretOperations.Update
+        );
         if (!authorizationResult.Succeeded)
         {
             throw new NotFoundException();
@@ -194,14 +216,20 @@ public class SecretsController : Controller
         if (updateRequest.AccessPoliciesRequests != null)
         {
             var userId = _userService.GetProperUserId(User)!.Value;
-            accessPoliciesUpdates = await _secretAccessPoliciesUpdatesQuery.GetAsync(updateRequest.AccessPoliciesRequests.ToSecretAccessPolicies(id, secret.OrganizationId), userId);
+            accessPoliciesUpdates = await _secretAccessPoliciesUpdatesQuery.GetAsync(
+                updateRequest.AccessPoliciesRequests.ToSecretAccessPolicies(id, secret.OrganizationId),
+                userId
+            );
 
-            var accessPolicyAuthorizationResult = await _authorizationService.AuthorizeAsync(User, accessPoliciesUpdates, SecretAccessPoliciesOperations.Updates);
+            var accessPolicyAuthorizationResult = await _authorizationService.AuthorizeAsync(
+                User,
+                accessPoliciesUpdates,
+                SecretAccessPoliciesOperations.Updates
+            );
             if (!accessPolicyAuthorizationResult.Succeeded)
             {
                 throw new NotFoundException();
             }
-
         }
 
         var result = await _updateSecretCommand.UpdateAsync(updatedSecret, accessPoliciesUpdates);
@@ -221,8 +249,10 @@ public class SecretsController : Controller
 
         // Ensure all secrets belong to the same organization.
         var organizationId = secrets.First().OrganizationId;
-        if (secrets.Any(secret => secret.OrganizationId != organizationId) ||
-            !_currentContext.AccessSecretsManager(organizationId))
+        if (
+            secrets.Any(secret => secret.OrganizationId != organizationId)
+            || !_currentContext.AccessSecretsManager(organizationId)
+        )
         {
             throw new NotFoundException();
         }
@@ -232,8 +262,11 @@ public class SecretsController : Controller
 
         foreach (var secret in secrets)
         {
-            var authorizationResult =
-                await _authorizationService.AuthorizeAsync(User, secret, SecretOperations.Delete);
+            var authorizationResult = await _authorizationService.AuthorizeAsync(
+                User,
+                secret,
+                SecretOperations.Delete
+            );
             if (authorizationResult.Succeeded)
             {
                 secretsToDelete.Add(secret);
@@ -252,7 +285,8 @@ public class SecretsController : Controller
 
     [HttpPost("secrets/get-by-ids")]
     public async Task<ListResponseModel<BaseSecretResponseModel>> GetSecretsByIdsAsync(
-        [FromBody] GetSecretsRequestModel request)
+        [FromBody] GetSecretsRequestModel request
+    )
     {
         var secrets = (await _secretRepository.GetManyByIds(request.Ids)).ToList();
         if (!secrets.Any() || secrets.Count != request.Ids.Count())
@@ -260,7 +294,11 @@ public class SecretsController : Controller
             throw new NotFoundException();
         }
 
-        var authorizationResult = await _authorizationService.AuthorizeAsync(User, secrets, BulkSecretOperations.ReadAll);
+        var authorizationResult = await _authorizationService.AuthorizeAsync(
+            User,
+            secrets,
+            BulkSecretOperations.ReadAll
+        );
         if (!authorizationResult.Succeeded)
         {
             throw new NotFoundException();
@@ -273,8 +311,10 @@ public class SecretsController : Controller
     }
 
     [HttpGet("/organizations/{organizationId}/secrets/sync")]
-    public async Task<SecretsSyncResponseModel> GetSecretsSyncAsync([FromRoute] Guid organizationId,
-        [FromQuery] DateTime? lastSyncedDate = null)
+    public async Task<SecretsSyncResponseModel> GetSecretsSyncAsync(
+        [FromRoute] Guid organizationId,
+        [FromQuery] DateTime? lastSyncedDate = null
+    )
     {
         if (lastSyncedDate.HasValue && lastSyncedDate.Value > DateTime.UtcNow)
         {
@@ -297,7 +337,7 @@ public class SecretsController : Controller
             AccessClientType = accessClient,
             OrganizationId = organizationId,
             ServiceAccountId = serviceAccountId,
-            LastSyncedDate = lastSyncedDate
+            LastSyncedDate = lastSyncedDate,
         };
         var syncResult = await _secretsSyncQuery.GetAsync(syncRequest);
 
@@ -317,7 +357,8 @@ public class SecretsController : Controller
             var org = await _organizationRepository.GetByIdAsync(organizationId);
             await _eventService.LogServiceAccountSecretsEventAsync(userId, secrets, EventType.Secret_Retrieved);
             await _referenceEventService.RaiseEventAsync(
-                new ReferenceEvent(ReferenceEventType.SmServiceAccountAccessedSecret, org, _currentContext));
+                new ReferenceEvent(ReferenceEventType.SmServiceAccountAccessedSecret, org, _currentContext)
+            );
         }
     }
 }

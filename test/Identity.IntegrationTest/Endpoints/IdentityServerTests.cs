@@ -52,13 +52,16 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     {
         var username = "test+tokenpassword@email.com";
 
-        await _factory.RegisterAsync(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash"
-        });
+        await _factory.RegisterAsync(
+            new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+        );
 
-        var context = await PostLoginAsync(_factory.Server, username, deviceId, context => context.SetAuthEmail(username));
+        var context = await PostLoginAsync(
+            _factory.Server,
+            username,
+            deviceId,
+            context => context.SetAuthEmail(username)
+        );
 
         using var body = await AssertDefaultTokenBodyAsync(context);
         var root = body.RootElement;
@@ -67,7 +70,9 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
         AssertHelper.AssertJsonProperty(root, "ResetMasterPassword", JsonValueKind.False);
         var kdf = AssertHelper.AssertJsonProperty(root, "Kdf", JsonValueKind.Number).GetInt32();
         Assert.Equal(0, kdf);
-        var kdfIterations = AssertHelper.AssertJsonProperty(root, "KdfIterations", JsonValueKind.Number).GetInt32();
+        var kdfIterations = AssertHelper
+            .AssertJsonProperty(root, "KdfIterations", JsonValueKind.Number)
+            .GetInt32();
         Assert.Equal(AuthConstants.PBKDF2_ITERATIONS.Default, kdfIterations);
         AssertUserDecryptionOptions(root);
     }
@@ -77,11 +82,9 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     {
         var username = "test+noauthemailheader@email.com";
 
-        await _factory.RegisterAsync(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash",
-        });
+        await _factory.RegisterAsync(
+            new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+        );
 
         var context = await PostLoginAsync(_factory.Server, username, deviceId, null);
 
@@ -100,13 +103,16 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     {
         var username = "test+badauthheader@email.com";
 
-        await _factory.RegisterAsync(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash",
-        });
+        await _factory.RegisterAsync(
+            new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+        );
 
-        var context = await PostLoginAsync(_factory.Server, username, deviceId, context => context.Request.Headers.Append("Auth-Email", "bad_value"));
+        var context = await PostLoginAsync(
+            _factory.Server,
+            username,
+            deviceId,
+            context => context.Request.Headers.Append("Auth-Email", "bad_value")
+        );
 
         Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
 
@@ -123,13 +129,16 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     {
         var username = "test+badauthheader@email.com";
 
-        await _factory.RegisterAsync(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash",
-        });
+        await _factory.RegisterAsync(
+            new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+        );
 
-        var context = await PostLoginAsync(_factory.Server, username, deviceId, context => context.SetAuthEmail("bad_value"));
+        var context = await PostLoginAsync(
+            _factory.Server,
+            username,
+            deviceId,
+            context => context.SetAuthEmail("bad_value")
+        );
 
         Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
 
@@ -146,22 +155,35 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     [BitAutoData(OrganizationUserType.Admin)]
     [BitAutoData(OrganizationUserType.User)]
     [BitAutoData(OrganizationUserType.Custom)]
-    public async Task TokenEndpoint_GrantTypePassword_WithAllUserTypes_WithSsoPolicyDisabled_WithEnforceSsoPolicyForAllUsersTrue_Success(OrganizationUserType organizationUserType, Guid organizationId, string deviceId, int generatedUsername)
+    public async Task TokenEndpoint_GrantTypePassword_WithAllUserTypes_WithSsoPolicyDisabled_WithEnforceSsoPolicyForAllUsersTrue_Success(
+        OrganizationUserType organizationUserType,
+        Guid organizationId,
+        string deviceId,
+        int generatedUsername
+    )
     {
         var username = $"{generatedUsername}@example.com";
 
-        var server = _factory.WithWebHostBuilder(builder =>
-        {
-            builder.UseSetting("globalSettings:sso:enforceSsoPolicyForAllUsers", "true");
-        }).Server;
+        var server = _factory
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("globalSettings:sso:enforceSsoPolicyForAllUsers", "true");
+            })
+            .Server;
 
-        await server.PostAsync("/accounts/register", JsonContent.Create(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash"
-        }));
+        await server.PostAsync(
+            "/accounts/register",
+            JsonContent.Create(
+                new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+            )
+        );
 
-        await CreateOrganizationWithSsoPolicyAsync(organizationId, username, organizationUserType, ssoPolicyEnabled: false);
+        await CreateOrganizationWithSsoPolicyAsync(
+            organizationId,
+            username,
+            organizationUserType,
+            ssoPolicyEnabled: false
+        );
 
         var context = await PostLoginAsync(server, username, deviceId, context => context.SetAuthEmail(username));
 
@@ -173,22 +195,35 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     [BitAutoData(OrganizationUserType.Admin)]
     [BitAutoData(OrganizationUserType.User)]
     [BitAutoData(OrganizationUserType.Custom)]
-    public async Task TokenEndpoint_GrantTypePassword_WithAllUserTypes_WithSsoPolicyDisabled_WithEnforceSsoPolicyForAllUsersFalse_Success(OrganizationUserType organizationUserType, Guid organizationId, string deviceId, int generatedUsername)
+    public async Task TokenEndpoint_GrantTypePassword_WithAllUserTypes_WithSsoPolicyDisabled_WithEnforceSsoPolicyForAllUsersFalse_Success(
+        OrganizationUserType organizationUserType,
+        Guid organizationId,
+        string deviceId,
+        int generatedUsername
+    )
     {
         var username = $"{generatedUsername}@example.com";
 
-        var server = _factory.WithWebHostBuilder(builder =>
-        {
-            builder.UseSetting("globalSettings:sso:enforceSsoPolicyForAllUsers", "false");
-        }).Server;
+        var server = _factory
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("globalSettings:sso:enforceSsoPolicyForAllUsers", "false");
+            })
+            .Server;
 
-        await server.PostAsync("/accounts/register", JsonContent.Create(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash"
-        }));
+        await server.PostAsync(
+            "/accounts/register",
+            JsonContent.Create(
+                new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+            )
+        );
 
-        await CreateOrganizationWithSsoPolicyAsync(organizationId, username, organizationUserType, ssoPolicyEnabled: false);
+        await CreateOrganizationWithSsoPolicyAsync(
+            organizationId,
+            username,
+            organizationUserType,
+            ssoPolicyEnabled: false
+        );
 
         var context = await PostLoginAsync(server, username, deviceId, context => context.SetAuthEmail(username));
 
@@ -200,22 +235,35 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     [BitAutoData(OrganizationUserType.Admin)]
     [BitAutoData(OrganizationUserType.User)]
     [BitAutoData(OrganizationUserType.Custom)]
-    public async Task TokenEndpoint_GrantTypePassword_WithAllUserTypes_WithSsoPolicyEnabled_WithEnforceSsoPolicyForAllUsersTrue_Throw(OrganizationUserType organizationUserType, Guid organizationId, string deviceId, int generatedUsername)
+    public async Task TokenEndpoint_GrantTypePassword_WithAllUserTypes_WithSsoPolicyEnabled_WithEnforceSsoPolicyForAllUsersTrue_Throw(
+        OrganizationUserType organizationUserType,
+        Guid organizationId,
+        string deviceId,
+        int generatedUsername
+    )
     {
         var username = $"{generatedUsername}@example.com";
 
-        var server = _factory.WithWebHostBuilder(builder =>
-        {
-            builder.UseSetting("globalSettings:sso:enforceSsoPolicyForAllUsers", "true");
-        }).Server;
+        var server = _factory
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("globalSettings:sso:enforceSsoPolicyForAllUsers", "true");
+            })
+            .Server;
 
-        await server.PostAsync("/accounts/register", JsonContent.Create(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash"
-        }));
+        await server.PostAsync(
+            "/accounts/register",
+            JsonContent.Create(
+                new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+            )
+        );
 
-        await CreateOrganizationWithSsoPolicyAsync(organizationId, username, organizationUserType, ssoPolicyEnabled: true);
+        await CreateOrganizationWithSsoPolicyAsync(
+            organizationId,
+            username,
+            organizationUserType,
+            ssoPolicyEnabled: true
+        );
 
         var context = await PostLoginAsync(server, username, deviceId, context => context.SetAuthEmail(username));
 
@@ -226,22 +274,35 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     [Theory]
     [BitAutoData(OrganizationUserType.Owner)]
     [BitAutoData(OrganizationUserType.Admin)]
-    public async Task TokenEndpoint_GrantTypePassword_WithOwnerOrAdmin_WithSsoPolicyEnabled_WithEnforceSsoPolicyForAllUsersFalse_Success(OrganizationUserType organizationUserType, Guid organizationId, string deviceId, int generatedUsername)
+    public async Task TokenEndpoint_GrantTypePassword_WithOwnerOrAdmin_WithSsoPolicyEnabled_WithEnforceSsoPolicyForAllUsersFalse_Success(
+        OrganizationUserType organizationUserType,
+        Guid organizationId,
+        string deviceId,
+        int generatedUsername
+    )
     {
         var username = $"{generatedUsername}@example.com";
 
-        var server = _factory.WithWebHostBuilder(builder =>
-        {
-            builder.UseSetting("globalSettings:sso:enforceSsoPolicyForAllUsers", "false");
-        }).Server;
+        var server = _factory
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("globalSettings:sso:enforceSsoPolicyForAllUsers", "false");
+            })
+            .Server;
 
-        await server.PostAsync("/accounts/register", JsonContent.Create(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash"
-        }));
+        await server.PostAsync(
+            "/accounts/register",
+            JsonContent.Create(
+                new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+            )
+        );
 
-        await CreateOrganizationWithSsoPolicyAsync(organizationId, username, organizationUserType, ssoPolicyEnabled: true);
+        await CreateOrganizationWithSsoPolicyAsync(
+            organizationId,
+            username,
+            organizationUserType,
+            ssoPolicyEnabled: true
+        );
 
         var context = await PostLoginAsync(server, username, deviceId, context => context.SetAuthEmail(username));
 
@@ -251,22 +312,35 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     [Theory]
     [BitAutoData(OrganizationUserType.User)]
     [BitAutoData(OrganizationUserType.Custom)]
-    public async Task TokenEndpoint_GrantTypePassword_WithNonOwnerOrAdmin_WithSsoPolicyEnabled_WithEnforceSsoPolicyForAllUsersFalse_Throws(OrganizationUserType organizationUserType, Guid organizationId, string deviceId, int generatedUsername)
+    public async Task TokenEndpoint_GrantTypePassword_WithNonOwnerOrAdmin_WithSsoPolicyEnabled_WithEnforceSsoPolicyForAllUsersFalse_Throws(
+        OrganizationUserType organizationUserType,
+        Guid organizationId,
+        string deviceId,
+        int generatedUsername
+    )
     {
         var username = $"{generatedUsername}@example.com";
 
-        var server = _factory.WithWebHostBuilder(builder =>
-        {
-            builder.UseSetting("globalSettings:sso:enforceSsoPolicyForAllUsers", "false");
-        }).Server;
+        var server = _factory
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("globalSettings:sso:enforceSsoPolicyForAllUsers", "false");
+            })
+            .Server;
 
-        await server.PostAsync("/accounts/register", JsonContent.Create(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash"
-        }));
+        await server.PostAsync(
+            "/accounts/register",
+            JsonContent.Create(
+                new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+            )
+        );
 
-        await CreateOrganizationWithSsoPolicyAsync(organizationId, username, organizationUserType, ssoPolicyEnabled: true);
+        await CreateOrganizationWithSsoPolicyAsync(
+            organizationId,
+            username,
+            organizationUserType,
+            ssoPolicyEnabled: true
+        );
 
         var context = await PostLoginAsync(server, username, deviceId, context => context.SetAuthEmail(username));
 
@@ -279,20 +353,23 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     {
         var username = "test+tokenrefresh@email.com";
 
-        await _factory.RegisterAsync(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash",
-        });
+        await _factory.RegisterAsync(
+            new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+        );
 
         var (_, refreshToken) = await _factory.TokenFromPasswordAsync(username, "master_password_hash", deviceId);
 
-        var context = await _factory.Server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "refresh_token" },
-            { "client_id", "web" },
-            { "refresh_token", refreshToken },
-        }));
+        var context = await _factory.Server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "grant_type", "refresh_token" },
+                    { "client_id", "web" },
+                    { "refresh_token", refreshToken },
+                }
+            )
+        );
 
         using var body = await AssertDefaultTokenBodyAsync(context);
         AssertRefreshTokenExists(body.RootElement);
@@ -303,26 +380,28 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     {
         var username = "test+tokenclientcredentials@email.com";
 
-        await _factory.RegisterAsync(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash",
-        });
+        await _factory.RegisterAsync(
+            new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+        );
 
         var database = _factory.GetDatabaseContext();
-        var user = await database.Users
-            .FirstAsync(u => u.Email == username);
+        var user = await database.Users.FirstAsync(u => u.Email == username);
 
-        var context = await _factory.Server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "client_credentials" },
-            { "client_id", $"user.{user.Id}" },
-            { "client_secret", user.ApiKey },
-            { "scope", "api" },
-            { "DeviceIdentifier", deviceId },
-            { "DeviceType", DeviceTypeAsString(DeviceType.FirefoxBrowser) },
-            { "DeviceName", "firefox" },
-        }));
+        var context = await _factory.Server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "grant_type", "client_credentials" },
+                    { "client_id", $"user.{user.Id}" },
+                    { "client_secret", user.ApiKey },
+                    { "scope", "api" },
+                    { "DeviceIdentifier", deviceId },
+                    { "DeviceType", DeviceTypeAsString(DeviceType.FirefoxBrowser) },
+                    { "DeviceName", "firefox" },
+                }
+            )
+        );
 
         await AssertDefaultTokenBodyAsync(context, "api");
     }
@@ -330,40 +409,45 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     [Theory, BitAutoData]
     public async Task TokenEndpoint_GrantTypeClientCredentials_AsLegacyUser_NotOnWebClient_Fails(string deviceId)
     {
-        var server = _factory.WithWebHostBuilder(builder =>
-        {
-            builder.UseSetting("globalSettings:launchDarkly:flagValues:block-legacy-users", "true");
-        }).Server;
+        var server = _factory
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseSetting("globalSettings:launchDarkly:flagValues:block-legacy-users", "true");
+            })
+            .Server;
 
         var username = "test+tokenclientcredentials@email.com";
 
-
-        await server.PostAsync("/accounts/register", JsonContent.Create(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash"
-        }));
-
+        await server.PostAsync(
+            "/accounts/register",
+            JsonContent.Create(
+                new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+            )
+        );
 
         var database = _factory.GetDatabaseContext();
-        var user = await database.Users
-            .FirstAsync(u => u.Email == username);
+        var user = await database.Users.FirstAsync(u => u.Email == username);
 
         user.PrivateKey = "EncryptedPrivateKey";
         await database.SaveChangesAsync();
 
-        var context = await server.PostAsync("/connect/token", new FormUrlEncodedContent(
-            new Dictionary<string, string>
-            {
-                { "scope", "api offline_access" },
-                { "client_id", "browser" },
-                { "deviceType", DeviceTypeAsString(DeviceType.ChromeBrowser) },
-                { "deviceIdentifier", deviceId },
-                { "deviceName", "chrome" },
-                { "grant_type", "password" },
-                { "username", username },
-                { "password", "master_password_hash" },
-            }), context => context.SetAuthEmail(username));
+        var context = await server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "scope", "api offline_access" },
+                    { "client_id", "browser" },
+                    { "deviceType", DeviceTypeAsString(DeviceType.ChromeBrowser) },
+                    { "deviceIdentifier", deviceId },
+                    { "deviceName", "chrome" },
+                    { "grant_type", "password" },
+                    { "username", username },
+                    { "password", "master_password_hash" },
+                }
+            ),
+            context => context.SetAuthEmail(username)
+        );
 
         Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
 
@@ -373,9 +457,11 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
         Assert.StartsWith("Encryption key migration is required.", message);
     }
 
-
     [Theory, BitAutoData]
-    public async Task TokenEndpoint_GrantTypeClientCredentials_AsOrganization_Success(Organization organization, Bit.Core.Entities.OrganizationApiKey organizationApiKey)
+    public async Task TokenEndpoint_GrantTypeClientCredentials_AsOrganization_Success(
+        Organization organization,
+        Bit.Core.Entities.OrganizationApiKey organizationApiKey
+    )
     {
         var orgRepo = _factory.Services.GetRequiredService<IOrganizationRepository>();
         organization.Enabled = true;
@@ -387,13 +473,18 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
         var orgApiKeyRepo = _factory.Services.GetRequiredService<IOrganizationApiKeyRepository>();
         await orgApiKeyRepo.CreateAsync(organizationApiKey);
 
-        var context = await _factory.Server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "client_credentials" },
-            { "client_id", $"organization.{organization.Id}" },
-            { "client_secret", organizationApiKey.ApiKey },
-            { "scope", "api.organization" },
-        }));
+        var context = await _factory.Server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "grant_type", "client_credentials" },
+                    { "client_id", $"organization.{organization.Id}" },
+                    { "client_secret", organizationApiKey.ApiKey },
+                    { "scope", "api.organization" },
+                }
+            )
+        );
 
         Assert.Equal(StatusCodes.Status200OK, context.Response.StatusCode);
 
@@ -403,18 +494,25 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     [Fact]
     public async Task TokenEndpoint_GrantTypeClientCredentials_AsOrganization_BadOrgId_Fails()
     {
-        var context = await _factory.Server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "client_credentials" },
-            { "client_id", "organization.bad_guid_zz&" },
-            { "client_secret", "something" },
-            { "scope", "api.organization" },
-        }));
+        var context = await _factory.Server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "grant_type", "client_credentials" },
+                    { "client_id", "organization.bad_guid_zz&" },
+                    { "client_secret", "something" },
+                    { "scope", "api.organization" },
+                }
+            )
+        );
 
         Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
 
         var errorBody = await AssertHelper.AssertResponseTypeIs<JsonDocument>(context);
-        var error = AssertHelper.AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String).GetString();
+        var error = AssertHelper
+            .AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String)
+            .GetString();
         Assert.Equal("invalid_client", error);
     }
 
@@ -428,52 +526,73 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     [Fact]
     public async Task TokenEndpoint_GrantTypeClientCredentials_AsOrganization_NoIdPart_Fails()
     {
-        var context = await _factory.Server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "client_credentials" },
-            { "client_id", "organization." },
-            { "client_secret", "something" },
-            { "scope", "api.organization" },
-        }));
+        var context = await _factory.Server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "grant_type", "client_credentials" },
+                    { "client_id", "organization." },
+                    { "client_secret", "something" },
+                    { "scope", "api.organization" },
+                }
+            )
+        );
 
         Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
 
         var errorBody = await AssertHelper.AssertResponseTypeIs<JsonDocument>(context);
-        var error = AssertHelper.AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String).GetString();
+        var error = AssertHelper
+            .AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String)
+            .GetString();
         Assert.Equal("invalid_client", error);
     }
 
     [Fact]
     public async Task TokenEndpoint_GrantTypeClientCredentials_AsOrganization_OrgDoesNotExist_Fails()
     {
-        var context = await _factory.Server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "client_credentials" },
-            { "client_id", $"organization.{Guid.NewGuid()}" },
-            { "client_secret", "something" },
-            { "scope", "api.organization" },
-        }));
+        var context = await _factory.Server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "grant_type", "client_credentials" },
+                    { "client_id", $"organization.{Guid.NewGuid()}" },
+                    { "client_secret", "something" },
+                    { "scope", "api.organization" },
+                }
+            )
+        );
 
         Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
 
         var errorBody = await AssertHelper.AssertResponseTypeIs<JsonDocument>(context);
-        var error = AssertHelper.AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String).GetString();
+        var error = AssertHelper
+            .AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String)
+            .GetString();
         Assert.Equal("invalid_client", error);
     }
 
     [Theory, BitAutoData]
-    public async Task TokenEndpoint_GrantTypeClientCredentials_AsInstallation_InstallationExists_Succeeds(Bit.Core.Entities.Installation installation)
+    public async Task TokenEndpoint_GrantTypeClientCredentials_AsInstallation_InstallationExists_Succeeds(
+        Bit.Core.Entities.Installation installation
+    )
     {
         var installationRepo = _factory.Services.GetRequiredService<IInstallationRepository>();
         installation = await installationRepo.CreateAsync(installation);
 
-        var context = await _factory.Server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "client_credentials" },
-            { "client_id", $"installation.{installation.Id}" },
-            { "client_secret", installation.Key },
-            { "scope", "api.push" },
-        }));
+        var context = await _factory.Server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "grant_type", "client_credentials" },
+                    { "client_id", $"installation.{installation.Id}" },
+                    { "client_secret", installation.Key },
+                    { "scope", "api.push" },
+                }
+            )
+        );
 
         Assert.Equal(StatusCodes.Status200OK, context.Response.StatusCode);
         await AssertDefaultTokenBodyAsync(context, "api.push", 24 * SecondsInHour);
@@ -482,36 +601,50 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     [Fact]
     public async Task TokenEndpoint_GrantTypeClientCredentials_AsInstallation_InstallationDoesNotExist_Fails()
     {
-        var context = await _factory.Server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "client_credentials" },
-            { "client_id", $"installation.{Guid.NewGuid()}" },
-            { "client_secret", "something" },
-            { "scope", "api.push" },
-        }));
+        var context = await _factory.Server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "grant_type", "client_credentials" },
+                    { "client_id", $"installation.{Guid.NewGuid()}" },
+                    { "client_secret", "something" },
+                    { "scope", "api.push" },
+                }
+            )
+        );
 
         Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
 
         var errorBody = await AssertHelper.AssertResponseTypeIs<JsonDocument>(context);
-        var error = AssertHelper.AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String).GetString();
+        var error = AssertHelper
+            .AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String)
+            .GetString();
         Assert.Equal("invalid_client", error);
     }
 
     [Fact]
     public async Task TokenEndpoint_GrantTypeClientCredentials_AsInstallation_BadInstallationId_Fails()
     {
-        var context = await _factory.Server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "client_credentials" },
-            { "client_id", "organization.bad_guid_zz&" },
-            { "client_secret", "something" },
-            { "scope", "api.organization" },
-        }));
+        var context = await _factory.Server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "grant_type", "client_credentials" },
+                    { "client_id", "organization.bad_guid_zz&" },
+                    { "client_secret", "something" },
+                    { "scope", "api.organization" },
+                }
+            )
+        );
 
         Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
 
         var errorBody = await AssertHelper.AssertResponseTypeIs<JsonDocument>(context);
-        var error = AssertHelper.AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String).GetString();
+        var error = AssertHelper
+            .AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String)
+            .GetString();
         Assert.Equal("invalid_client", error);
     }
 
@@ -519,18 +652,25 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
     [Fact]
     public async Task TokenEndpoint_GrantTypeClientCredentials_AsInstallation_NoIdPart_Fails()
     {
-        var context = await _factory.Server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "client_credentials" },
-            { "client_id", "installation." },
-            { "client_secret", "something" },
-            { "scope", "api.push" },
-        }));
+        var context = await _factory.Server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "grant_type", "client_credentials" },
+                    { "client_id", "installation." },
+                    { "client_secret", "something" },
+                    { "scope", "api.push" },
+                }
+            )
+        );
 
         Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
 
         var errorBody = await AssertHelper.AssertResponseTypeIs<JsonDocument>(context);
-        var error = AssertHelper.AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String).GetString();
+        var error = AssertHelper
+            .AssertJsonProperty(errorBody.RootElement, "error", JsonValueKind.String)
+            .GetString();
         Assert.Equal("invalid_client", error);
     }
 
@@ -542,15 +682,12 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
         // The rule we are testing is 10 requests in 1 second
         var username = "test+ratelimiting@email.com";
 
-        await _factory.RegisterAsync(new RegisterRequestModel
-        {
-            Email = username,
-            MasterPasswordHash = "master_password_hash",
-        });
+        await _factory.RegisterAsync(
+            new RegisterRequestModel { Email = username, MasterPasswordHash = "master_password_hash" }
+        );
 
         var database = _factory.GetDatabaseContext();
-        var user = await database.Users
-            .FirstAsync(u => u.Email == username);
+        var user = await database.Users.FirstAsync(u => u.Email == username);
 
         var tasks = new Task<HttpContext>[AmountInOneSecondAllowed + 1];
 
@@ -567,36 +704,58 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
 
         Task<HttpContext> MakeRequest()
         {
-            return _factory.Server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                { "scope", "api offline_access" },
-                { "client_id", "web" },
-                { "deviceType", DeviceTypeAsString(DeviceType.FirefoxBrowser) },
-                { "deviceIdentifier", deviceId },
-                { "deviceName", "firefox" },
-                { "grant_type", "password" },
-                { "username", username },
-                { "password", "master_password_hash" },
-            }), context => context.SetAuthEmail(username).SetIp("1.1.1.2"));
+            return _factory.Server.PostAsync(
+                "/connect/token",
+                new FormUrlEncodedContent(
+                    new Dictionary<string, string>
+                    {
+                        { "scope", "api offline_access" },
+                        { "client_id", "web" },
+                        { "deviceType", DeviceTypeAsString(DeviceType.FirefoxBrowser) },
+                        { "deviceIdentifier", deviceId },
+                        { "deviceName", "firefox" },
+                        { "grant_type", "password" },
+                        { "username", username },
+                        { "password", "master_password_hash" },
+                    }
+                ),
+                context => context.SetAuthEmail(username).SetIp("1.1.1.2")
+            );
         }
     }
 
-    private async Task<HttpContext> PostLoginAsync(TestServer server, string username, string deviceId, Action<HttpContext> extraConfiguration)
+    private async Task<HttpContext> PostLoginAsync(
+        TestServer server,
+        string username,
+        string deviceId,
+        Action<HttpContext> extraConfiguration
+    )
     {
-        return await server.PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "scope", "api offline_access" },
-            { "client_id", "web" },
-            { "deviceType", DeviceTypeAsString(DeviceType.FirefoxBrowser) },
-            { "deviceIdentifier", deviceId },
-            { "deviceName", "firefox" },
-            { "grant_type", "password" },
-            { "username", username },
-            { "password", "master_password_hash" },
-        }), extraConfiguration);
+        return await server.PostAsync(
+            "/connect/token",
+            new FormUrlEncodedContent(
+                new Dictionary<string, string>
+                {
+                    { "scope", "api offline_access" },
+                    { "client_id", "web" },
+                    { "deviceType", DeviceTypeAsString(DeviceType.FirefoxBrowser) },
+                    { "deviceIdentifier", deviceId },
+                    { "deviceName", "firefox" },
+                    { "grant_type", "password" },
+                    { "username", username },
+                    { "password", "master_password_hash" },
+                }
+            ),
+            extraConfiguration
+        );
     }
 
-    private async Task CreateOrganizationWithSsoPolicyAsync(Guid organizationId, string username, OrganizationUserType organizationUserType, bool ssoPolicyEnabled)
+    private async Task CreateOrganizationWithSsoPolicyAsync(
+        Guid organizationId,
+        string username,
+        OrganizationUserType organizationUserType,
+        bool ssoPolicyEnabled
+    )
     {
         var userRepository = _factory.Services.GetService<IUserRepository>();
         var organizationRepository = _factory.Services.GetService<IOrganizationRepository>();
@@ -621,11 +780,16 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
             OrganizationId = organization.Id,
             UserId = user.Id,
             Status = OrganizationUserStatusType.Confirmed,
-            Type = organizationUserType
+            Type = organizationUserType,
         };
         await organizationUserRepository.CreateAsync(organizationUser);
 
-        var ssoPolicy = new Policy { OrganizationId = organization.Id, Type = PolicyType.RequireSso, Enabled = ssoPolicyEnabled };
+        var ssoPolicy = new Policy
+        {
+            OrganizationId = organization.Id,
+            Type = PolicyType.RequireSso,
+            Enabled = ssoPolicyEnabled,
+        };
         await policyRepository.CreateAsync(ssoPolicy);
     }
 
@@ -634,7 +798,11 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
         return ((int)deviceType).ToString();
     }
 
-    private static async Task<JsonDocument> AssertDefaultTokenBodyAsync(HttpContext httpContext, string expectedScope = "api offline_access", int expectedExpiresIn = SecondsInHour * 1)
+    private static async Task<JsonDocument> AssertDefaultTokenBodyAsync(
+        HttpContext httpContext,
+        string expectedScope = "api offline_access",
+        int expectedExpiresIn = SecondsInHour * 1
+    )
     {
         var body = await AssertHelper.AssertResponseTypeIs<JsonDocument>(httpContext);
         var root = body.RootElement;
@@ -649,13 +817,17 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
 
     private static void AssertTokenType(JsonElement tokenResponse)
     {
-        var tokenTypeProperty = AssertHelper.AssertJsonProperty(tokenResponse, "token_type", JsonValueKind.String).GetString();
+        var tokenTypeProperty = AssertHelper
+            .AssertJsonProperty(tokenResponse, "token_type", JsonValueKind.String)
+            .GetString();
         Assert.Equal("Bearer", tokenTypeProperty);
     }
 
     private static int AssertExpiresIn(JsonElement tokenResponse, int expectedExpiresIn = 3600)
     {
-        var expiresIn = AssertHelper.AssertJsonProperty(tokenResponse, "expires_in", JsonValueKind.Number).GetInt32();
+        var expiresIn = AssertHelper
+            .AssertJsonProperty(tokenResponse, "expires_in", JsonValueKind.Number)
+            .GetInt32();
         Assert.Equal(expectedExpiresIn, expiresIn);
         return expiresIn;
     }
@@ -688,18 +860,31 @@ public class IdentityServerTests : IClassFixture<IdentityApplicationFactory>
 
         var error = AssertHelper.AssertJsonProperty(root, "error", JsonValueKind.String).GetString();
         Assert.Equal("invalid_grant", error);
-        var errorDescription = AssertHelper.AssertJsonProperty(root, "error_description", JsonValueKind.String).GetString();
+        var errorDescription = AssertHelper
+            .AssertJsonProperty(root, "error_description", JsonValueKind.String)
+            .GetString();
         Assert.StartsWith("sso authentication", errorDescription.ToLowerInvariant());
     }
 
     private static void AssertUserDecryptionOptions(JsonElement tokenResponse)
     {
-        var userDecryptionOptions = AssertHelper.AssertJsonProperty(tokenResponse, "UserDecryptionOptions", JsonValueKind.Object)
+        var userDecryptionOptions = AssertHelper
+            .AssertJsonProperty(tokenResponse, "UserDecryptionOptions", JsonValueKind.Object)
             .EnumerateObject();
 
-        Assert.Collection(userDecryptionOptions,
-            (prop) => { Assert.Equal("HasMasterPassword", prop.Name); Assert.Equal(JsonValueKind.True, prop.Value.ValueKind); },
-            (prop) => { Assert.Equal("Object", prop.Name); Assert.Equal("userDecryptionOptions", prop.Value.GetString()); });
+        Assert.Collection(
+            userDecryptionOptions,
+            (prop) =>
+            {
+                Assert.Equal("HasMasterPassword", prop.Name);
+                Assert.Equal(JsonValueKind.True, prop.Value.ValueKind);
+            },
+            (prop) =>
+            {
+                Assert.Equal("Object", prop.Name);
+                Assert.Equal("userDecryptionOptions", prop.Value.GetString());
+            }
+        );
     }
 
     private void ReinitializeDbForTests()

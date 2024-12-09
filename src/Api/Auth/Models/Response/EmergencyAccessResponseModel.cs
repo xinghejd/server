@@ -12,7 +12,8 @@ namespace Bit.Api.Auth.Models.Response;
 
 public class EmergencyAccessResponseModel : ResponseModel
 {
-    public EmergencyAccessResponseModel(EmergencyAccess emergencyAccess, string obj = "emergencyAccess") : base(obj)
+    public EmergencyAccessResponseModel(EmergencyAccess emergencyAccess, string obj = "emergencyAccess")
+        : base(obj)
     {
         if (emergencyAccess == null)
         {
@@ -25,7 +26,8 @@ public class EmergencyAccessResponseModel : ResponseModel
         WaitTimeDays = emergencyAccess.WaitTimeDays;
     }
 
-    public EmergencyAccessResponseModel(EmergencyAccessDetails emergencyAccess, string obj = "emergencyAccess") : base(obj)
+    public EmergencyAccessResponseModel(EmergencyAccessDetails emergencyAccess, string obj = "emergencyAccess")
+        : base(obj)
     {
         if (emergencyAccess == null)
         {
@@ -90,7 +92,12 @@ public class EmergencyAccessGrantorDetailsResponseModel : EmergencyAccessRespons
 
 public class EmergencyAccessTakeoverResponseModel : ResponseModel
 {
-    public EmergencyAccessTakeoverResponseModel(EmergencyAccess emergencyAccess, User grantor, string obj = "emergencyAccessTakeover") : base(obj)
+    public EmergencyAccessTakeoverResponseModel(
+        EmergencyAccess emergencyAccess,
+        User grantor,
+        string obj = "emergencyAccessTakeover"
+    )
+        : base(obj)
     {
         if (emergencyAccess == null)
         {
@@ -116,7 +123,8 @@ public class EmergencyAccessViewResponseModel : ResponseModel
     public EmergencyAccessViewResponseModel(
         IGlobalSettings globalSettings,
         EmergencyAccess emergencyAccess,
-        IEnumerable<CipherDetails> ciphers)
+        IEnumerable<CipherDetails> ciphers
+    )
         : base("emergencyAccessView")
     {
         KeyEncrypted = emergencyAccess.KeyEncrypted;

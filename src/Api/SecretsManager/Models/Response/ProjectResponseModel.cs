@@ -42,9 +42,8 @@ public class ProjectResponseModel : ResponseModel
         Write = projectDetails.Write;
     }
 
-    public ProjectResponseModel() : base(_objectName)
-    {
-    }
+    public ProjectResponseModel()
+        : base(_objectName) { }
 
     public Guid Id { get; set; }
 

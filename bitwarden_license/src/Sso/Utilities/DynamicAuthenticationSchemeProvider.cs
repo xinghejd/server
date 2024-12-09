@@ -38,7 +38,8 @@ public class DynamicAuthenticationSchemeProvider : AuthenticationSchemeProvider
 
     private DateTime? _lastSchemeLoad;
     private IEnumerable<DynamicAuthenticationScheme> _schemesCopy = Array.Empty<DynamicAuthenticationScheme>();
-    private IEnumerable<DynamicAuthenticationScheme> _handlerSchemesCopy = Array.Empty<DynamicAuthenticationScheme>();
+    private IEnumerable<DynamicAuthenticationScheme> _handlerSchemesCopy =
+        Array.Empty<DynamicAuthenticationScheme>();
 
     public DynamicAuthenticationSchemeProvider(
         IOptions<AuthenticationOptions> options,
@@ -50,20 +51,20 @@ public class DynamicAuthenticationSchemeProvider : AuthenticationSchemeProvider
         ILogger<DynamicAuthenticationSchemeProvider> logger,
         GlobalSettings globalSettings,
         SamlEnvironment samlEnvironment,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider
+    )
         : base(options)
     {
         _oidcPostConfigureOptions = oidcPostConfigureOptions;
-        _extendedOidcOptionsMonitorCache = oidcOptionsMonitorCache as
-            IExtendedOptionsMonitorCache<OpenIdConnectOptions>;
+        _extendedOidcOptionsMonitorCache =
+            oidcOptionsMonitorCache as IExtendedOptionsMonitorCache<OpenIdConnectOptions>;
         if (_extendedOidcOptionsMonitorCache == null)
         {
             throw new ArgumentNullException("_extendedOidcOptionsMonitorCache could not be resolved.");
         }
 
         _saml2PostConfigureOptions = saml2PostConfigureOptions;
-        _extendedSaml2OptionsMonitorCache = saml2OptionsMonitorCache as
-            IExtendedOptionsMonitorCache<Saml2Options>;
+        _extendedSaml2OptionsMonitorCache = saml2OptionsMonitorCache as IExtendedOptionsMonitorCache<Saml2Options>;
         if (_extendedSaml2OptionsMonitorCache == null)
         {
             throw new ArgumentNullException("_extendedSaml2OptionsMonitorCache could not be resolved.");
@@ -82,8 +83,7 @@ public class DynamicAuthenticationSchemeProvider : AuthenticationSchemeProvider
 
     private bool CacheIsValid
     {
-        get => _lastSchemeLoad.HasValue
-            && _lastSchemeLoad.Value.Add(_schemeCacheLifetime) >= DateTime.UtcNow;
+        get => _lastSchemeLoad.HasValue && _lastSchemeLoad.Value.Add(_schemeCacheLifetime) >= DateTime.UtcNow;
     }
 
     public override async Task<AuthenticationScheme> GetSchemeAsync(string name)
@@ -253,8 +253,12 @@ public class DynamicAuthenticationSchemeProvider : AuthenticationSchemeProvider
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error performing post configuration for '{0}' ({1})",
-                scheme.Name, scheme.DisplayName);
+            _logger.LogError(
+                ex,
+                "Error performing post configuration for '{0}' ({1})",
+                scheme.Name,
+                scheme.DisplayName
+            );
         }
         return false;
     }
@@ -311,8 +315,8 @@ public class DynamicAuthenticationSchemeProvider : AuthenticationSchemeProvider
             AuthenticationMethod = config.RedirectBehavior,
             GetClaimsFromUserInfoEndpoint = config.GetClaimsFromUserInfoEndpoint,
         };
-        oidcOptions.Scope
-            .AddIfNotExists(OpenIdConnectScopes.OpenId)
+        oidcOptions
+            .Scope.AddIfNotExists(OpenIdConnectScopes.OpenId)
             .AddIfNotExists(OpenIdConnectScopes.Email)
             .AddIfNotExists(OpenIdConnectScopes.Profile);
         foreach (var scope in config.GetAdditionalScopes())
@@ -337,8 +341,13 @@ public class DynamicAuthenticationSchemeProvider : AuthenticationSchemeProvider
             };
         }
 
-        return new DynamicAuthenticationScheme(name, name, typeof(OpenIdConnectHandler),
-            oidcOptions, SsoType.OpenIdConnect);
+        return new DynamicAuthenticationScheme(
+            name,
+            name,
+            typeof(OpenIdConnectHandler),
+            oidcOptions,
+            SsoType.OpenIdConnect
+        );
     }
 
     private DynamicAuthenticationScheme GetSaml2AuthenticationScheme(string name, SsoConfigurationData config)
@@ -351,7 +360,9 @@ public class DynamicAuthenticationSchemeProvider : AuthenticationSchemeProvider
         var spEntityId = new Sustainsys.Saml2.Metadata.EntityId(
             SsoConfigurationData.BuildSaml2ModulePath(
                 _globalSettings.BaseServiceUri.Sso,
-                config.SpUniqueEntityId ? name : null));
+                config.SpUniqueEntityId ? name : null
+            )
+        );
         bool? allowCreate = null;
         if (config.SpNameIdFormat != Saml2NameIdFormat.Transient)
         {

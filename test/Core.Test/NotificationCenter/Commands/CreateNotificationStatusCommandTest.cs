@@ -19,25 +19,39 @@ namespace Bit.Core.Test.NotificationCenter.Commands;
 [NotificationStatusCustomize]
 public class CreateNotificationStatusCommandTest
 {
-    private static void Setup(SutProvider<CreateNotificationStatusCommand> sutProvider,
-        Notification? notification, NotificationStatus notificationStatus,
-        bool authorizedNotification = false, bool authorizedCreate = false)
+    private static void Setup(
+        SutProvider<CreateNotificationStatusCommand> sutProvider,
+        Notification? notification,
+        NotificationStatus notificationStatus,
+        bool authorizedNotification = false,
+        bool authorizedCreate = false
+    )
     {
-        sutProvider.GetDependency<INotificationRepository>()
+        sutProvider
+            .GetDependency<INotificationRepository>()
             .GetByIdAsync(notificationStatus.NotificationId)
             .Returns(notification);
-        sutProvider.GetDependency<INotificationStatusRepository>()
+        sutProvider
+            .GetDependency<INotificationStatusRepository>()
             .CreateAsync(notificationStatus)
             .Returns(notificationStatus);
-        sutProvider.GetDependency<IAuthorizationService>()
-            .AuthorizeAsync(Arg.Any<ClaimsPrincipal>(), notification ?? Arg.Any<Notification>(),
-                Arg.Is<IEnumerable<IAuthorizationRequirement>>(reqs =>
-                    reqs.Contains(NotificationOperations.Read)))
+        sutProvider
+            .GetDependency<IAuthorizationService>()
+            .AuthorizeAsync(
+                Arg.Any<ClaimsPrincipal>(),
+                notification ?? Arg.Any<Notification>(),
+                Arg.Is<IEnumerable<IAuthorizationRequirement>>(reqs => reqs.Contains(NotificationOperations.Read))
+            )
             .Returns(authorizedNotification ? AuthorizationResult.Success() : AuthorizationResult.Failed());
-        sutProvider.GetDependency<IAuthorizationService>()
-            .AuthorizeAsync(Arg.Any<ClaimsPrincipal>(), notificationStatus,
+        sutProvider
+            .GetDependency<IAuthorizationService>()
+            .AuthorizeAsync(
+                Arg.Any<ClaimsPrincipal>(),
+                notificationStatus,
                 Arg.Is<IEnumerable<IAuthorizationRequirement>>(reqs =>
-                    reqs.Contains(NotificationStatusOperations.Create)))
+                    reqs.Contains(NotificationStatusOperations.Create)
+                )
+            )
             .Returns(authorizedCreate ? AuthorizationResult.Success() : AuthorizationResult.Failed());
     }
 
@@ -45,7 +59,8 @@ public class CreateNotificationStatusCommandTest
     [BitAutoData]
     public async Task CreateAsync_NotificationNotFound_NotFoundException(
         SutProvider<CreateNotificationStatusCommand> sutProvider,
-        NotificationStatus notificationStatus)
+        NotificationStatus notificationStatus
+    )
     {
         Setup(sutProvider, notification: null, notificationStatus, true, true);
 
@@ -56,7 +71,9 @@ public class CreateNotificationStatusCommandTest
     [BitAutoData]
     public async Task CreateAsync_NotificationReadNotAuthorized_NotFoundException(
         SutProvider<CreateNotificationStatusCommand> sutProvider,
-        Notification notification, NotificationStatus notificationStatus)
+        Notification notification,
+        NotificationStatus notificationStatus
+    )
     {
         Setup(sutProvider, notification, notificationStatus, authorizedNotification: false, true);
 
@@ -67,7 +84,9 @@ public class CreateNotificationStatusCommandTest
     [BitAutoData]
     public async Task CreateAsync_CreateNotAuthorized_NotFoundException(
         SutProvider<CreateNotificationStatusCommand> sutProvider,
-        Notification notification, NotificationStatus notificationStatus)
+        Notification notification,
+        NotificationStatus notificationStatus
+    )
     {
         Setup(sutProvider, notification, notificationStatus, true, authorizedCreate: false);
 
@@ -78,7 +97,9 @@ public class CreateNotificationStatusCommandTest
     [BitAutoData]
     public async Task CreateAsync_NotificationFoundAuthorized_NotificationStatusCreated(
         SutProvider<CreateNotificationStatusCommand> sutProvider,
-        Notification notification, NotificationStatus notificationStatus)
+        Notification notification,
+        NotificationStatus notificationStatus
+    )
     {
         Setup(sutProvider, notification, notificationStatus, true, true);
 

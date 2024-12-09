@@ -10,8 +10,10 @@ public class ServiceAccountGrantedPolicies
     public ServiceAccountGrantedPolicies(Guid serviceAccountId, IEnumerable<BaseAccessPolicy> policies)
     {
         ServiceAccountId = serviceAccountId;
-        ProjectGrantedPolicies = policies.Where(x => x is ServiceAccountProjectAccessPolicy)
-            .Cast<ServiceAccountProjectAccessPolicy>().ToList();
+        ProjectGrantedPolicies = policies
+            .Where(x => x is ServiceAccountProjectAccessPolicy)
+            .Cast<ServiceAccountProjectAccessPolicy>()
+            .ToList();
 
         var serviceAccount = ProjectGrantedPolicies.FirstOrDefault()?.ServiceAccount;
         if (serviceAccount != null)
@@ -20,9 +22,7 @@ public class ServiceAccountGrantedPolicies
         }
     }
 
-    public ServiceAccountGrantedPolicies()
-    {
-    }
+    public ServiceAccountGrantedPolicies() { }
 
     public Guid ServiceAccountId { get; set; }
     public Guid OrganizationId { get; set; }
@@ -39,25 +39,37 @@ public class ServiceAccountGrantedPolicies
         var projectIdsToBeCreated = requestedProjectIds.Except(currentProjectIds).ToList();
         var projectIdsToBeUpdated = GetProjectIdsToBeUpdated(requested);
 
-        var policiesToBeDeleted =
-            CreatePolicyUpdates(ProjectGrantedPolicies, projectIdsToBeDeleted, AccessPolicyOperation.Delete);
-        var policiesToBeCreated = CreatePolicyUpdates(requested.ProjectGrantedPolicies, projectIdsToBeCreated,
-            AccessPolicyOperation.Create);
-        var policiesToBeUpdated = CreatePolicyUpdates(requested.ProjectGrantedPolicies, projectIdsToBeUpdated,
-            AccessPolicyOperation.Update);
+        var policiesToBeDeleted = CreatePolicyUpdates(
+            ProjectGrantedPolicies,
+            projectIdsToBeDeleted,
+            AccessPolicyOperation.Delete
+        );
+        var policiesToBeCreated = CreatePolicyUpdates(
+            requested.ProjectGrantedPolicies,
+            projectIdsToBeCreated,
+            AccessPolicyOperation.Create
+        );
+        var policiesToBeUpdated = CreatePolicyUpdates(
+            requested.ProjectGrantedPolicies,
+            projectIdsToBeUpdated,
+            AccessPolicyOperation.Update
+        );
 
         return new ServiceAccountGrantedPoliciesUpdates
         {
             OrganizationId = OrganizationId,
             ServiceAccountId = ServiceAccountId,
-            ProjectGrantedPolicyUpdates =
-                policiesToBeDeleted.Concat(policiesToBeCreated).Concat(policiesToBeUpdated)
+            ProjectGrantedPolicyUpdates = policiesToBeDeleted
+                .Concat(policiesToBeCreated)
+                .Concat(policiesToBeUpdated),
         };
     }
 
     private static List<ServiceAccountProjectAccessPolicyUpdate> CreatePolicyUpdates(
-        IEnumerable<ServiceAccountProjectAccessPolicy> policies, List<Guid> projectIds,
-        AccessPolicyOperation operation) =>
+        IEnumerable<ServiceAccountProjectAccessPolicy> policies,
+        List<Guid> projectIds,
+        AccessPolicyOperation operation
+    ) =>
         policies
             .Where(ap => projectIds.Contains(ap.GrantedProjectId!.Value))
             .Select(ap => new ServiceAccountProjectAccessPolicyUpdate { Operation = operation, AccessPolicy = ap })
@@ -65,10 +77,13 @@ public class ServiceAccountGrantedPolicies
 
     private List<Guid> GetProjectIdsToBeUpdated(ServiceAccountGrantedPolicies requested) =>
         ProjectGrantedPolicies
-            .Where(currentAp => requested.ProjectGrantedPolicies.Any(requestedAp =>
-                requestedAp.GrantedProjectId == currentAp.GrantedProjectId &&
-                requestedAp.ServiceAccountId == currentAp.ServiceAccountId &&
-                (requestedAp.Write != currentAp.Write || requestedAp.Read != currentAp.Read)))
+            .Where(currentAp =>
+                requested.ProjectGrantedPolicies.Any(requestedAp =>
+                    requestedAp.GrantedProjectId == currentAp.GrantedProjectId
+                    && requestedAp.ServiceAccountId == currentAp.ServiceAccountId
+                    && (requestedAp.Write != currentAp.Write || requestedAp.Read != currentAp.Read)
+                )
+            )
             .Select(ap => ap.GrantedProjectId!.Value)
             .ToList();
 }

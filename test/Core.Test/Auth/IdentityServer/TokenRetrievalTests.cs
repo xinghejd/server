@@ -17,7 +17,7 @@ public class TokenRetrievalTests
         var headers = new HeaderDictionary
         {
             { "Authorization", "Bearer test_value" },
-            { "X-Test-Header", "random_value" }
+            { "X-Test-Header", "random_value" },
         };
 
         var request = Substitute.For<HttpRequest>();
@@ -38,7 +38,7 @@ public class TokenRetrievalTests
         var queryString = new Dictionary<string, StringValues>
         {
             { "access_token", "test_value" },
-            { "test-query", "random_value" }
+            { "test-query", "random_value" },
         };
 
         var request = Substitute.For<HttpRequest>();
@@ -58,13 +58,13 @@ public class TokenRetrievalTests
         var queryString = new Dictionary<string, StringValues>
         {
             { "access_token", "query_string_token" },
-            { "test-query", "random_value" }
+            { "test-query", "random_value" },
         };
 
         var headers = new HeaderDictionary
         {
             { "Authorization", "Bearer header_token" },
-            { "X-Test-Header", "random_value" }
+            { "X-Test-Header", "random_value" },
         };
 
         var request = Substitute.For<HttpRequest>();

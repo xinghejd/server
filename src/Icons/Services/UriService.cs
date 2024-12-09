@@ -86,7 +86,7 @@ public class UriService : IUriService
             {
                 Scheme = originalIconUri.Scheme,
                 Host = originalIconUri.Host,
-                Path = responseUri.ToString()
+                Path = responseUri.ToString(),
             }.Uri;
         }
     }
@@ -99,7 +99,11 @@ public class UriService : IUriService
         }
 
         var hostEntry = Dns.GetHostEntry(uri.Host);
-        ip = hostEntry.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork || ip.IsIPv4MappedToIPv6)?.MapToIPv4();
+        ip = hostEntry
+            .AddressList.FirstOrDefault(ip =>
+                ip.AddressFamily == AddressFamily.InterNetwork || ip.IsIPv4MappedToIPv6
+            )
+            ?.MapToIPv4();
         if (ip == null)
         {
             throw new Exception($"Unable to determine IP for {uri.Host}");

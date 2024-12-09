@@ -25,10 +25,9 @@ public class RequireSsoPolicyValidator : IPolicyValidator
         if (policyUpdate is not { Enabled: true })
         {
             var ssoConfig = await _ssoConfigRepository.GetByOrganizationIdAsync(policyUpdate.OrganizationId);
-            return ssoConfig.ValidateDecryptionOptionsNotEnabled([
-                MemberDecryptionType.KeyConnector,
-                MemberDecryptionType.TrustedDeviceEncryption
-            ]);
+            return ssoConfig.ValidateDecryptionOptionsNotEnabled(
+                [MemberDecryptionType.KeyConnector, MemberDecryptionType.TrustedDeviceEncryption]
+            );
         }
 
         return "";

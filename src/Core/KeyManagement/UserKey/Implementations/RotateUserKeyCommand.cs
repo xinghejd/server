@@ -34,10 +34,18 @@ public class RotateUserKeyCommand : IRotateUserKeyCommand
     /// <param name="emergencyAccessRepository">Provides a method to update re-encrypted emergency access data</param>
     /// <param name="pushService">Logs out user from other devices after successful rotation</param>
     /// <param name="errors">Provides a password mismatch error if master password hash validation fails</param>
-    public RotateUserKeyCommand(IUserService userService, IUserRepository userRepository,
-        ICipherRepository cipherRepository, IFolderRepository folderRepository, ISendRepository sendRepository,
-        IEmergencyAccessRepository emergencyAccessRepository, IOrganizationUserRepository organizationUserRepository,
-        IPushNotificationService pushService, IdentityErrorDescriber errors, IWebAuthnCredentialRepository credentialRepository)
+    public RotateUserKeyCommand(
+        IUserService userService,
+        IUserRepository userRepository,
+        ICipherRepository cipherRepository,
+        IFolderRepository folderRepository,
+        ISendRepository sendRepository,
+        IEmergencyAccessRepository emergencyAccessRepository,
+        IOrganizationUserRepository organizationUserRepository,
+        IPushNotificationService pushService,
+        IdentityErrorDescriber errors,
+        IWebAuthnCredentialRepository credentialRepository
+    )
     {
         _userService = userService;
         _userRepository = userRepository;
@@ -70,8 +78,14 @@ public class RotateUserKeyCommand : IRotateUserKeyCommand
         user.SecurityStamp = Guid.NewGuid().ToString();
         user.Key = model.Key;
         user.PrivateKey = model.PrivateKey;
-        if (model.Ciphers.Any() || model.Folders.Any() || model.Sends.Any() || model.EmergencyAccesses.Any() ||
-            model.OrganizationUsers.Any() || model.WebAuthnKeys.Any())
+        if (
+            model.Ciphers.Any()
+            || model.Folders.Any()
+            || model.Sends.Any()
+            || model.EmergencyAccesses.Any()
+            || model.OrganizationUsers.Any()
+            || model.WebAuthnKeys.Any()
+        )
         {
             List<UpdateEncryptedDataForKeyRotation> saveEncryptedDataActions = new();
 
@@ -93,18 +107,22 @@ public class RotateUserKeyCommand : IRotateUserKeyCommand
             if (model.EmergencyAccesses.Any())
             {
                 saveEncryptedDataActions.Add(
-                    _emergencyAccessRepository.UpdateForKeyRotation(user.Id, model.EmergencyAccesses));
+                    _emergencyAccessRepository.UpdateForKeyRotation(user.Id, model.EmergencyAccesses)
+                );
             }
 
             if (model.OrganizationUsers.Any())
             {
                 saveEncryptedDataActions.Add(
-                    _organizationUserRepository.UpdateForKeyRotation(user.Id, model.OrganizationUsers));
+                    _organizationUserRepository.UpdateForKeyRotation(user.Id, model.OrganizationUsers)
+                );
             }
 
             if (model.WebAuthnKeys.Any())
             {
-                saveEncryptedDataActions.Add(_credentialRepository.UpdateKeysForRotationAsync(user.Id, model.WebAuthnKeys));
+                saveEncryptedDataActions.Add(
+                    _credentialRepository.UpdateKeysForRotationAsync(user.Id, model.WebAuthnKeys)
+                );
             }
 
             await _userRepository.UpdateUserKeyAndEncryptedDataAsync(user, saveEncryptedDataActions);

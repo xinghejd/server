@@ -9,6 +9,7 @@ public class PremiumRequestModel : IValidatableObject
     [Required]
     public Enums.PaymentMethodType? PaymentMethodType { get; set; }
     public string PaymentToken { get; set; }
+
     [Range(0, 99)]
     public short? AdditionalStorageGb { get; set; }
     public IFormFile License { get; set; }
@@ -17,8 +18,7 @@ public class PremiumRequestModel : IValidatableObject
 
     public bool Validate(GlobalSettings globalSettings)
     {
-        if (!(License == null && !globalSettings.SelfHosted) ||
-            (License != null && globalSettings.SelfHosted))
+        if (!(License == null && !globalSettings.SelfHosted) || (License != null && globalSettings.SelfHosted))
         {
             return false;
         }
@@ -34,8 +34,10 @@ public class PremiumRequestModel : IValidatableObject
         }
         if (Country == "US" && string.IsNullOrWhiteSpace(PostalCode))
         {
-            yield return new ValidationResult("Zip / postal code is required.",
-                new string[] { nameof(PostalCode) });
+            yield return new ValidationResult(
+                "Zip / postal code is required.",
+                new string[] { nameof(PostalCode) }
+            );
         }
     }
 }

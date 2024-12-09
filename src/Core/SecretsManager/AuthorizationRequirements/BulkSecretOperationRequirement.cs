@@ -2,9 +2,7 @@
 
 namespace Bit.Core.SecretsManager.AuthorizationRequirements;
 
-public class BulkSecretOperationRequirement : OperationAuthorizationRequirement
-{
-}
+public class BulkSecretOperationRequirement : OperationAuthorizationRequirement { }
 
 public static class BulkSecretOperations
 {

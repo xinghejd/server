@@ -12,12 +12,15 @@ public class PayPalIPNClient : IPayPalIPNClient
     public PayPalIPNClient(
         IOptions<BillingSettings> billingSettings,
         HttpClient httpClient,
-        ILogger<PayPalIPNClient> logger)
+        ILogger<PayPalIPNClient> logger
+    )
     {
         _httpClient = httpClient;
-        _ipnEndpoint = new Uri(billingSettings.Value.PayPal.Production
-            ? "https://www.paypal.com/cgi-bin/webscr"
-            : "https://www.sandbox.paypal.com/cgi-bin/webscr");
+        _ipnEndpoint = new Uri(
+            billingSettings.Value.PayPal.Production
+                ? "https://www.paypal.com/cgi-bin/webscr"
+                : "https://www.sandbox.paypal.com/cgi-bin/webscr"
+        );
         _logger = logger;
     }
 
@@ -34,7 +37,11 @@ public class PayPalIPNClient : IPayPalIPNClient
 
         var requestContent = string.Concat("cmd=_notify-validate&", formData);
 
-        requestMessage.Content = new StringContent(requestContent, Encoding.UTF8, "application/x-www-form-urlencoded");
+        requestMessage.Content = new StringContent(
+            requestContent,
+            Encoding.UTF8,
+            "application/x-www-form-urlencoded"
+        );
 
         var response = await _httpClient.SendAsync(requestMessage);
 
@@ -46,11 +53,14 @@ public class PayPalIPNClient : IPayPalIPNClient
             {
                 "VERIFIED" => Verified(),
                 "INVALID" => Invalid(),
-                _ => Unhandled(responseContent)
+                _ => Unhandled(responseContent),
             };
         }
 
-        LogError(transactionId, $"Unsuccessful Response | Status Code: {response.StatusCode} | Content: {responseContent}");
+        LogError(
+            transactionId,
+            $"Unsuccessful Response | Status Code: {response.StatusCode} | Content: {responseContent}"
+        );
 
         return false;
 
@@ -73,12 +83,12 @@ public class PayPalIPNClient : IPayPalIPNClient
         }
     }
 
-    private void LogInfo(string transactionId, string message)
-        => _logger.LogInformation("Verify PayPal IPN ({Id}) | {Message}", transactionId, message);
+    private void LogInfo(string transactionId, string message) =>
+        _logger.LogInformation("Verify PayPal IPN ({Id}) | {Message}", transactionId, message);
 
-    private void LogWarning(string transactionId, string message)
-        => _logger.LogWarning("Verify PayPal IPN ({Id}) | {Message}", transactionId, message);
+    private void LogWarning(string transactionId, string message) =>
+        _logger.LogWarning("Verify PayPal IPN ({Id}) | {Message}", transactionId, message);
 
-    private void LogError(string transactionId, string message)
-        => _logger.LogError("Verify PayPal IPN ({Id}) | {Message}", transactionId, message);
+    private void LogError(string transactionId, string message) =>
+        _logger.LogError("Verify PayPal IPN ({Id}) | {Message}", transactionId, message);
 }

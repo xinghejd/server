@@ -13,15 +13,23 @@ public class GetOrganizationDomainByIdOrganizationIdQueryTests
 {
     [Theory, BitAutoData]
     public async Task GetOrganizationDomainByIdAndOrganizationIdAsync_WithExistingParameters_ReturnsExpectedEntity(
-        OrganizationDomain organizationDomain, SutProvider<GetOrganizationDomainByIdOrganizationIdQuery> sutProvider)
+        OrganizationDomain organizationDomain,
+        SutProvider<GetOrganizationDomainByIdOrganizationIdQuery> sutProvider
+    )
     {
-        sutProvider.GetDependency<IOrganizationDomainRepository>()
+        sutProvider
+            .GetDependency<IOrganizationDomainRepository>()
             .GetDomainByIdOrganizationIdAsync(organizationDomain.Id, organizationDomain.OrganizationId)
             .Returns(organizationDomain);
 
-        var result = await sutProvider.Sut.GetOrganizationDomainByIdOrganizationIdAsync(organizationDomain.Id, organizationDomain.OrganizationId);
+        var result = await sutProvider.Sut.GetOrganizationDomainByIdOrganizationIdAsync(
+            organizationDomain.Id,
+            organizationDomain.OrganizationId
+        );
 
-        await sutProvider.GetDependency<IOrganizationDomainRepository>().Received(1)
+        await sutProvider
+            .GetDependency<IOrganizationDomainRepository>()
+            .Received(1)
             .GetDomainByIdOrganizationIdAsync(organizationDomain.Id, organizationDomain.OrganizationId);
 
         Assert.Equal(organizationDomain, result);
@@ -29,16 +37,22 @@ public class GetOrganizationDomainByIdOrganizationIdQueryTests
 
     [Theory, BitAutoData]
     public async Task GetOrganizationDomainByIdAndOrganizationIdAsync_WithNonExistingParameters_ReturnsNull(
-        Guid id, Guid organizationId, OrganizationDomain organizationDomain,
-        SutProvider<GetOrganizationDomainByIdOrganizationIdQuery> sutProvider)
+        Guid id,
+        Guid organizationId,
+        OrganizationDomain organizationDomain,
+        SutProvider<GetOrganizationDomainByIdOrganizationIdQuery> sutProvider
+    )
     {
-        sutProvider.GetDependency<IOrganizationDomainRepository>()
+        sutProvider
+            .GetDependency<IOrganizationDomainRepository>()
             .GetDomainByIdOrganizationIdAsync(organizationDomain.Id, organizationDomain.OrganizationId)
             .Returns(organizationDomain);
 
         var result = await sutProvider.Sut.GetOrganizationDomainByIdOrganizationIdAsync(id, organizationId);
 
-        await sutProvider.GetDependency<IOrganizationDomainRepository>().Received(1)
+        await sutProvider
+            .GetDependency<IOrganizationDomainRepository>()
+            .Received(1)
             .GetDomainByIdOrganizationIdAsync(id, organizationId);
 
         Assert.Null(result);
@@ -46,16 +60,24 @@ public class GetOrganizationDomainByIdOrganizationIdQueryTests
 
     [Theory, BitAutoData]
     public async Task GetOrganizationDomainByIdAndOrganizationIdAsync_WithNonExistingId_ReturnsNull(
-        Guid id, OrganizationDomain organizationDomain,
-        SutProvider<GetOrganizationDomainByIdOrganizationIdQuery> sutProvider)
+        Guid id,
+        OrganizationDomain organizationDomain,
+        SutProvider<GetOrganizationDomainByIdOrganizationIdQuery> sutProvider
+    )
     {
-        sutProvider.GetDependency<IOrganizationDomainRepository>()
+        sutProvider
+            .GetDependency<IOrganizationDomainRepository>()
             .GetDomainByIdOrganizationIdAsync(organizationDomain.Id, organizationDomain.OrganizationId)
             .Returns(organizationDomain);
 
-        var result = await sutProvider.Sut.GetOrganizationDomainByIdOrganizationIdAsync(id, organizationDomain.OrganizationId);
+        var result = await sutProvider.Sut.GetOrganizationDomainByIdOrganizationIdAsync(
+            id,
+            organizationDomain.OrganizationId
+        );
 
-        await sutProvider.GetDependency<IOrganizationDomainRepository>().Received(1)
+        await sutProvider
+            .GetDependency<IOrganizationDomainRepository>()
+            .Received(1)
             .GetDomainByIdOrganizationIdAsync(id, organizationDomain.OrganizationId);
 
         Assert.Null(result);
@@ -63,16 +85,24 @@ public class GetOrganizationDomainByIdOrganizationIdQueryTests
 
     [Theory, BitAutoData]
     public async Task GetOrganizationDomainByIdAndOrganizationIdAsync_WithNonExistingOrgId_ReturnsNull(
-        Guid organizationId, OrganizationDomain organizationDomain,
-        SutProvider<GetOrganizationDomainByIdOrganizationIdQuery> sutProvider)
+        Guid organizationId,
+        OrganizationDomain organizationDomain,
+        SutProvider<GetOrganizationDomainByIdOrganizationIdQuery> sutProvider
+    )
     {
-        sutProvider.GetDependency<IOrganizationDomainRepository>()
+        sutProvider
+            .GetDependency<IOrganizationDomainRepository>()
             .GetDomainByIdOrganizationIdAsync(organizationDomain.Id, organizationDomain.OrganizationId)
             .Returns(organizationDomain);
 
-        var result = await sutProvider.Sut.GetOrganizationDomainByIdOrganizationIdAsync(organizationDomain.Id, organizationId);
+        var result = await sutProvider.Sut.GetOrganizationDomainByIdOrganizationIdAsync(
+            organizationDomain.Id,
+            organizationId
+        );
 
-        await sutProvider.GetDependency<IOrganizationDomainRepository>().Received(1)
+        await sutProvider
+            .GetDependency<IOrganizationDomainRepository>()
+            .Received(1)
             .GetDomainByIdOrganizationIdAsync(organizationDomain.Id, organizationId);
 
         Assert.Null(result);

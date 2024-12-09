@@ -59,8 +59,7 @@ public class CollectionAccessDetailsResponseModel : CollectionResponseModel
     /// </summary>
     /// <param name="collection"></param>
     public CollectionAccessDetailsResponseModel(Collection collection)
-        : base(collection, "collectionAccessDetails")
-    { }
+        : base(collection, "collectionAccessDetails") { }
 
     /// <summary>
     /// Create a response model for when the requesting user is assumed not assigned to the collection. Includes
@@ -71,7 +70,11 @@ public class CollectionAccessDetailsResponseModel : CollectionResponseModel
     /// <param name="groups"></param>
     /// <param name="users"></param>
     [Obsolete("Use the CollectionAdminDetails constructor instead.")]
-    public CollectionAccessDetailsResponseModel(Collection collection, IEnumerable<CollectionAccessSelection> groups, IEnumerable<CollectionAccessSelection> users)
+    public CollectionAccessDetailsResponseModel(
+        Collection collection,
+        IEnumerable<CollectionAccessSelection> groups,
+        IEnumerable<CollectionAccessSelection> users
+    )
         : base(collection, "collectionAccessDetails")
     {
         Groups = groups.Select(g => new SelectionReadOnlyResponseModel(g));
@@ -90,8 +93,12 @@ public class CollectionAccessDetailsResponseModel : CollectionResponseModel
         HidePasswords = collection.HidePasswords;
         Manage = collection.Manage;
         Unmanaged = collection.Unmanaged;
-        Groups = collection.Groups?.Select(g => new SelectionReadOnlyResponseModel(g)) ?? Enumerable.Empty<SelectionReadOnlyResponseModel>();
-        Users = collection.Users?.Select(g => new SelectionReadOnlyResponseModel(g)) ?? Enumerable.Empty<SelectionReadOnlyResponseModel>();
+        Groups =
+            collection.Groups?.Select(g => new SelectionReadOnlyResponseModel(g))
+            ?? Enumerable.Empty<SelectionReadOnlyResponseModel>();
+        Users =
+            collection.Users?.Select(g => new SelectionReadOnlyResponseModel(g))
+            ?? Enumerable.Empty<SelectionReadOnlyResponseModel>();
     }
 
     public IEnumerable<SelectionReadOnlyResponseModel> Groups { get; set; }

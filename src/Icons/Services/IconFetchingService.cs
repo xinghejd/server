@@ -13,7 +13,12 @@ public class IconFetchingService : IIconFetchingService
     private readonly IHtmlParser _parser;
     private readonly IUriService _uriService;
 
-    public IconFetchingService(ILogger<IIconFetchingService> logger, IHttpClientFactory httpClientFactory, IHtmlParser parser, IUriService uriService)
+    public IconFetchingService(
+        ILogger<IIconFetchingService> logger,
+        IHttpClientFactory httpClientFactory,
+        IHtmlParser parser,
+        IUriService uriService
+    )
     {
         _logger = logger;
         _httpClientFactory = httpClientFactory;
@@ -35,7 +40,7 @@ public class IconFetchingService : IIconFetchingService
         {
             Scheme = "https",
             Host = domain,
-            Path = "/favicon.ico"
+            Path = "/favicon.ico",
         };
 
         if (faviconUriBuilder.TryBuild(out var faviconUri))

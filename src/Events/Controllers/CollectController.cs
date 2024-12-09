@@ -27,7 +27,8 @@ public class CollectController : Controller
         ICipherRepository cipherRepository,
         IOrganizationRepository organizationRepository,
         IFeatureService featureService,
-        IApplicationCacheService applicationCacheService)
+        IApplicationCacheService applicationCacheService
+    )
     {
         _currentContext = currentContext;
         _eventService = eventService;
@@ -52,7 +53,11 @@ public class CollectController : Controller
             {
                 // User events
                 case EventType.User_ClientExportedVault:
-                    await _eventService.LogUserEventAsync(_currentContext.UserId.Value, eventModel.Type, eventModel.Date);
+                    await _eventService.LogUserEventAsync(
+                        _currentContext.UserId.Value,
+                        eventModel.Type,
+                        eventModel.Date
+                    );
                     break;
                 // Cipher events
                 case EventType.Cipher_ClientAutofilled:
@@ -75,8 +80,10 @@ public class CollectController : Controller
                     }
                     else
                     {
-                        cipher = await _cipherRepository.GetByIdAsync(eventModel.CipherId.Value,
-                           _currentContext.UserId.Value);
+                        cipher = await _cipherRepository.GetByIdAsync(
+                            eventModel.CipherId.Value,
+                            _currentContext.UserId.Value
+                        );
                     }
                     if (cipher == null)
                     {
@@ -100,7 +107,9 @@ public class CollectController : Controller
                     {
                         ciphersCache.Add(eventModel.CipherId.Value, cipher);
                     }
-                    cipherEvents.Add(new Tuple<Cipher, EventType, DateTime?>(cipher, eventModel.Type, eventModel.Date));
+                    cipherEvents.Add(
+                        new Tuple<Cipher, EventType, DateTime?>(cipher, eventModel.Type, eventModel.Date)
+                    );
                     break;
                 case EventType.Organization_ClientExportedVault:
                     if (!eventModel.OrganizationId.HasValue)

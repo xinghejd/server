@@ -13,9 +13,7 @@ public class YubicoOtpTokenProvider : IUserTwoFactorTokenProvider<User>
     private readonly IServiceProvider _serviceProvider;
     private readonly GlobalSettings _globalSettings;
 
-    public YubicoOtpTokenProvider(
-        IServiceProvider serviceProvider,
-        GlobalSettings globalSettings)
+    public YubicoOtpTokenProvider(IServiceProvider serviceProvider, GlobalSettings globalSettings)
     {
         _serviceProvider = serviceProvider;
         _globalSettings = globalSettings;

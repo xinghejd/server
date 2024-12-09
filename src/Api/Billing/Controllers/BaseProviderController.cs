@@ -10,27 +10,27 @@ public abstract class BaseProviderController(
     ICurrentContext currentContext,
     ILogger<BaseProviderController> logger,
     IProviderRepository providerRepository,
-    IUserService userService) : BaseBillingController
+    IUserService userService
+) : BaseBillingController
 {
     protected readonly IUserService UserService = userService;
 
-    protected Task<(Provider, IResult)> TryGetBillableProviderForAdminOperation(
-        Guid providerId) => TryGetBillableProviderAsync(providerId, currentContext.ProviderProviderAdmin);
+    protected Task<(Provider, IResult)> TryGetBillableProviderForAdminOperation(Guid providerId) =>
+        TryGetBillableProviderAsync(providerId, currentContext.ProviderProviderAdmin);
 
-    protected Task<(Provider, IResult)> TryGetBillableProviderForServiceUserOperation(
-        Guid providerId) => TryGetBillableProviderAsync(providerId, currentContext.ProviderUser);
+    protected Task<(Provider, IResult)> TryGetBillableProviderForServiceUserOperation(Guid providerId) =>
+        TryGetBillableProviderAsync(providerId, currentContext.ProviderUser);
 
     private async Task<(Provider, IResult)> TryGetBillableProviderAsync(
         Guid providerId,
-        Func<Guid, bool> checkAuthorization)
+        Func<Guid, bool> checkAuthorization
+    )
     {
         var provider = await providerRepository.GetByIdAsync(providerId);
 
         if (provider == null)
         {
-            logger.LogError(
-                "Cannot find provider ({ProviderID}) for Consolidated Billing operation",
-                providerId);
+            logger.LogError("Cannot find provider ({ProviderID}) for Consolidated Billing operation", providerId);
 
             return (null, Error.NotFound());
         }
@@ -41,7 +41,9 @@ public abstract class BaseProviderController(
 
             logger.LogError(
                 "User ({UserID}) is not authorized to perform Consolidated Billing operation for provider ({ProviderID})",
-                user?.Id, providerId);
+                user?.Id,
+                providerId
+            );
 
             return (null, Error.Unauthorized());
         }
@@ -50,7 +52,8 @@ public abstract class BaseProviderController(
         {
             logger.LogError(
                 "Cannot run Consolidated Billing operation for provider ({ProviderID}) that is not billable",
-                providerId);
+                providerId
+            );
 
             return (null, Error.Unauthorized());
         }
@@ -62,7 +65,8 @@ public abstract class BaseProviderController(
 
         logger.LogError(
             "Cannot run Consolidated Billing operation for provider ({ProviderID}) that is missing Stripe configuration",
-            providerId);
+            providerId
+        );
 
         return (null, Error.ServerError());
     }

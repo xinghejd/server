@@ -17,8 +17,13 @@ public class SecretAccessPoliciesUpdatesQuery : ISecretAccessPoliciesUpdatesQuer
 
     public async Task<SecretAccessPoliciesUpdates> GetAsync(SecretAccessPolicies accessPolicies, Guid userId)
     {
-        var currentPolicies = await _accessPolicyRepository.GetSecretAccessPoliciesAsync(accessPolicies.SecretId, userId);
+        var currentPolicies = await _accessPolicyRepository.GetSecretAccessPoliciesAsync(
+            accessPolicies.SecretId,
+            userId
+        );
 
-        return currentPolicies == null ? new SecretAccessPoliciesUpdates(accessPolicies) : currentPolicies.GetPolicyUpdates(accessPolicies);
+        return currentPolicies == null
+            ? new SecretAccessPoliciesUpdates(accessPolicies)
+            : currentPolicies.GetPolicyUpdates(accessPolicies);
     }
 }

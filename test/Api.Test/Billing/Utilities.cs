@@ -33,29 +33,24 @@ public static class Utilities
         Assert.Equal(message, response.Value.Message);
     }
 
-    public static void ConfigureStableProviderAdminInputs<T>(
-        Provider provider,
-        SutProvider<T> sutProvider) where T : BaseProviderController
+    public static void ConfigureStableProviderAdminInputs<T>(Provider provider, SutProvider<T> sutProvider)
+        where T : BaseProviderController
     {
         ConfigureBaseProviderInputs(provider, sutProvider);
 
-        sutProvider.GetDependency<ICurrentContext>().ProviderProviderAdmin(provider.Id)
-            .Returns(true);
+        sutProvider.GetDependency<ICurrentContext>().ProviderProviderAdmin(provider.Id).Returns(true);
     }
 
-    public static void ConfigureStableProviderServiceUserInputs<T>(
-        Provider provider,
-        SutProvider<T> sutProvider) where T : BaseProviderController
+    public static void ConfigureStableProviderServiceUserInputs<T>(Provider provider, SutProvider<T> sutProvider)
+        where T : BaseProviderController
     {
         ConfigureBaseProviderInputs(provider, sutProvider);
 
-        sutProvider.GetDependency<ICurrentContext>().ProviderUser(provider.Id)
-            .Returns(true);
+        sutProvider.GetDependency<ICurrentContext>().ProviderUser(provider.Id).Returns(true);
     }
 
-    private static void ConfigureBaseProviderInputs<T>(
-        Provider provider,
-        SutProvider<T> sutProvider) where T : BaseProviderController
+    private static void ConfigureBaseProviderInputs<T>(Provider provider, SutProvider<T> sutProvider)
+        where T : BaseProviderController
     {
         provider.Type = ProviderType.Msp;
         provider.Status = ProviderStatusType.Billable;

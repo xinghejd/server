@@ -18,16 +18,22 @@ namespace Bit.Core.Test.NotificationCenter.Commands;
 [NotificationCustomize]
 public class CreateNotificationCommandTest
 {
-    private static void Setup(SutProvider<CreateNotificationCommand> sutProvider,
-        Notification notification, bool authorized = false)
+    private static void Setup(
+        SutProvider<CreateNotificationCommand> sutProvider,
+        Notification notification,
+        bool authorized = false
+    )
     {
-        sutProvider.GetDependency<INotificationRepository>()
-            .CreateAsync(notification)
-            .Returns(notification);
-        sutProvider.GetDependency<IAuthorizationService>()
-            .AuthorizeAsync(Arg.Any<ClaimsPrincipal>(), notification,
+        sutProvider.GetDependency<INotificationRepository>().CreateAsync(notification).Returns(notification);
+        sutProvider
+            .GetDependency<IAuthorizationService>()
+            .AuthorizeAsync(
+                Arg.Any<ClaimsPrincipal>(),
+                notification,
                 Arg.Is<IEnumerable<IAuthorizationRequirement>>(reqs =>
-                    reqs.Contains(NotificationOperations.Create)))
+                    reqs.Contains(NotificationOperations.Create)
+                )
+            )
             .Returns(authorized ? AuthorizationResult.Success() : AuthorizationResult.Failed());
     }
 
@@ -35,7 +41,8 @@ public class CreateNotificationCommandTest
     [BitAutoData]
     public async Task CreateAsync_AuthorizationFailed_NotFoundException(
         SutProvider<CreateNotificationCommand> sutProvider,
-        Notification notification)
+        Notification notification
+    )
     {
         Setup(sutProvider, notification, authorized: false);
 
@@ -46,7 +53,8 @@ public class CreateNotificationCommandTest
     [BitAutoData]
     public async Task CreateAsync_Authorized_NotificationCreated(
         SutProvider<CreateNotificationCommand> sutProvider,
-        Notification notification)
+        Notification notification
+    )
     {
         Setup(sutProvider, notification, true);
 

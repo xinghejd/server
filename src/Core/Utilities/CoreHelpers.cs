@@ -42,8 +42,7 @@ public static class CoreHelpers
     /// ref: https://github.com/nhibernate/nhibernate-core/blob/master/src/NHibernate/Id/GuidCombGenerator.cs
     /// </summary>
     /// <returns>A comb Guid.</returns>
-    public static Guid GenerateComb()
-        => GenerateComb(Guid.NewGuid(), DateTime.UtcNow);
+    public static Guid GenerateComb() => GenerateComb(Guid.NewGuid(), DateTime.UtcNow);
 
     /// <summary>
     /// Implementation of <see cref="GenerateComb()" /> with input parameters to remove randomness.
@@ -138,7 +137,7 @@ public static class CoreHelpers
         return new X509Certificate2(file, password);
     }
 
-    public async static Task<X509Certificate2> GetEmbeddedCertificateAsync(string file, string password)
+    public static async Task<X509Certificate2> GetEmbeddedCertificateAsync(string file, string password)
     {
         var assembly = typeof(CoreHelpers).GetTypeInfo().Assembly;
         using (var s = assembly.GetManifestResourceStream($"Bit.Core.{file}"))
@@ -160,7 +159,12 @@ public static class CoreHelpers
         }
     }
 
-    public async static Task<X509Certificate2> GetBlobCertificateAsync(string connectionString, string container, string file, string password)
+    public static async Task<X509Certificate2> GetBlobCertificateAsync(
+        string connectionString,
+        string container,
+        string file,
+        string password
+    )
     {
         try
         {
@@ -173,7 +177,7 @@ public static class CoreHelpers
             return new X509Certificate2(memStream.ToArray(), password);
         }
         catch (RequestFailedException ex)
-        when (ex.ErrorCode == BlobErrorCode.ContainerNotFound || ex.ErrorCode == BlobErrorCode.BlobNotFound)
+            when (ex.ErrorCode == BlobErrorCode.ContainerNotFound || ex.ErrorCode == BlobErrorCode.BlobNotFound)
         {
             return null;
         }
@@ -208,8 +212,14 @@ public static class CoreHelpers
         return string.Concat(globalSettings.BaseServiceUri.Vault, "/app-id.json");
     }
 
-    public static string RandomString(int length, bool alpha = true, bool upper = true, bool lower = true,
-        bool numeric = true, bool special = false)
+    public static string RandomString(
+        int length,
+        bool alpha = true,
+        bool upper = true,
+        bool lower = true,
+        bool numeric = true,
+        bool special = false
+    )
     {
         return RandomString(length, RandomStringCharacters(alpha, upper, lower, numeric, special));
     }
@@ -219,8 +229,14 @@ public static class CoreHelpers
         return new string(Enumerable.Repeat(characters, length).Select(s => s[_random.Next(s.Length)]).ToArray());
     }
 
-    public static string SecureRandomString(int length, bool alpha = true, bool upper = true, bool lower = true,
-        bool numeric = true, bool special = false)
+    public static string SecureRandomString(
+        int length,
+        bool alpha = true,
+        bool upper = true,
+        bool lower = true,
+        bool numeric = true,
+        bool special = false
+    )
     {
         return SecureRandomString(length, RandomStringCharacters(alpha, upper, lower, numeric, special));
     }
@@ -243,7 +259,8 @@ public static class CoreHelpers
         {
             throw new ArgumentException(
                 string.Format("{0} may contain no more than {1} characters.", nameof(characters), byteSize),
-                nameof(characters));
+                nameof(characters)
+            );
         }
 
         var outOfRangeStart = byteSize - (byteSize % characters.Length);
@@ -352,8 +369,9 @@ public static class CoreHelpers
     public static bool SettingHasValue(string setting)
     {
         var normalizedSetting = setting?.ToLowerInvariant();
-        return !string.IsNullOrWhiteSpace(normalizedSetting) && !normalizedSetting.Equals("secret") &&
-            !normalizedSetting.Equals("replace");
+        return !string.IsNullOrWhiteSpace(normalizedSetting)
+            && !normalizedSetting.Equals("secret")
+            && !normalizedSetting.Equals("replace");
     }
 
     public static string Base64EncodeString(string input)
@@ -395,10 +413,7 @@ public static class CoreHelpers
     /// <returns>Base64 URL formatted string</returns>
     public static string TransformToBase64Url(string input)
     {
-        var output = input
-            .Replace('+', '-')
-            .Replace('/', '_')
-            .Replace("=", string.Empty);
+        var output = input.Replace('+', '-').Replace('/', '_').Replace("=", string.Empty);
         return output;
     }
 
@@ -436,10 +451,12 @@ public static class CoreHelpers
                 break;
             case 2:
                 // Two pad chars
-                output += "=="; break;
+                output += "==";
+                break;
             case 3:
                 // One pad char
-                output += "="; break;
+                output += "=";
+                break;
             default:
                 throw new InvalidOperationException("Illegal base64url string!");
         }
@@ -511,15 +528,16 @@ public static class CoreHelpers
     public static string SanitizeForEmail(string value, bool htmlEncode = true)
     {
         var cleanedValue = value.Replace("@", "[at]");
-        var regexOptions = RegexOptions.CultureInvariant |
-            RegexOptions.Singleline |
-            RegexOptions.IgnoreCase;
-        cleanedValue = Regex.Replace(cleanedValue, @"(\.\w)",
-                m => string.Concat("[dot]", m.ToString().Last()), regexOptions);
+        var regexOptions = RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.IgnoreCase;
+        cleanedValue = Regex.Replace(
+            cleanedValue,
+            @"(\.\w)",
+            m => string.Concat("[dot]", m.ToString().Last()),
+            regexOptions
+        );
         while (Regex.IsMatch(cleanedValue, @"((^|\b)(\w*)://)", regexOptions))
         {
-            cleanedValue = Regex.Replace(cleanedValue, @"((^|\b)(\w*)://)",
-                string.Empty, regexOptions);
+            cleanedValue = Regex.Replace(cleanedValue, @"((^|\b)(\w*)://)", string.Empty, regexOptions);
         }
         return htmlEncode ? HttpUtility.HtmlEncode(cleanedValue) : cleanedValue;
     }
@@ -570,24 +588,44 @@ public static class CoreHelpers
     }
 
     // TODO: PM-4142 - remove old token validation logic once 3 releases of backwards compatibility are complete
-    public static bool UserInviteTokenIsValid(IDataProtector protector, string token, string userEmail,
-        Guid orgUserId, IGlobalSettings globalSettings)
+    public static bool UserInviteTokenIsValid(
+        IDataProtector protector,
+        string token,
+        string userEmail,
+        Guid orgUserId,
+        IGlobalSettings globalSettings
+    )
     {
-        return TokenIsValid("OrganizationUserInvite", protector, token, userEmail, orgUserId,
-            globalSettings.OrganizationInviteExpirationHours);
+        return TokenIsValid(
+            "OrganizationUserInvite",
+            protector,
+            token,
+            userEmail,
+            orgUserId,
+            globalSettings.OrganizationInviteExpirationHours
+        );
     }
 
-    public static bool TokenIsValid(string firstTokenPart, IDataProtector protector, string token, string userEmail,
-        Guid id, double expirationInHours)
+    public static bool TokenIsValid(
+        string firstTokenPart,
+        IDataProtector protector,
+        string token,
+        string userEmail,
+        Guid id,
+        double expirationInHours
+    )
     {
         var invalid = true;
         try
         {
             var unprotectedData = protector.Unprotect(token);
             var dataParts = unprotectedData.Split(' ');
-            if (dataParts.Length == 4 && dataParts[0] == firstTokenPart &&
-                new Guid(dataParts[1]) == id &&
-                dataParts[2].Equals(userEmail, StringComparison.InvariantCultureIgnoreCase))
+            if (
+                dataParts.Length == 4
+                && dataParts[0] == firstTokenPart
+                && new Guid(dataParts[1]) == id
+                && dataParts[2].Equals(userEmail, StringComparison.InvariantCultureIgnoreCase)
+            )
             {
                 var creationTime = FromEpocMilliseconds(Convert.ToInt64(dataParts[3]));
                 var expTime = creationTime.AddHours(expirationInHours);
@@ -607,8 +645,9 @@ public static class CoreHelpers
         var subName = globalSettings.ServiceBus.ApplicationCacheSubscriptionName;
         if (string.IsNullOrWhiteSpace(subName))
         {
-            var websiteInstanceId = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") ??
-                                    globalSettings.ServiceBus.WebSiteInstanceId;
+            var websiteInstanceId =
+                Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")
+                ?? globalSettings.ServiceBus.WebSiteInstanceId;
             if (string.IsNullOrWhiteSpace(websiteInstanceId))
             {
                 throw new Exception("No service bus subscription name available.");
@@ -625,8 +664,10 @@ public static class CoreHelpers
         return subName;
     }
 
-    public static string GetIpAddress(this Microsoft.AspNetCore.Http.HttpContext httpContext,
-        GlobalSettings globalSettings)
+    public static string GetIpAddress(
+        this Microsoft.AspNetCore.Http.HttpContext httpContext,
+        GlobalSettings globalSettings
+    )
     {
         if (httpContext == null)
         {
@@ -645,39 +686,52 @@ public static class CoreHelpers
     {
         return
             // Web vault
-            origin == globalSettings.BaseServiceUri.Vault ||
+            origin == globalSettings.BaseServiceUri.Vault
+            ||
             // Safari extension origin
-            origin == "file://" ||
+            origin == "file://"
+            ||
             // Product website
             (!globalSettings.SelfHosted && origin == "https://bitwarden.com");
     }
 
     public static X509Certificate2 GetIdentityServerCertificate(GlobalSettings globalSettings)
     {
-        if (globalSettings.SelfHosted &&
-            SettingHasValue(globalSettings.IdentityServer.CertificatePassword)
-            && File.Exists("identity.pfx"))
+        if (
+            globalSettings.SelfHosted
+            && SettingHasValue(globalSettings.IdentityServer.CertificatePassword)
+            && File.Exists("identity.pfx")
+        )
         {
-            return GetCertificate("identity.pfx",
-                globalSettings.IdentityServer.CertificatePassword);
+            return GetCertificate("identity.pfx", globalSettings.IdentityServer.CertificatePassword);
         }
         else if (SettingHasValue(globalSettings.IdentityServer.CertificateThumbprint))
         {
-            return GetCertificate(
-                globalSettings.IdentityServer.CertificateThumbprint);
+            return GetCertificate(globalSettings.IdentityServer.CertificateThumbprint);
         }
-        else if (!globalSettings.SelfHosted &&
-            SettingHasValue(globalSettings.Storage?.ConnectionString) &&
-            SettingHasValue(globalSettings.IdentityServer.CertificatePassword))
+        else if (
+            !globalSettings.SelfHosted
+            && SettingHasValue(globalSettings.Storage?.ConnectionString)
+            && SettingHasValue(globalSettings.IdentityServer.CertificatePassword)
+        )
         {
-            return GetBlobCertificateAsync(globalSettings.Storage.ConnectionString, "certificates",
-                "identity.pfx", globalSettings.IdentityServer.CertificatePassword).GetAwaiter().GetResult();
+            return GetBlobCertificateAsync(
+                    globalSettings.Storage.ConnectionString,
+                    "certificates",
+                    "identity.pfx",
+                    globalSettings.IdentityServer.CertificatePassword
+                )
+                .GetAwaiter()
+                .GetResult();
         }
         return null;
     }
 
-    public static Dictionary<string, object> AdjustIdentityServerConfig(Dictionary<string, object> configDict,
-        string publicServiceUri, string internalServiceUri)
+    public static Dictionary<string, object> AdjustIdentityServerConfig(
+        Dictionary<string, object> configDict,
+        string publicServiceUri,
+        string internalServiceUri
+    )
     {
         var dictReplace = new Dictionary<string, object>();
         foreach (var item in configDict)
@@ -700,8 +754,12 @@ public static class CoreHelpers
         return configDict;
     }
 
-    public static List<KeyValuePair<string, string>> BuildIdentityClaims(User user, ICollection<CurrentContextOrganization> orgs,
-        ICollection<CurrentContextProvider> providers, bool isPremium)
+    public static List<KeyValuePair<string, string>> BuildIdentityClaims(
+        User user,
+        ICollection<CurrentContextOrganization> orgs,
+        ICollection<CurrentContextProvider> providers,
+        bool isPremium
+    )
     {
         var claims = new List<KeyValuePair<string, string>>()
         {
@@ -726,25 +784,33 @@ public static class CoreHelpers
                     case Enums.OrganizationUserType.Owner:
                         foreach (var org in group)
                         {
-                            claims.Add(new KeyValuePair<string, string>(Claims.OrganizationOwner, org.Id.ToString()));
+                            claims.Add(
+                                new KeyValuePair<string, string>(Claims.OrganizationOwner, org.Id.ToString())
+                            );
                         }
                         break;
                     case Enums.OrganizationUserType.Admin:
                         foreach (var org in group)
                         {
-                            claims.Add(new KeyValuePair<string, string>(Claims.OrganizationAdmin, org.Id.ToString()));
+                            claims.Add(
+                                new KeyValuePair<string, string>(Claims.OrganizationAdmin, org.Id.ToString())
+                            );
                         }
                         break;
                     case Enums.OrganizationUserType.User:
                         foreach (var org in group)
                         {
-                            claims.Add(new KeyValuePair<string, string>(Claims.OrganizationUser, org.Id.ToString()));
+                            claims.Add(
+                                new KeyValuePair<string, string>(Claims.OrganizationUser, org.Id.ToString())
+                            );
                         }
                         break;
                     case Enums.OrganizationUserType.Custom:
                         foreach (var org in group)
                         {
-                            claims.Add(new KeyValuePair<string, string>(Claims.OrganizationCustom, org.Id.ToString()));
+                            claims.Add(
+                                new KeyValuePair<string, string>(Claims.OrganizationCustom, org.Id.ToString())
+                            );
                             foreach (var (permission, claimName) in org.Permissions.ClaimsMap)
                             {
                                 if (!permission)
@@ -765,7 +831,9 @@ public static class CoreHelpers
                 {
                     if (org.AccessSecretsManager)
                     {
-                        claims.Add(new KeyValuePair<string, string>(Claims.SecretsManagerAccess, org.Id.ToString()));
+                        claims.Add(
+                            new KeyValuePair<string, string>(Claims.SecretsManagerAccess, org.Id.ToString())
+                        );
                     }
                 }
             }
@@ -780,13 +848,20 @@ public static class CoreHelpers
                     case ProviderUserType.ProviderAdmin:
                         foreach (var provider in group)
                         {
-                            claims.Add(new KeyValuePair<string, string>(Claims.ProviderAdmin, provider.Id.ToString()));
+                            claims.Add(
+                                new KeyValuePair<string, string>(Claims.ProviderAdmin, provider.Id.ToString())
+                            );
                         }
                         break;
                     case ProviderUserType.ServiceUser:
                         foreach (var provider in group)
                         {
-                            claims.Add(new KeyValuePair<string, string>(Claims.ProviderServiceUser, provider.Id.ToString()));
+                            claims.Add(
+                                new KeyValuePair<string, string>(
+                                    Claims.ProviderServiceUser,
+                                    provider.Id.ToString()
+                                )
+                            );
                         }
                         break;
                 }
@@ -804,7 +879,8 @@ public static class CoreHelpers
     /// <param name="jsonData">The JSON data</param>
     /// <typeparam name="T">The type to deserialize into</typeparam>
     /// <returns></returns>
-    public static T LoadClassFromJsonData<T>(string jsonData) where T : new()
+    public static T LoadClassFromJsonData<T>(string jsonData)
+        where T : new()
     {
         if (string.IsNullOrWhiteSpace(jsonData))
         {
@@ -849,7 +925,9 @@ public static class CoreHelpers
     public static bool FixedTimeEquals(string input1, string input2)
     {
         return CryptographicOperations.FixedTimeEquals(
-            Encoding.UTF8.GetBytes(input1), Encoding.UTF8.GetBytes(input2));
+            Encoding.UTF8.GetBytes(input1),
+            Encoding.UTF8.GetBytes(input2)
+        );
     }
 
     public static string ObfuscateEmail(string email)
@@ -880,10 +958,7 @@ public static class CoreHelpers
             sb.Append('*');
         }
 
-        return sb.Append('@')
-            .Append(emailParts[1])
-            .ToString();
-
+        return sb.Append('@').Append(emailParts[1]).ToString();
     }
 
     public static string GetEmailDomain(string email)

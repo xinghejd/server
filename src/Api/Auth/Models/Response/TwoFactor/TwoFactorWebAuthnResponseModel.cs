@@ -17,8 +17,8 @@ public class TwoFactorWebAuthnResponseModel : ResponseModel
 
         var provider = user.GetTwoFactorProvider(TwoFactorProviderType.WebAuthn);
         Enabled = provider?.Enabled ?? false;
-        Keys = provider?.MetaData?
-            .Where(k => k.Key.StartsWith("Key"))
+        Keys = provider
+            ?.MetaData?.Where(k => k.Key.StartsWith("Key"))
             .Select(k => new KeyModel(k.Key, new TwoFactorProvider.WebAuthnData((dynamic)k.Value)));
     }
 

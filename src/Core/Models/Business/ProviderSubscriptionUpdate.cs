@@ -13,15 +13,13 @@ public class ProviderSubscriptionUpdate : SubscriptionUpdate
 
     protected override List<string> PlanIds => [_planId];
 
-    public ProviderSubscriptionUpdate(
-        PlanType planType,
-        int previouslyPurchasedSeats,
-        int newlyPurchasedSeats)
+    public ProviderSubscriptionUpdate(PlanType planType, int previouslyPurchasedSeats, int newlyPurchasedSeats)
     {
         if (!planType.SupportsConsolidatedBilling())
         {
             throw new BillingException(
-                message: $"Cannot create a {nameof(ProviderSubscriptionUpdate)} for {nameof(PlanType)} that doesn't support consolidated billing");
+                message: $"Cannot create a {nameof(ProviderSubscriptionUpdate)} for {nameof(PlanType)} that doesn't support consolidated billing"
+            );
         }
 
         var plan = Utilities.StaticStore.GetPlan(planType);
@@ -41,8 +39,8 @@ public class ProviderSubscriptionUpdate : SubscriptionUpdate
             {
                 Id = subscriptionItem.Id,
                 Price = _planId,
-                Quantity = _previouslyPurchasedSeats
-            }
+                Quantity = _previouslyPurchasedSeats,
+            },
         ];
     }
 
@@ -56,8 +54,8 @@ public class ProviderSubscriptionUpdate : SubscriptionUpdate
             {
                 Id = subscriptionItem.Id,
                 Price = _planId,
-                Quantity = _newlyPurchasedSeats
-            }
+                Quantity = _newlyPurchasedSeats,
+            },
         ];
     }
 }

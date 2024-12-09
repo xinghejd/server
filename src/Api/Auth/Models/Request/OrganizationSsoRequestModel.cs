@@ -16,8 +16,10 @@ public class OrganizationSsoRequestModel
 {
     [Required]
     public bool Enabled { get; set; }
+
     [StringLength(50)]
     public string Identifier { get; set; }
+
     [Required]
     public SsoConfigurationDataRequest Data { get; set; }
 
@@ -47,7 +49,10 @@ public class SsoConfigurationDataRequest : IValidatableObject
     public bool KeyConnectorEnabled
     {
         // Setter is kept for backwards compatibility with older clients that still use this property.
-        set { MemberDecryptionType = value ? MemberDecryptionType.KeyConnector : MemberDecryptionType.MasterPassword; }
+        set
+        {
+            MemberDecryptionType = value ? MemberDecryptionType.KeyConnector : MemberDecryptionType.MasterPassword;
+        }
     }
     public string KeyConnectorUrl { get; set; }
 
@@ -79,7 +84,13 @@ public class SsoConfigurationDataRequest : IValidatableObject
     public Saml2BindingType IdpBindingType { get; set; }
     public string IdpSingleSignOnServiceUrl { get; set; }
     public string IdpSingleLogoutServiceUrl { get; set; }
-    public string IdpArtifactResolutionServiceUrl { get => null; set { /*IGNORE*/ } }
+    public string IdpArtifactResolutionServiceUrl
+    {
+        get => null;
+        set
+        { /*IGNORE*/
+        }
+    }
     public string IdpX509PublicCert { get; set; }
     public string IdpOutboundSigningAlgorithm { get; set; }
     public bool? IdpAllowUnsolicitedAuthnResponse { get; set; }
@@ -94,46 +105,63 @@ public class SsoConfigurationDataRequest : IValidatableObject
         {
             if (string.IsNullOrWhiteSpace(Authority))
             {
-                yield return new ValidationResult(i18nService.GetLocalizedHtmlString("AuthorityValidationError"),
-                    new[] { nameof(Authority) });
+                yield return new ValidationResult(
+                    i18nService.GetLocalizedHtmlString("AuthorityValidationError"),
+                    new[] { nameof(Authority) }
+                );
             }
 
             if (string.IsNullOrWhiteSpace(ClientId))
             {
-                yield return new ValidationResult(i18nService.GetLocalizedHtmlString("ClientIdValidationError"),
-                    new[] { nameof(ClientId) });
+                yield return new ValidationResult(
+                    i18nService.GetLocalizedHtmlString("ClientIdValidationError"),
+                    new[] { nameof(ClientId) }
+                );
             }
 
             if (string.IsNullOrWhiteSpace(ClientSecret))
             {
-                yield return new ValidationResult(i18nService.GetLocalizedHtmlString("ClientSecretValidationError"),
-                    new[] { nameof(ClientSecret) });
+                yield return new ValidationResult(
+                    i18nService.GetLocalizedHtmlString("ClientSecretValidationError"),
+                    new[] { nameof(ClientSecret) }
+                );
             }
         }
         else if (ConfigType == SsoType.Saml2)
         {
             if (string.IsNullOrWhiteSpace(IdpEntityId))
             {
-                yield return new ValidationResult(i18nService.GetLocalizedHtmlString("IdpEntityIdValidationError"),
-                    new[] { nameof(IdpEntityId) });
+                yield return new ValidationResult(
+                    i18nService.GetLocalizedHtmlString("IdpEntityIdValidationError"),
+                    new[] { nameof(IdpEntityId) }
+                );
             }
 
-            if (!Uri.IsWellFormedUriString(IdpEntityId, UriKind.Absolute) && string.IsNullOrWhiteSpace(IdpSingleSignOnServiceUrl))
+            if (
+                !Uri.IsWellFormedUriString(IdpEntityId, UriKind.Absolute)
+                && string.IsNullOrWhiteSpace(IdpSingleSignOnServiceUrl)
+            )
             {
-                yield return new ValidationResult(i18nService.GetLocalizedHtmlString("IdpSingleSignOnServiceUrlValidationError"),
-                    new[] { nameof(IdpSingleSignOnServiceUrl) });
+                yield return new ValidationResult(
+                    i18nService.GetLocalizedHtmlString("IdpSingleSignOnServiceUrlValidationError"),
+                    new[] { nameof(IdpSingleSignOnServiceUrl) }
+                );
             }
 
             if (InvalidServiceUrl(IdpSingleSignOnServiceUrl))
             {
-                yield return new ValidationResult(i18nService.GetLocalizedHtmlString("IdpSingleSignOnServiceUrlInvalid"),
-                    new[] { nameof(IdpSingleSignOnServiceUrl) });
+                yield return new ValidationResult(
+                    i18nService.GetLocalizedHtmlString("IdpSingleSignOnServiceUrlInvalid"),
+                    new[] { nameof(IdpSingleSignOnServiceUrl) }
+                );
             }
 
             if (InvalidServiceUrl(IdpSingleLogoutServiceUrl))
             {
-                yield return new ValidationResult(i18nService.GetLocalizedHtmlString("IdpSingleLogoutServiceUrlInvalid"),
-                    new[] { nameof(IdpSingleLogoutServiceUrl) });
+                yield return new ValidationResult(
+                    i18nService.GetLocalizedHtmlString("IdpSingleLogoutServiceUrlInvalid"),
+                    new[] { nameof(IdpSingleLogoutServiceUrl) }
+                );
             }
 
             if (!string.IsNullOrWhiteSpace(IdpX509PublicCert))
@@ -147,18 +175,27 @@ public class SsoConfigurationDataRequest : IValidatableObject
                 }
                 catch (FormatException)
                 {
-                    failedResult = new ValidationResult(i18nService.GetLocalizedHtmlString("IdpX509PublicCertInvalidFormatValidationError"),
-                        new[] { nameof(IdpX509PublicCert) });
+                    failedResult = new ValidationResult(
+                        i18nService.GetLocalizedHtmlString("IdpX509PublicCertInvalidFormatValidationError"),
+                        new[] { nameof(IdpX509PublicCert) }
+                    );
                 }
                 catch (CryptographicException cryptoEx)
                 {
-                    failedResult = new ValidationResult(i18nService.GetLocalizedHtmlString("IdpX509PublicCertCryptographicExceptionValidationError", cryptoEx.Message),
-                        new[] { nameof(IdpX509PublicCert) });
+                    failedResult = new ValidationResult(
+                        i18nService.GetLocalizedHtmlString(
+                            "IdpX509PublicCertCryptographicExceptionValidationError",
+                            cryptoEx.Message
+                        ),
+                        new[] { nameof(IdpX509PublicCert) }
+                    );
                 }
                 catch (Exception ex)
                 {
-                    failedResult = new ValidationResult(i18nService.GetLocalizedHtmlString("IdpX509PublicCertValidationError", ex.Message),
-                        new[] { nameof(IdpX509PublicCert) });
+                    failedResult = new ValidationResult(
+                        i18nService.GetLocalizedHtmlString("IdpX509PublicCertValidationError", ex.Message),
+                        new[] { nameof(IdpX509PublicCert) }
+                    );
                 }
                 if (failedResult != null)
                 {
@@ -213,10 +250,12 @@ public class SsoConfigurationDataRequest : IValidatableObject
         {
             return null;
         }
-        return Regex.Replace(certificateText,
+        return Regex.Replace(
+            certificateText,
             @"(((BEGIN|END) CERTIFICATE)|([\-\n\r\t\s\f]))",
             string.Empty,
-            RegexOptions.Multiline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            RegexOptions.Multiline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant
+        );
     }
 
     private bool InvalidServiceUrl(string url)

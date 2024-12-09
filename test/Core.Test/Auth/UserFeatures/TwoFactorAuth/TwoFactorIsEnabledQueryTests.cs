@@ -24,13 +24,17 @@ public class TwoFactorIsEnabledQueryTests
     public async Task TwoFactorIsEnabledQuery_WithProviderTypeNotRequiringPremium_ReturnsAllTwoFactorEnabled(
         TwoFactorProviderType freeProviderType,
         SutProvider<TwoFactorIsEnabledQuery> sutProvider,
-        List<UserWithCalculatedPremium> usersWithCalculatedPremium)
+        List<UserWithCalculatedPremium> usersWithCalculatedPremium
+    )
     {
         // Arrange
         var userIds = usersWithCalculatedPremium.Select(u => u.Id).ToList();
         var twoFactorProviders = new Dictionary<TwoFactorProviderType, TwoFactorProvider>
         {
-            { freeProviderType, new TwoFactorProvider { Enabled = true } } // Does not require premium
+            {
+                freeProviderType,
+                new TwoFactorProvider { Enabled = true }
+            }, // Does not require premium
         };
 
         foreach (var user in usersWithCalculatedPremium)
@@ -39,7 +43,8 @@ public class TwoFactorIsEnabledQueryTests
             user.SetTwoFactorProviders(twoFactorProviders);
         }
 
-        sutProvider.GetDependency<IUserRepository>()
+        sutProvider
+            .GetDependency<IUserRepository>()
             .GetManyWithCalculatedPremiumAsync(Arg.Is<IEnumerable<Guid>>(i => i.All(userIds.Contains)))
             .Returns(usersWithCalculatedPremium);
 
@@ -57,13 +62,17 @@ public class TwoFactorIsEnabledQueryTests
     [BitAutoData]
     public async Task TwoFactorIsEnabledQuery_WithNoTwoFactorEnabled_ReturnsAllTwoFactorDisabled(
         SutProvider<TwoFactorIsEnabledQuery> sutProvider,
-        List<UserWithCalculatedPremium> usersWithCalculatedPremium)
+        List<UserWithCalculatedPremium> usersWithCalculatedPremium
+    )
     {
         // Arrange
         var userIds = usersWithCalculatedPremium.Select(u => u.Id).ToList();
         var twoFactorProviders = new Dictionary<TwoFactorProviderType, TwoFactorProvider>
         {
-            { TwoFactorProviderType.Email, new TwoFactorProvider { Enabled = false } }
+            {
+                TwoFactorProviderType.Email,
+                new TwoFactorProvider { Enabled = false }
+            },
         };
 
         foreach (var user in usersWithCalculatedPremium)
@@ -71,7 +80,8 @@ public class TwoFactorIsEnabledQueryTests
             user.SetTwoFactorProviders(twoFactorProviders);
         }
 
-        sutProvider.GetDependency<IUserRepository>()
+        sutProvider
+            .GetDependency<IUserRepository>()
             .GetManyWithCalculatedPremiumAsync(Arg.Is<IEnumerable<Guid>>(i => i.All(userIds.Contains)))
             .Returns(usersWithCalculatedPremium);
 
@@ -91,14 +101,21 @@ public class TwoFactorIsEnabledQueryTests
     public async Task TwoFactorIsEnabledQuery_WithProviderTypeRequiringPremium_ReturnsMixedResults(
         TwoFactorProviderType premiumProviderType,
         SutProvider<TwoFactorIsEnabledQuery> sutProvider,
-        List<UserWithCalculatedPremium> usersWithCalculatedPremium)
+        List<UserWithCalculatedPremium> usersWithCalculatedPremium
+    )
     {
         // Arrange
         var userIds = usersWithCalculatedPremium.Select(u => u.Id).ToList();
         var twoFactorProviders = new Dictionary<TwoFactorProviderType, TwoFactorProvider>
         {
-            { TwoFactorProviderType.Email, new TwoFactorProvider { Enabled = false } },
-            { premiumProviderType, new TwoFactorProvider { Enabled = true } }
+            {
+                TwoFactorProviderType.Email,
+                new TwoFactorProvider { Enabled = false }
+            },
+            {
+                premiumProviderType,
+                new TwoFactorProvider { Enabled = true }
+            },
         };
 
         foreach (var user in usersWithCalculatedPremium)
@@ -107,7 +124,8 @@ public class TwoFactorIsEnabledQueryTests
             user.SetTwoFactorProviders(twoFactorProviders);
         }
 
-        sutProvider.GetDependency<IUserRepository>()
+        sutProvider
+            .GetDependency<IUserRepository>()
             .GetManyWithCalculatedPremiumAsync(Arg.Is<IEnumerable<Guid>>(i => i.All(userIds.Contains)))
             .Returns(usersWithCalculatedPremium);
 
@@ -117,7 +135,10 @@ public class TwoFactorIsEnabledQueryTests
         // Assert
         foreach (var userDetail in usersWithCalculatedPremium)
         {
-            Assert.Contains(result, res => res.userId == userDetail.Id && res.twoFactorIsEnabled == userDetail.HasPremiumAccess);
+            Assert.Contains(
+                result,
+                res => res.userId == userDetail.Id && res.twoFactorIsEnabled == userDetail.HasPremiumAccess
+            );
         }
     }
 
@@ -125,7 +146,8 @@ public class TwoFactorIsEnabledQueryTests
     [BitAutoData]
     public async Task TwoFactorIsEnabledQuery_WithNullTwoFactorProviders_ReturnsAllTwoFactorDisabled(
         SutProvider<TwoFactorIsEnabledQuery> sutProvider,
-        List<UserWithCalculatedPremium> usersWithCalculatedPremium)
+        List<UserWithCalculatedPremium> usersWithCalculatedPremium
+    )
     {
         // Arrange
         var userIds = usersWithCalculatedPremium.Select(u => u.Id).ToList();
@@ -135,7 +157,8 @@ public class TwoFactorIsEnabledQueryTests
             user.TwoFactorProviders = null; // No two-factor providers configured
         }
 
-        sutProvider.GetDependency<IUserRepository>()
+        sutProvider
+            .GetDependency<IUserRepository>()
             .GetManyWithCalculatedPremiumAsync(Arg.Is<IEnumerable<Guid>>(i => i.All(userIds.Contains)))
             .Returns(usersWithCalculatedPremium);
 
@@ -153,7 +176,8 @@ public class TwoFactorIsEnabledQueryTests
     [BitAutoData]
     public async Task TwoFactorIsEnabledQuery_WithNoUserIds_ReturnsAllTwoFactorDisabled(
         SutProvider<TwoFactorIsEnabledQuery> sutProvider,
-        List<OrganizationUserUserDetails> users)
+        List<OrganizationUserUserDetails> users
+    )
     {
         // Arrange
         foreach (var user in users)
@@ -171,7 +195,8 @@ public class TwoFactorIsEnabledQueryTests
         }
 
         // No UserIds were supplied so no calls to the UserRepository should have been made
-        await sutProvider.GetDependency<IUserRepository>()
+        await sutProvider
+            .GetDependency<IUserRepository>()
             .DidNotReceiveWithAnyArgs()
             .GetManyWithCalculatedPremiumAsync(default);
     }
@@ -185,17 +210,20 @@ public class TwoFactorIsEnabledQueryTests
     public async Task TwoFactorIsEnabledQuery_WithProviderTypeNotRequiringPremium_ReturnsTrue(
         TwoFactorProviderType freeProviderType,
         SutProvider<TwoFactorIsEnabledQuery> sutProvider,
-        User user)
+        User user
+    )
     {
         // Arrange
         var twoFactorProviders = new Dictionary<TwoFactorProviderType, TwoFactorProvider>
         {
-            { freeProviderType, new TwoFactorProvider { Enabled = true } }
+            {
+                freeProviderType,
+                new TwoFactorProvider { Enabled = true }
+            },
         };
 
         user.Premium = false;
         user.SetTwoFactorProviders(twoFactorProviders);
-
 
         // Act
         var result = await sutProvider.Sut.TwoFactorIsEnabledAsync(user);
@@ -203,7 +231,8 @@ public class TwoFactorIsEnabledQueryTests
         // Assert
         Assert.True(result);
 
-        await sutProvider.GetDependency<IUserRepository>()
+        await sutProvider
+            .GetDependency<IUserRepository>()
             .DidNotReceiveWithAnyArgs()
             .GetManyWithCalculatedPremiumAsync(default);
     }
@@ -212,12 +241,16 @@ public class TwoFactorIsEnabledQueryTests
     [BitAutoData]
     public async Task TwoFactorIsEnabledQuery_WithNoTwoFactorEnabled_ReturnsFalse(
         SutProvider<TwoFactorIsEnabledQuery> sutProvider,
-        User user)
+        User user
+    )
     {
         // Arrange
         var twoFactorProviders = new Dictionary<TwoFactorProviderType, TwoFactorProvider>
         {
-            { TwoFactorProviderType.Email, new TwoFactorProvider { Enabled = false } }
+            {
+                TwoFactorProviderType.Email,
+                new TwoFactorProvider { Enabled = false }
+            },
         };
 
         user.SetTwoFactorProviders(twoFactorProviders);
@@ -228,7 +261,8 @@ public class TwoFactorIsEnabledQueryTests
         // Assert
         Assert.False(result);
 
-        await sutProvider.GetDependency<IUserRepository>()
+        await sutProvider
+            .GetDependency<IUserRepository>()
             .DidNotReceiveWithAnyArgs()
             .GetManyWithCalculatedPremiumAsync(default);
     }
@@ -239,19 +273,24 @@ public class TwoFactorIsEnabledQueryTests
     public async Task TwoFactorIsEnabledQuery_WithProviderTypeRequiringPremium_WithoutPremium_ReturnsFalse(
         TwoFactorProviderType premiumProviderType,
         SutProvider<TwoFactorIsEnabledQuery> sutProvider,
-        UserWithCalculatedPremium user)
+        UserWithCalculatedPremium user
+    )
     {
         // Arrange
         var twoFactorProviders = new Dictionary<TwoFactorProviderType, TwoFactorProvider>
         {
-            { premiumProviderType, new TwoFactorProvider { Enabled = true } }
+            {
+                premiumProviderType,
+                new TwoFactorProvider { Enabled = true }
+            },
         };
 
         user.Premium = false;
         user.HasPremiumAccess = false;
         user.SetTwoFactorProviders(twoFactorProviders);
 
-        sutProvider.GetDependency<IUserRepository>()
+        sutProvider
+            .GetDependency<IUserRepository>()
             .GetManyWithCalculatedPremiumAsync(Arg.Is<IEnumerable<Guid>>(i => i.Contains(user.Id)))
             .Returns(new List<UserWithCalculatedPremium> { user });
 
@@ -268,12 +307,16 @@ public class TwoFactorIsEnabledQueryTests
     public async Task TwoFactorIsEnabledQuery_WithProviderTypeRequiringPremium_WithUserPremium_ReturnsTrue(
         TwoFactorProviderType premiumProviderType,
         SutProvider<TwoFactorIsEnabledQuery> sutProvider,
-        User user)
+        User user
+    )
     {
         // Arrange
         var twoFactorProviders = new Dictionary<TwoFactorProviderType, TwoFactorProvider>
         {
-            { premiumProviderType, new TwoFactorProvider { Enabled = true } }
+            {
+                premiumProviderType,
+                new TwoFactorProvider { Enabled = true }
+            },
         };
 
         user.Premium = true;
@@ -285,7 +328,8 @@ public class TwoFactorIsEnabledQueryTests
         // Assert
         Assert.True(result);
 
-        await sutProvider.GetDependency<IUserRepository>()
+        await sutProvider
+            .GetDependency<IUserRepository>()
             .DidNotReceiveWithAnyArgs()
             .GetManyWithCalculatedPremiumAsync(default);
     }
@@ -296,19 +340,24 @@ public class TwoFactorIsEnabledQueryTests
     public async Task TwoFactorIsEnabledQuery_WithProviderTypeRequiringPremium_WithOrgPremium_ReturnsTrue(
         TwoFactorProviderType premiumProviderType,
         SutProvider<TwoFactorIsEnabledQuery> sutProvider,
-        UserWithCalculatedPremium user)
+        UserWithCalculatedPremium user
+    )
     {
         // Arrange
         var twoFactorProviders = new Dictionary<TwoFactorProviderType, TwoFactorProvider>
         {
-            { premiumProviderType, new TwoFactorProvider { Enabled = true } }
+            {
+                premiumProviderType,
+                new TwoFactorProvider { Enabled = true }
+            },
         };
 
         user.Premium = false;
         user.HasPremiumAccess = true;
         user.SetTwoFactorProviders(twoFactorProviders);
 
-        sutProvider.GetDependency<IUserRepository>()
+        sutProvider
+            .GetDependency<IUserRepository>()
             .GetManyWithCalculatedPremiumAsync(Arg.Is<IEnumerable<Guid>>(i => i.Contains(user.Id)))
             .Returns(new List<UserWithCalculatedPremium> { user });
 
@@ -323,7 +372,8 @@ public class TwoFactorIsEnabledQueryTests
     [BitAutoData]
     public async Task TwoFactorIsEnabledQuery_WithNullTwoFactorProviders_ReturnsFalse(
         SutProvider<TwoFactorIsEnabledQuery> sutProvider,
-        User user)
+        User user
+    )
     {
         // Arrange
         user.TwoFactorProviders = null; // No two-factor providers configured

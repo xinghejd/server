@@ -8,7 +8,8 @@ public class ServiceAccountResponseModel : ResponseModel
 {
     private const string _objectName = "serviceAccount";
 
-    public ServiceAccountResponseModel(ServiceAccount serviceAccount) : base(_objectName)
+    public ServiceAccountResponseModel(ServiceAccount serviceAccount)
+        : base(_objectName)
     {
         if (serviceAccount == null)
         {
@@ -22,9 +23,8 @@ public class ServiceAccountResponseModel : ResponseModel
         RevisionDate = serviceAccount.RevisionDate;
     }
 
-    public ServiceAccountResponseModel() : base(_objectName)
-    {
-    }
+    public ServiceAccountResponseModel()
+        : base(_objectName) { }
 
     public Guid Id { get; set; }
 
@@ -39,7 +39,8 @@ public class ServiceAccountResponseModel : ResponseModel
 
 public class ServiceAccountSecretsDetailsResponseModel : ServiceAccountResponseModel
 {
-    public ServiceAccountSecretsDetailsResponseModel(ServiceAccountSecretsDetails serviceAccountDetails) : base(serviceAccountDetails.ServiceAccount)
+    public ServiceAccountSecretsDetailsResponseModel(ServiceAccountSecretsDetails serviceAccountDetails)
+        : base(serviceAccountDetails.ServiceAccount)
     {
         if (serviceAccountDetails == null)
         {
@@ -49,9 +50,8 @@ public class ServiceAccountSecretsDetailsResponseModel : ServiceAccountResponseM
         AccessToSecrets = serviceAccountDetails.AccessToSecrets;
     }
 
-    public ServiceAccountSecretsDetailsResponseModel() : base(new ServiceAccount())
-    {
-    }
+    public ServiceAccountSecretsDetailsResponseModel()
+        : base(new ServiceAccount()) { }
 
     public int AccessToSecrets { get; set; }
 }

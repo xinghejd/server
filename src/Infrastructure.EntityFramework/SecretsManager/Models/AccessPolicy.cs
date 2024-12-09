@@ -45,21 +45,25 @@ public class AccessPolicyMapperProfile : Profile
             .ForMember(dst => dst.Group, opt => opt.Ignore())
             .ReverseMap();
 
-        CreateMap<Core.SecretsManager.Entities.ServiceAccountProjectAccessPolicy, ServiceAccountProjectAccessPolicy>()
+        CreateMap<
+            Core.SecretsManager.Entities.ServiceAccountProjectAccessPolicy,
+            ServiceAccountProjectAccessPolicy
+        >()
             .ForMember(dst => dst.GrantedProject, opt => opt.Ignore())
             .ForMember(dst => dst.ServiceAccount, opt => opt.Ignore())
             .ReverseMap();
 
-        CreateMap<Core.SecretsManager.Entities.ServiceAccountSecretAccessPolicy, ServiceAccountSecretAccessPolicy>()
+        CreateMap<
+            Core.SecretsManager.Entities.ServiceAccountSecretAccessPolicy,
+            ServiceAccountSecretAccessPolicy
+        >()
             .ForMember(dst => dst.GrantedSecret, opt => opt.Ignore())
             .ForMember(dst => dst.ServiceAccount, opt => opt.Ignore())
             .ReverseMap();
     }
 }
 
-public class AccessPolicy : BaseAccessPolicy
-{
-}
+public class AccessPolicy : BaseAccessPolicy { }
 
 public class UserProjectAccessPolicy : AccessPolicy
 {
@@ -124,4 +128,3 @@ public class ServiceAccountSecretAccessPolicy : AccessPolicy
     public Guid? GrantedSecretId { get; set; }
     public virtual Secret GrantedSecret { get; set; }
 }
-

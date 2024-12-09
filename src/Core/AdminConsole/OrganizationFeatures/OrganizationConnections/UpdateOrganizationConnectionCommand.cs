@@ -16,7 +16,8 @@ public class UpdateOrganizationConnectionCommand : IUpdateOrganizationConnection
         _organizationConnectionRepository = organizationConnectionRepository;
     }
 
-    public async Task<OrganizationConnection> UpdateAsync<T>(OrganizationConnectionData<T> connectionData) where T : IConnectionConfig
+    public async Task<OrganizationConnection> UpdateAsync<T>(OrganizationConnectionData<T> connectionData)
+        where T : IConnectionConfig
     {
         if (!connectionData.Id.HasValue)
         {

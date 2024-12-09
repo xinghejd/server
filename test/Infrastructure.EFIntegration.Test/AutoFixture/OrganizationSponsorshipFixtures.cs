@@ -43,13 +43,15 @@ internal class EfOrganizationSponsorship : ICustomization
 
 internal class EfOrganizationSponsorshipAutoDataAttribute : CustomAutoDataAttribute
 {
-    public EfOrganizationSponsorshipAutoDataAttribute() : base(new SutProviderCustomization(), new EfOrganizationSponsorship(), new EfOrganization())
-    { }
+    public EfOrganizationSponsorshipAutoDataAttribute()
+        : base(new SutProviderCustomization(), new EfOrganizationSponsorship(), new EfOrganization()) { }
 }
 
 internal class InlineEfOrganizationSponsorshipAutoDataAttribute : InlineCustomAutoDataAttribute
 {
-    public InlineEfOrganizationSponsorshipAutoDataAttribute(params object[] values) : base(new[] { typeof(SutProviderCustomization),
-        typeof(EfOrganizationSponsorship), typeof(EfOrganization) }, values)
-    { }
+    public InlineEfOrganizationSponsorshipAutoDataAttribute(params object[] values)
+        : base(
+            new[] { typeof(SutProviderCustomization), typeof(EfOrganizationSponsorship), typeof(EfOrganization) },
+            values
+        ) { }
 }

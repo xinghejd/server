@@ -6,31 +6,34 @@ namespace Bit.Core.Test.AutoFixture.CipherAttachmentMetaData;
 
 public class MetaData : ICustomization
 {
-    protected virtual IPostprocessComposer<CipherAttachment.MetaData> ComposerAction(IFixture fixture,
-        ICustomizationComposer<CipherAttachment.MetaData> composer)
+    protected virtual IPostprocessComposer<CipherAttachment.MetaData> ComposerAction(
+        IFixture fixture,
+        ICustomizationComposer<CipherAttachment.MetaData> composer
+    )
     {
         return composer.With(d => d.Size, fixture.Create<long>());
     }
+
     public void Customize(IFixture fixture)
     {
         fixture.Customize<CipherAttachment.MetaData>(composer => ComposerAction(fixture, composer));
-        fixture.Behaviors.OfType<ThrowingRecursionBehavior>()
-            .ToList()
-            .ForEach(b => fixture.Behaviors.Remove(b));
+        fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
         fixture.Behaviors.Add(new OmitOnRecursionBehavior(1));
     }
 }
 
 public class MetaDataWithoutContainer : MetaData
 {
-    protected override IPostprocessComposer<CipherAttachment.MetaData> ComposerAction(IFixture fixture,
-        ICustomizationComposer<CipherAttachment.MetaData> composer) =>
-        base.ComposerAction(fixture, composer).With(d => d.ContainerName, (string)null);
+    protected override IPostprocessComposer<CipherAttachment.MetaData> ComposerAction(
+        IFixture fixture,
+        ICustomizationComposer<CipherAttachment.MetaData> composer
+    ) => base.ComposerAction(fixture, composer).With(d => d.ContainerName, (string)null);
 }
 
 public class MetaDataWithoutKey : MetaDataWithoutContainer
 {
-    protected override IPostprocessComposer<CipherAttachment.MetaData> ComposerAction(IFixture fixture,
-        ICustomizationComposer<CipherAttachment.MetaData> composer) =>
-        base.ComposerAction(fixture, composer).Without(d => d.Key);
+    protected override IPostprocessComposer<CipherAttachment.MetaData> ComposerAction(
+        IFixture fixture,
+        ICustomizationComposer<CipherAttachment.MetaData> composer
+    ) => base.ComposerAction(fixture, composer).Without(d => d.Key);
 }

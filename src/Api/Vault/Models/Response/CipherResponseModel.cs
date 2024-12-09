@@ -10,7 +10,12 @@ namespace Bit.Api.Vault.Models.Response;
 
 public class CipherMiniResponseModel : ResponseModel
 {
-    public CipherMiniResponseModel(Cipher cipher, IGlobalSettings globalSettings, bool orgUseTotp, string obj = "cipherMini")
+    public CipherMiniResponseModel(
+        Cipher cipher,
+        IGlobalSettings globalSettings,
+        bool orgUseTotp,
+        string obj = "cipherMini"
+    )
         : base(obj)
     {
         if (cipher == null)
@@ -113,8 +118,12 @@ public class CipherResponseModel : CipherMiniResponseModel
 
 public class CipherDetailsResponseModel : CipherResponseModel
 {
-    public CipherDetailsResponseModel(CipherDetails cipher, GlobalSettings globalSettings,
-        IDictionary<Guid, IGrouping<Guid, CollectionCipher>> collectionCiphers, string obj = "cipherDetails")
+    public CipherDetailsResponseModel(
+        CipherDetails cipher,
+        GlobalSettings globalSettings,
+        IDictionary<Guid, IGrouping<Guid, CollectionCipher>> collectionCiphers,
+        string obj = "cipherDetails"
+    )
         : base(cipher, globalSettings, obj)
     {
         if (collectionCiphers?.ContainsKey(cipher.Id) ?? false)
@@ -127,14 +136,22 @@ public class CipherDetailsResponseModel : CipherResponseModel
         }
     }
 
-    public CipherDetailsResponseModel(CipherDetails cipher, GlobalSettings globalSettings,
-        IEnumerable<CollectionCipher> collectionCiphers, string obj = "cipherDetails")
+    public CipherDetailsResponseModel(
+        CipherDetails cipher,
+        GlobalSettings globalSettings,
+        IEnumerable<CollectionCipher> collectionCiphers,
+        string obj = "cipherDetails"
+    )
         : base(cipher, globalSettings, obj)
     {
         CollectionIds = collectionCiphers?.Select(c => c.CollectionId) ?? new List<Guid>();
     }
 
-    public CipherDetailsResponseModel(CipherDetailsWithCollections cipher, GlobalSettings globalSettings, string obj = "cipherDetails")
+    public CipherDetailsResponseModel(
+        CipherDetailsWithCollections cipher,
+        GlobalSettings globalSettings,
+        string obj = "cipherDetails"
+    )
         : base(cipher, globalSettings, obj)
     {
         CollectionIds = cipher.CollectionIds ?? new List<Guid>();
@@ -145,8 +162,13 @@ public class CipherDetailsResponseModel : CipherResponseModel
 
 public class CipherMiniDetailsResponseModel : CipherMiniResponseModel
 {
-    public CipherMiniDetailsResponseModel(Cipher cipher, GlobalSettings globalSettings,
-        IDictionary<Guid, IGrouping<Guid, CollectionCipher>> collectionCiphers, bool orgUseTotp, string obj = "cipherMiniDetails")
+    public CipherMiniDetailsResponseModel(
+        Cipher cipher,
+        GlobalSettings globalSettings,
+        IDictionary<Guid, IGrouping<Guid, CollectionCipher>> collectionCiphers,
+        bool orgUseTotp,
+        string obj = "cipherMiniDetails"
+    )
         : base(cipher, globalSettings, orgUseTotp, obj)
     {
         if (collectionCiphers?.ContainsKey(cipher.Id) ?? false)
@@ -159,15 +181,22 @@ public class CipherMiniDetailsResponseModel : CipherMiniResponseModel
         }
     }
 
-    public CipherMiniDetailsResponseModel(CipherOrganizationDetailsWithCollections cipher,
-        GlobalSettings globalSettings, bool orgUseTotp, string obj = "cipherMiniDetails")
+    public CipherMiniDetailsResponseModel(
+        CipherOrganizationDetailsWithCollections cipher,
+        GlobalSettings globalSettings,
+        bool orgUseTotp,
+        string obj = "cipherMiniDetails"
+    )
         : base(cipher, globalSettings, orgUseTotp, obj)
     {
         CollectionIds = cipher.CollectionIds ?? new List<Guid>();
     }
 
-    public CipherMiniDetailsResponseModel(CipherOrganizationDetailsWithCollections cipher,
-        GlobalSettings globalSettings, string obj = "cipherMiniDetails")
+    public CipherMiniDetailsResponseModel(
+        CipherOrganizationDetailsWithCollections cipher,
+        GlobalSettings globalSettings,
+        string obj = "cipherMiniDetails"
+    )
         : base(cipher, globalSettings, cipher.OrganizationUseTotp, obj)
     {
         CollectionIds = cipher.CollectionIds ?? new List<Guid>();

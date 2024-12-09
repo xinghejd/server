@@ -26,7 +26,8 @@ public class GroupsController : Controller
         IOrganizationRepository organizationRepository,
         ICurrentContext currentContext,
         ICreateGroupCommand createGroupCommand,
-        IUpdateGroupCommand updateGroupCommand)
+        IUpdateGroupCommand updateGroupCommand
+    )
     {
         _groupRepository = groupRepository;
         _organizationRepository = organizationRepository;
@@ -91,7 +92,9 @@ public class GroupsController : Controller
     [ProducesResponseType(typeof(ListResponseModel<GroupResponseModel>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> List()
     {
-        var groups = await _groupRepository.GetManyWithCollectionsByOrganizationIdAsync(_currentContext.OrganizationId.Value);
+        var groups = await _groupRepository.GetManyWithCollectionsByOrganizationIdAsync(
+            _currentContext.OrganizationId.Value
+        );
         var groupResponses = groups.Select(g => new GroupResponseModel(g.Item1, g.Item2));
         var response = new ListResponseModel<GroupResponseModel>(groupResponses);
         return new JsonResult(response);

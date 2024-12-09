@@ -21,20 +21,14 @@ public class PayPalIPNClientTests
 
     public PayPalIPNClientTests()
     {
-        var httpClient = new HttpClient(_mockHttpMessageHandler)
-        {
-            BaseAddress = _endpoint
-        };
+        var httpClient = new HttpClient(_mockHttpMessageHandler) { BaseAddress = _endpoint };
 
-        _payPalIPNClient = new PayPalIPNClient(
-            _billingSettings,
-            httpClient,
-            _logger);
+        _payPalIPNClient = new PayPalIPNClient(_billingSettings, httpClient, _logger);
     }
 
     [Fact]
-    public async Task VerifyIPN_FormDataNull_ThrowsArgumentNullException()
-        => await Assert.ThrowsAsync<ArgumentNullException>(() => _payPalIPNClient.VerifyIPN(string.Empty, null));
+    public async Task VerifyIPN_FormDataNull_ThrowsArgumentNullException() =>
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _payPalIPNClient.VerifyIPN(string.Empty, null));
 
     [Fact]
     public async Task VerifyIPN_Unauthorized_ReturnsFalse()

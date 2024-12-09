@@ -13,12 +13,10 @@ namespace Bit.Infrastructure.Dapper.Auth.Repositories;
 public class SsoUserRepository : Repository<SsoUser, long>, ISsoUserRepository
 {
     public SsoUserRepository(GlobalSettings globalSettings)
-        : this(globalSettings.SqlServer.ConnectionString, globalSettings.SqlServer.ReadOnlyConnectionString)
-    { }
+        : this(globalSettings.SqlServer.ConnectionString, globalSettings.SqlServer.ReadOnlyConnectionString) { }
 
     public SsoUserRepository(string connectionString, string readOnlyConnectionString)
-        : base(connectionString, readOnlyConnectionString)
-    { }
+        : base(connectionString, readOnlyConnectionString) { }
 
     public async Task DeleteAsync(Guid userId, Guid? organizationId)
     {
@@ -27,7 +25,8 @@ public class SsoUserRepository : Repository<SsoUser, long>, ISsoUserRepository
             var results = await connection.ExecuteAsync(
                 $"[{Schema}].[SsoUser_Delete]",
                 new { UserId = userId, OrganizationId = organizationId },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
         }
     }
 
@@ -38,7 +37,8 @@ public class SsoUserRepository : Repository<SsoUser, long>, ISsoUserRepository
             var results = await connection.QueryAsync<SsoUser>(
                 $"[{Schema}].[SsoUser_ReadByUserIdOrganizationId]",
                 new { UserId = userId, OrganizationId = organizationId },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.SingleOrDefault();
         }

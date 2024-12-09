@@ -32,7 +32,8 @@ public class UsersController : Controller
         IRemoveOrganizationUserCommand removeOrganizationUserCommand,
         IPatchUserCommand patchUserCommand,
         IPostUserCommand postUserCommand,
-        ILogger<UsersController> logger)
+        ILogger<UsersController> logger
+    )
     {
         _organizationUserRepository = organizationUserRepository;
         _organizationService = organizationService;
@@ -55,9 +56,7 @@ public class UsersController : Controller
     }
 
     [HttpGet("")]
-    public async Task<IActionResult> Get(
-        Guid organizationId,
-        [FromQuery] GetUsersQueryParamModel model)
+    public async Task<IActionResult> Get(Guid organizationId, [FromQuery] GetUsersQueryParamModel model)
     {
         var usersListQueryResult = await _getUsersListQuery.GetUsersListAsync(organizationId, model);
         var scimListResponseModel = new ScimListResponseModel<ScimUserResponseModel>
@@ -75,7 +74,10 @@ public class UsersController : Controller
     {
         var orgUser = await _postUserCommand.PostUserAsync(organizationId, model);
         var scimUserResponseModel = new ScimUserResponseModel(orgUser);
-        return new CreatedResult(Url.Action(nameof(Get), new { orgUser.OrganizationId, orgUser.Id }), scimUserResponseModel);
+        return new CreatedResult(
+            Url.Action(nameof(Get), new { orgUser.OrganizationId, orgUser.Id }),
+            scimUserResponseModel
+        );
     }
 
     [HttpPut("{id}")]
@@ -84,11 +86,9 @@ public class UsersController : Controller
         var orgUser = await _organizationUserRepository.GetByIdAsync(id);
         if (orgUser == null || orgUser.OrganizationId != organizationId)
         {
-            return new NotFoundObjectResult(new ScimErrorResponseModel
-            {
-                Status = 404,
-                Detail = "User not found."
-            });
+            return new NotFoundObjectResult(
+                new ScimErrorResponseModel { Status = 404, Detail = "User not found." }
+            );
         }
 
         if (model.Active && orgUser.Status == OrganizationUserStatusType.Revoked)

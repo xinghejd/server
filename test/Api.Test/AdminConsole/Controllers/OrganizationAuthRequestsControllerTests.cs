@@ -12,7 +12,6 @@ namespace Bit.Api.Test.AdminConsole.Controllers;
 [SutProviderCustomize]
 public class OrganizationAuthRequestsControllerTests
 {
-
     [Theory]
     [BitAutoData]
     public async Task ValidateAdminRequest_UserDoesNotHaveManageResetPasswordPermissions_ThrowsUnauthorized(
@@ -22,8 +21,9 @@ public class OrganizationAuthRequestsControllerTests
     {
         sutProvider.GetDependency<ICurrentContext>().ManageResetPassword(organizationId).Returns(false);
 
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
-            sutProvider.Sut.ValidateAdminRequest(organizationId));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(
+            () => sutProvider.Sut.ValidateAdminRequest(organizationId)
+        );
     }
 
     [Theory]
@@ -58,7 +58,8 @@ public class OrganizationAuthRequestsControllerTests
     )
     {
         sutProvider.GetDependency<ICurrentContext>().ManageResetPassword(organizationId).Returns(false);
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
-            sutProvider.Sut.UpdateManyAuthRequests(organizationId, request));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(
+            () => sutProvider.Sut.UpdateManyAuthRequests(organizationId, request)
+        );
     }
 }

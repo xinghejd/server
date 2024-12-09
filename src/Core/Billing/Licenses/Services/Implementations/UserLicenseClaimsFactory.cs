@@ -12,10 +12,12 @@ public class UserLicenseClaimsFactory : ILicenseClaimsFactory<User>
     {
         var subscriptionInfo = licenseContext.SubscriptionInfo;
 
-        var expires = subscriptionInfo.UpcomingInvoice?.Date?.AddDays(7) ?? entity.PremiumExpirationDate?.AddDays(7);
+        var expires =
+            subscriptionInfo.UpcomingInvoice?.Date?.AddDays(7) ?? entity.PremiumExpirationDate?.AddDays(7);
         var refresh = subscriptionInfo.UpcomingInvoice?.Date ?? entity.PremiumExpirationDate;
-        var trial = (subscriptionInfo.Subscription?.TrialEndDate.HasValue ?? false) &&
-                    subscriptionInfo.Subscription.TrialEndDate.Value > DateTime.UtcNow;
+        var trial =
+            (subscriptionInfo.Subscription?.TrialEndDate.HasValue ?? false)
+            && subscriptionInfo.Subscription.TrialEndDate.Value > DateTime.UtcNow;
 
         var claims = new List<Claim>
         {

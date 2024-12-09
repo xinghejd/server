@@ -19,7 +19,8 @@ public class NotificationsApiPushNotificationService : BaseIdentityClientService
         IHttpClientFactory httpFactory,
         GlobalSettings globalSettings,
         IHttpContextAccessor httpContextAccessor,
-        ILogger<NotificationsApiPushNotificationService> logger)
+        ILogger<NotificationsApiPushNotificationService> logger
+    )
         : base(
             httpFactory,
             globalSettings.BaseServiceUri.InternalNotifications,
@@ -27,7 +28,8 @@ public class NotificationsApiPushNotificationService : BaseIdentityClientService
             "internal",
             $"internal.{globalSettings.ProjectName}",
             globalSettings.InternalIdentityKey,
-            logger)
+            logger
+        )
     {
         _globalSettings = globalSettings;
         _httpContextAccessor = httpContextAccessor;
@@ -97,7 +99,7 @@ public class NotificationsApiPushNotificationService : BaseIdentityClientService
         {
             Id = folder.Id,
             UserId = folder.UserId,
-            RevisionDate = folder.RevisionDate
+            RevisionDate = folder.RevisionDate,
         };
 
         await SendMessageAsync(type, message, true);
@@ -135,11 +137,7 @@ public class NotificationsApiPushNotificationService : BaseIdentityClientService
 
     private async Task PushUserAsync(Guid userId, PushType type, bool excludeCurrentContext = false)
     {
-        var message = new UserPushNotification
-        {
-            UserId = userId,
-            Date = DateTime.UtcNow
-        };
+        var message = new UserPushNotification { UserId = userId, Date = DateTime.UtcNow };
 
         await SendMessageAsync(type, message, excludeCurrentContext);
     }
@@ -156,11 +154,7 @@ public class NotificationsApiPushNotificationService : BaseIdentityClientService
 
     private async Task PushAuthRequestAsync(AuthRequest authRequest, PushType type)
     {
-        var message = new AuthRequestPushNotification
-        {
-            Id = authRequest.Id,
-            UserId = authRequest.UserId
-        };
+        var message = new AuthRequestPushNotification { Id = authRequest.Id, UserId = authRequest.UserId };
 
         await SendMessageAsync(type, message, true);
     }
@@ -188,7 +182,7 @@ public class NotificationsApiPushNotificationService : BaseIdentityClientService
             {
                 Id = send.Id,
                 UserId = send.UserId.Value,
-                RevisionDate = send.RevisionDate
+                RevisionDate = send.RevisionDate,
             };
 
             await SendMessageAsync(type, message, false);
@@ -209,20 +203,31 @@ public class NotificationsApiPushNotificationService : BaseIdentityClientService
             return null;
         }
 
-        var currentContext = _httpContextAccessor?.HttpContext?.
-            RequestServices.GetService(typeof(ICurrentContext)) as ICurrentContext;
+        var currentContext =
+            _httpContextAccessor?.HttpContext?.RequestServices.GetService(typeof(ICurrentContext))
+            as ICurrentContext;
         return currentContext?.DeviceIdentifier;
     }
 
-    public Task SendPayloadToUserAsync(string userId, PushType type, object payload, string identifier,
-        string deviceId = null)
+    public Task SendPayloadToUserAsync(
+        string userId,
+        PushType type,
+        object payload,
+        string identifier,
+        string deviceId = null
+    )
     {
         // Noop
         return Task.FromResult(0);
     }
 
-    public Task SendPayloadToOrganizationAsync(string orgId, PushType type, object payload, string identifier,
-        string deviceId = null)
+    public Task SendPayloadToOrganizationAsync(
+        string orgId,
+        PushType type,
+        object payload,
+        string identifier,
+        string deviceId = null
+    )
     {
         // Noop
         return Task.FromResult(0);

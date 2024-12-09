@@ -17,9 +17,7 @@ public class OrganizationRepository : Repository<Organization, Guid>, IOrganizat
 {
     private readonly ILogger<OrganizationRepository> _logger;
 
-    public OrganizationRepository(
-        GlobalSettings globalSettings,
-        ILogger<OrganizationRepository> logger)
+    public OrganizationRepository(GlobalSettings globalSettings, ILogger<OrganizationRepository> logger)
         : base(globalSettings.SqlServer.ConnectionString, globalSettings.SqlServer.ReadOnlyConnectionString)
     {
         _logger = logger;
@@ -32,7 +30,8 @@ public class OrganizationRepository : Repository<Organization, Guid>, IOrganizat
             var results = await connection.QueryAsync<Organization>(
                 "[dbo].[Organization_ReadByIdentifier]",
                 new { Identifier = identifier },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.SingleOrDefault();
         }
@@ -44,7 +43,8 @@ public class OrganizationRepository : Repository<Organization, Guid>, IOrganizat
         {
             var results = await connection.QueryAsync<Organization>(
                 "[dbo].[Organization_ReadByEnabled]",
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.ToList();
         }
@@ -57,22 +57,36 @@ public class OrganizationRepository : Repository<Organization, Guid>, IOrganizat
             var results = await connection.QueryAsync<Organization>(
                 "[dbo].[Organization_ReadByUserId]",
                 new { UserId = userId },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.ToList();
         }
     }
 
-    public async Task<ICollection<Organization>> SearchAsync(string name, string userEmail, bool? paid,
-        int skip, int take)
+    public async Task<ICollection<Organization>> SearchAsync(
+        string name,
+        string userEmail,
+        bool? paid,
+        int skip,
+        int take
+    )
     {
         using (var connection = new SqlConnection(ReadOnlyConnectionString))
         {
             var results = await connection.QueryAsync<Organization>(
                 "[dbo].[Organization_Search]",
-                new { Name = name, UserEmail = userEmail, Paid = paid, Skip = skip, Take = take },
+                new
+                {
+                    Name = name,
+                    UserEmail = userEmail,
+                    Paid = paid,
+                    Skip = skip,
+                    Take = take,
+                },
                 commandType: CommandType.StoredProcedure,
-                commandTimeout: 120);
+                commandTimeout: 120
+            );
 
             return results.ToList();
         }
@@ -86,7 +100,8 @@ public class OrganizationRepository : Repository<Organization, Guid>, IOrganizat
                 "[dbo].[Organization_UpdateStorage]",
                 new { Id = id },
                 commandType: CommandType.StoredProcedure,
-                commandTimeout: 180);
+                commandTimeout: 180
+            );
         }
     }
 
@@ -96,7 +111,8 @@ public class OrganizationRepository : Repository<Organization, Guid>, IOrganizat
         {
             var results = await connection.QueryAsync<OrganizationAbility>(
                 "[dbo].[Organization_ReadAbilities]",
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.ToList();
         }
@@ -109,7 +125,8 @@ public class OrganizationRepository : Repository<Organization, Guid>, IOrganizat
             var result = await connection.QueryAsync<Organization>(
                 "[dbo].[Organization_ReadByLicenseKey]",
                 new { LicenseKey = licenseKey },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return result.SingleOrDefault();
         }
@@ -122,7 +139,8 @@ public class OrganizationRepository : Repository<Organization, Guid>, IOrganizat
             var result = await connection.QueryMultipleAsync(
                 "[dbo].[Organization_ReadSelfHostedDetailsById]",
                 new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             var selfHostOrganization = await result.ReadSingleOrDefaultAsync<SelfHostedOrganizationDetails>();
             if (selfHostOrganization == null)
@@ -142,15 +160,27 @@ public class OrganizationRepository : Repository<Organization, Guid>, IOrganizat
         }
     }
 
-    public async Task<ICollection<Organization>> SearchUnassignedToProviderAsync(string name, string ownerEmail, int skip, int take)
+    public async Task<ICollection<Organization>> SearchUnassignedToProviderAsync(
+        string name,
+        string ownerEmail,
+        int skip,
+        int take
+    )
     {
         using (var connection = new SqlConnection(ReadOnlyConnectionString))
         {
             var results = await connection.QueryAsync<Organization>(
                 "[dbo].[Organization_UnassignedToProviderSearch]",
-                new { Name = name, OwnerEmail = ownerEmail, Skip = skip, Take = take },
+                new
+                {
+                    Name = name,
+                    OwnerEmail = ownerEmail,
+                    Skip = skip,
+                    Take = take,
+                },
                 commandType: CommandType.StoredProcedure,
-                commandTimeout: 120);
+                commandTimeout: 120
+            );
 
             return results.ToList();
         }
@@ -165,7 +195,8 @@ public class OrganizationRepository : Repository<Organization, Guid>, IOrganizat
         return await connection.QueryAsync<string>(
             $"[{Schema}].[{Table}_ReadOwnerEmailAddressesById]",
             new { OrganizationId = organizationId },
-            commandType: CommandType.StoredProcedure);
+            commandType: CommandType.StoredProcedure
+        );
     }
 
     public async Task<ICollection<Organization>> GetByVerifiedUserEmailDomainAsync(Guid userId)
@@ -175,7 +206,8 @@ public class OrganizationRepository : Repository<Organization, Guid>, IOrganizat
             var result = await connection.QueryAsync<Organization>(
                 "[dbo].[Organization_ReadByClaimedUserEmailDomain]",
                 new { UserId = userId },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return result.ToList();
         }

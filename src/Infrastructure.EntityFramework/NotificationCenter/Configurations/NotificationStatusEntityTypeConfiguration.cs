@@ -9,9 +9,7 @@ public class NotificationStatusEntityTypeConfiguration : IEntityTypeConfiguratio
 {
     public void Configure(EntityTypeBuilder<NotificationStatus> builder)
     {
-        builder
-            .HasKey(ns => new { ns.UserId, ns.NotificationId })
-            .IsClustered();
+        builder.HasKey(ns => new { ns.UserId, ns.NotificationId }).IsClustered();
 
         builder.ToTable(nameof(NotificationStatus));
     }

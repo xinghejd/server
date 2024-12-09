@@ -18,7 +18,9 @@ public class InMemoryApplicationCacheService : IApplicationCacheService
     private IDictionary<Guid, ProviderAbility> _providerAbilities;
 
     public InMemoryApplicationCacheService(
-        IOrganizationRepository organizationRepository, IProviderRepository providerRepository)
+        IOrganizationRepository organizationRepository,
+        IProviderRepository providerRepository
+    )
     {
         _organizationRepository = organizationRepository;
         _providerRepository = providerRepository;
@@ -33,10 +35,10 @@ public class InMemoryApplicationCacheService : IApplicationCacheService
 #nullable enable
     public async Task<OrganizationAbility?> GetOrganizationAbilityAsync(Guid organizationId)
     {
-        (await GetOrganizationAbilitiesAsync())
-            .TryGetValue(organizationId, out var organizationAbility);
+        (await GetOrganizationAbilitiesAsync()).TryGetValue(organizationId, out var organizationAbility);
         return organizationAbility;
     }
+
 #nullable disable
 
     public virtual async Task<IDictionary<Guid, ProviderAbility>> GetProviderAbilitiesAsync()

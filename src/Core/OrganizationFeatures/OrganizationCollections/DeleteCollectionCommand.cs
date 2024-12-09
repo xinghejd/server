@@ -10,9 +10,7 @@ public class DeleteCollectionCommand : IDeleteCollectionCommand
     private readonly ICollectionRepository _collectionRepository;
     private readonly IEventService _eventService;
 
-    public DeleteCollectionCommand(
-        ICollectionRepository collectionRepository,
-        IEventService eventService)
+    public DeleteCollectionCommand(ICollectionRepository collectionRepository, IEventService eventService)
     {
         _collectionRepository = collectionRepository;
         _eventService = eventService;
@@ -21,7 +19,11 @@ public class DeleteCollectionCommand : IDeleteCollectionCommand
     public async Task DeleteAsync(Collection collection)
     {
         await _collectionRepository.DeleteAsync(collection);
-        await _eventService.LogCollectionEventAsync(collection, Enums.EventType.Collection_Deleted, DateTime.UtcNow);
+        await _eventService.LogCollectionEventAsync(
+            collection,
+            Enums.EventType.Collection_Deleted,
+            DateTime.UtcNow
+        );
     }
 
     public async Task DeleteManyAsync(IEnumerable<Guid> collectionIds)
@@ -34,6 +36,8 @@ public class DeleteCollectionCommand : IDeleteCollectionCommand
     public async Task DeleteManyAsync(IEnumerable<Collection> collections)
     {
         await _collectionRepository.DeleteManyAsync(collections.Select(c => c.Id));
-        await _eventService.LogCollectionEventsAsync(collections.Select(c => (c, Enums.EventType.Collection_Deleted, (DateTime?)DateTime.UtcNow)));
+        await _eventService.LogCollectionEventsAsync(
+            collections.Select(c => (c, Enums.EventType.Collection_Deleted, (DateTime?)DateTime.UtcNow))
+        );
     }
 }

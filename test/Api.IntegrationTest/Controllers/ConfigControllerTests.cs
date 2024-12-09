@@ -78,9 +78,20 @@ public class ConfigControllerTests : IClassFixture<ApiApplicationFactory>, IAsyn
             await _factory.LoginWithNewAccount(ownerEmail);
 
             Organization org;
-            (org, _) = await OrganizationTestHelpers.SignUpAsync(_factory, plan: PlanType.Free, ownerEmail: ownerEmail,
-                name: i.ToString(), billingEmail: ownerEmail, ownerKey: i.ToString());
-            await OrganizationTestHelpers.CreateUserAsync(_factory, org.Id, _email, Core.Enums.OrganizationUserType.User);
+            (org, _) = await OrganizationTestHelpers.SignUpAsync(
+                _factory,
+                plan: PlanType.Free,
+                ownerEmail: ownerEmail,
+                name: i.ToString(),
+                billingEmail: ownerEmail,
+                ownerKey: i.ToString()
+            );
+            await OrganizationTestHelpers.CreateUserAsync(
+                _factory,
+                org.Id,
+                _email,
+                Core.Enums.OrganizationUserType.User
+            );
         }
 
         await LoginAsync();

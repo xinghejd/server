@@ -15,7 +15,6 @@ namespace Bit.Core.Auth.UserFeatures.Registration.Implementations;
 /// </summary>
 public class SendVerificationEmailForRegistrationCommand : ISendVerificationEmailForRegistrationCommand
 {
-
     private readonly IUserRepository _userRepository;
     private readonly GlobalSettings _globalSettings;
     private readonly IMailService _mailService;
@@ -27,14 +26,14 @@ public class SendVerificationEmailForRegistrationCommand : ISendVerificationEmai
         GlobalSettings globalSettings,
         IMailService mailService,
         IDataProtectorTokenFactory<RegistrationEmailVerificationTokenable> tokenDataFactory,
-        IFeatureService featureService)
+        IFeatureService featureService
+    )
     {
         _userRepository = userRepository;
         _globalSettings = globalSettings;
         _mailService = mailService;
         _tokenDataFactory = tokenDataFactory;
         _featureService = featureService;
-
     }
 
     public async Task<string?> Run(string email, string? name, bool receiveMarketingEmails)
@@ -58,10 +57,8 @@ public class SendVerificationEmailForRegistrationCommand : ISendVerificationEmai
 
         if (!_globalSettings.EnableEmailVerification)
         {
-
             if (userExists)
             {
-
                 if (delaysEnabled)
                 {
                     // Add delay to prevent timing attacks
@@ -98,8 +95,11 @@ public class SendVerificationEmailForRegistrationCommand : ISendVerificationEmai
 
     private string GenerateToken(string email, string? name, bool receiveMarketingEmails)
     {
-        var registrationEmailVerificationTokenable = new RegistrationEmailVerificationTokenable(email, name, receiveMarketingEmails);
+        var registrationEmailVerificationTokenable = new RegistrationEmailVerificationTokenable(
+            email,
+            name,
+            receiveMarketingEmails
+        );
         return _tokenDataFactory.Protect(registrationEmailVerificationTokenable);
     }
 }
-

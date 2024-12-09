@@ -6,8 +6,16 @@ namespace Bit.Core.SecretsManager.Repositories;
 
 public interface IProjectRepository
 {
-    Task<IEnumerable<ProjectPermissionDetails>> GetManyByOrganizationIdAsync(Guid organizationId, Guid userId, AccessClientType accessType);
-    Task<IEnumerable<Project>> GetManyByOrganizationIdWriteAccessAsync(Guid organizationId, Guid userId, AccessClientType accessType);
+    Task<IEnumerable<ProjectPermissionDetails>> GetManyByOrganizationIdAsync(
+        Guid organizationId,
+        Guid userId,
+        AccessClientType accessType
+    );
+    Task<IEnumerable<Project>> GetManyByOrganizationIdWriteAccessAsync(
+        Guid organizationId,
+        Guid userId,
+        AccessClientType accessType
+    );
     Task<IEnumerable<Project>> GetManyWithSecretsByIds(IEnumerable<Guid> ids);
     Task<Project> GetByIdAsync(Guid id);
     Task<Project> CreateAsync(Project project);
@@ -19,6 +27,9 @@ public interface IProjectRepository
     Task<int> GetProjectCountByOrganizationIdAsync(Guid organizationId);
     Task<int> GetProjectCountByOrganizationIdAsync(Guid organizationId, Guid userId, AccessClientType accessType);
     Task<ProjectCounts> GetProjectCountsByIdAsync(Guid projectId, Guid userId, AccessClientType accessType);
-    Task<Dictionary<Guid, (bool Read, bool Write)>> AccessToProjectsAsync(IEnumerable<Guid> projectIds, Guid userId,
-        AccessClientType accessType);
+    Task<Dictionary<Guid, (bool Read, bool Write)>> AccessToProjectsAsync(
+        IEnumerable<Guid> projectIds,
+        Guid userId,
+        AccessClientType accessType
+    );
 }

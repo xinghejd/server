@@ -55,5 +55,4 @@ public class BillingHistoryInfo
         public string Number { get; set; }
         public bool Paid { get; set; }
     }
-
 }

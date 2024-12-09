@@ -10,26 +10,27 @@ namespace Bit.Infrastructure.EntityFramework.NotificationCenter.Repositories;
 
 public class NotificationStatusRepository : BaseEntityFrameworkRepository, INotificationStatusRepository
 {
-    public NotificationStatusRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper) : base(
-        serviceScopeFactory,
-        mapper)
-    {
-    }
+    public NotificationStatusRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
+        : base(serviceScopeFactory, mapper) { }
 
-    public async Task<Bit.Core.NotificationCenter.Entities.NotificationStatus?> GetByNotificationIdAndUserIdAsync(Guid notificationId, Guid userId)
+    public async Task<Bit.Core.NotificationCenter.Entities.NotificationStatus?> GetByNotificationIdAndUserIdAsync(
+        Guid notificationId,
+        Guid userId
+    )
     {
         await using var scope = ServiceScopeFactory.CreateAsyncScope();
         var dbContext = GetDatabaseContext(scope);
 
-        var entity = await dbContext.NotificationStatuses
-            .Where(ns =>
-                ns.NotificationId == notificationId && ns.UserId == userId)
+        var entity = await dbContext
+            .NotificationStatuses.Where(ns => ns.NotificationId == notificationId && ns.UserId == userId)
             .FirstOrDefaultAsync();
 
         return Mapper.Map<Bit.Core.NotificationCenter.Entities.NotificationStatus?>(entity);
     }
 
-    public async Task<Bit.Core.NotificationCenter.Entities.NotificationStatus> CreateAsync(Bit.Core.NotificationCenter.Entities.NotificationStatus notificationStatus)
+    public async Task<Bit.Core.NotificationCenter.Entities.NotificationStatus> CreateAsync(
+        Bit.Core.NotificationCenter.Entities.NotificationStatus notificationStatus
+    )
     {
         await using var scope = ServiceScopeFactory.CreateAsyncScope();
         var dbContext = GetDatabaseContext(scope);
@@ -45,9 +46,10 @@ public class NotificationStatusRepository : BaseEntityFrameworkRepository, INoti
         await using var scope = ServiceScopeFactory.CreateAsyncScope();
         var dbContext = GetDatabaseContext(scope);
 
-        var entity = await dbContext.NotificationStatuses
-            .Where(ns =>
-                ns.NotificationId == notificationStatus.NotificationId && ns.UserId == notificationStatus.UserId)
+        var entity = await dbContext
+            .NotificationStatuses.Where(ns =>
+                ns.NotificationId == notificationStatus.NotificationId && ns.UserId == notificationStatus.UserId
+            )
             .FirstOrDefaultAsync();
 
         if (entity != null)

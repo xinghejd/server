@@ -61,7 +61,10 @@ public class UserDecryptionOptionsBuilder : IUserDecryptionOptionsBuilder
     {
         if (credential.GetPrfStatus() == WebAuthnPrfStatus.Enabled)
         {
-            _options.WebAuthnPrfOption = new WebAuthnPrfDecryptionOption(credential.EncryptedPrivateKey, credential.EncryptedUserKey);
+            _options.WebAuthnPrfOption = new WebAuthnPrfDecryptionOption(
+                credential.EncryptedPrivateKey,
+                credential.EncryptedUserKey
+            );
         }
         return this;
     }
@@ -82,9 +85,14 @@ public class UserDecryptionOptionsBuilder : IUserDecryptionOptionsBuilder
         }
 
         var ssoConfigurationData = _ssoConfig.GetData();
-        if (ssoConfigurationData is { MemberDecryptionType: MemberDecryptionType.KeyConnector } && !string.IsNullOrEmpty(ssoConfigurationData.KeyConnectorUrl))
+        if (
+            ssoConfigurationData is { MemberDecryptionType: MemberDecryptionType.KeyConnector }
+            && !string.IsNullOrEmpty(ssoConfigurationData.KeyConnectorUrl)
+        )
         {
-            _options.KeyConnectorOption = new KeyConnectorUserDecryptionOption(ssoConfigurationData.KeyConnectorUrl);
+            _options.KeyConnectorOption = new KeyConnectorUserDecryptionOption(
+                ssoConfigurationData.KeyConnectorUrl
+            );
         }
     }
 
@@ -96,8 +104,10 @@ public class UserDecryptionOptionsBuilder : IUserDecryptionOptionsBuilder
             return;
         }
 
-        var isTdeActive = _ssoConfig.GetData() is { MemberDecryptionType: MemberDecryptionType.TrustedDeviceEncryption };
-        var isTdeOffboarding = _user != null && !_user.HasMasterPassword() && _device != null && _device.IsTrusted() && !isTdeActive;
+        var isTdeActive =
+            _ssoConfig.GetData() is { MemberDecryptionType: MemberDecryptionType.TrustedDeviceEncryption };
+        var isTdeOffboarding =
+            _user != null && !_user.HasMasterPassword() && _device != null && _device.IsTrusted() && !isTdeActive;
         if (!isTdeActive && !isTdeOffboarding)
         {
             return;
@@ -126,21 +136,35 @@ public class UserDecryptionOptionsBuilder : IUserDecryptionOptionsBuilder
         // Determine if user has manage reset password permission as post sso logic requires it for forcing users with this permission to set a MP
         var hasManageResetPasswordPermission = false;
         // when a user is being created via JIT provisioning, they will not have any orgs so we can't assume we will have orgs here
-        if (_currentContext.Organizations != null && _currentContext.Organizations.Any(o => o.Id == _ssoConfig.OrganizationId))
+        if (
+            _currentContext.Organizations != null
+            && _currentContext.Organizations.Any(o => o.Id == _ssoConfig.OrganizationId)
+        )
         {
             // TDE requires single org so grabbing first org & id is fine.
-            hasManageResetPasswordPermission = await _currentContext.ManageResetPassword(_ssoConfig!.OrganizationId);
+            hasManageResetPasswordPermission = await _currentContext.ManageResetPassword(
+                _ssoConfig!.OrganizationId
+            );
         }
 
         var hasAdminApproval = false;
         if (_user != null)
         {
             // If sso configuration data is not null then I know for sure that ssoConfiguration isn't null
-            var organizationUser = await _organizationUserRepository.GetByOrganizationAsync(_ssoConfig.OrganizationId, _user.Id);
+            var organizationUser = await _organizationUserRepository.GetByOrganizationAsync(
+                _ssoConfig.OrganizationId,
+                _user.Id
+            );
 
-            hasManageResetPasswordPermission |= organizationUser != null && (organizationUser.Type == OrganizationUserType.Owner || organizationUser.Type == OrganizationUserType.Admin);
+            hasManageResetPasswordPermission |=
+                organizationUser != null
+                && (
+                    organizationUser.Type == OrganizationUserType.Owner
+                    || organizationUser.Type == OrganizationUserType.Admin
+                );
             // They are only able to be approved by an admin if they have enrolled is reset password
-            hasAdminApproval = organizationUser != null && !string.IsNullOrEmpty(organizationUser.ResetPasswordKey);
+            hasAdminApproval =
+                organizationUser != null && !string.IsNullOrEmpty(organizationUser.ResetPasswordKey);
         }
 
         _options.TrustedDeviceOption = new TrustedDeviceUserDecryptionOption(
@@ -149,6 +173,7 @@ public class UserDecryptionOptionsBuilder : IUserDecryptionOptionsBuilder
             hasManageResetPasswordPermission,
             isTdeOffboarding,
             encryptedPrivateKey,
-            encryptedUserKey);
+            encryptedUserKey
+        );
     }
 }

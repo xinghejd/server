@@ -23,7 +23,9 @@ public class PolicyValidatorHelpersTests
     public void ValidateDecryptionOptionsNotEnabled_RequiredByTDE_ValidationError()
     {
         var ssoConfig = new SsoConfig();
-        ssoConfig.SetData(new SsoConfigurationData { MemberDecryptionType = MemberDecryptionType.TrustedDeviceEncryption });
+        ssoConfig.SetData(
+            new SsoConfigurationData { MemberDecryptionType = MemberDecryptionType.TrustedDeviceEncryption }
+        );
 
         var result = ssoConfig.ValidateDecryptionOptionsNotEnabled([MemberDecryptionType.TrustedDeviceEncryption]);
 

@@ -17,11 +17,7 @@ public class UserTests
     {
         short maxStorageGb = 1;
 
-        var user = new User
-        {
-            MaxStorageGb = maxStorageGb,
-            Storage = null,
-        };
+        var user = new User { MaxStorageGb = maxStorageGb, Storage = null };
 
         var bytesRemaining = user.StorageBytesRemaining();
 
@@ -30,39 +26,33 @@ public class UserTests
 
     [Theory]
     [InlineData(2, 1 * Multiplier, 1 * Multiplier)]
-
-    public void StorageBytesRemaining_HasMax_HasStorage_ReturnRemainingStorage(short maxStorageGb, long storageBytes, long expectedRemainingBytes)
+    public void StorageBytesRemaining_HasMax_HasStorage_ReturnRemainingStorage(
+        short maxStorageGb,
+        long storageBytes,
+        long expectedRemainingBytes
+    )
     {
-        var user = new User
-        {
-            MaxStorageGb = maxStorageGb,
-            Storage = storageBytes,
-        };
+        var user = new User { MaxStorageGb = maxStorageGb, Storage = storageBytes };
 
         var bytesRemaining = user.StorageBytesRemaining();
 
         Assert.Equal(expectedRemainingBytes, bytesRemaining);
     }
 
-    private static readonly Dictionary<TwoFactorProviderType, TwoFactorProvider> _testTwoFactorConfig = new Dictionary<TwoFactorProviderType, TwoFactorProvider>
-    {
-        [TwoFactorProviderType.WebAuthn] = new TwoFactorProvider
+    private static readonly Dictionary<TwoFactorProviderType, TwoFactorProvider> _testTwoFactorConfig =
+        new Dictionary<TwoFactorProviderType, TwoFactorProvider>
         {
-            Enabled = true,
-            MetaData = new Dictionary<string, object>
+            [TwoFactorProviderType.WebAuthn] = new TwoFactorProvider
             {
-                ["Item"] = "thing",
+                Enabled = true,
+                MetaData = new Dictionary<string, object> { ["Item"] = "thing" },
             },
-        },
-        [TwoFactorProviderType.Email] = new TwoFactorProvider
-        {
-            Enabled = false,
-            MetaData = new Dictionary<string, object>
+            [TwoFactorProviderType.Email] = new TwoFactorProvider
             {
-                ["Email"] = "test@email.com",
+                Enabled = false,
+                MetaData = new Dictionary<string, object> { ["Email"] = "test@email.com" },
             },
-        },
-    };
+        };
 
     [Fact]
     public void SetTwoFactorProviders_Success()
@@ -91,20 +81,23 @@ public class UserTests
         // It intent is to mimic a storing of the entity in the database and it being read later
         var tempUser = new User();
         tempUser.SetTwoFactorProviders(_testTwoFactorConfig);
-        var user = new User
-        {
-            TwoFactorProviders = tempUser.TwoFactorProviders,
-        };
+        var user = new User { TwoFactorProviders = tempUser.TwoFactorProviders };
 
         var twoFactorProviders = user.GetTwoFactorProviders();
 
-        var webAuthn = Assert.Contains(TwoFactorProviderType.WebAuthn, (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders);
+        var webAuthn = Assert.Contains(
+            TwoFactorProviderType.WebAuthn,
+            (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders
+        );
         Assert.True(webAuthn.Enabled);
         Assert.NotNull(webAuthn.MetaData);
         var webAuthnMetaDataItem = Assert.Contains("Item", (IDictionary<string, object>)webAuthn.MetaData);
         Assert.Equal("thing", webAuthnMetaDataItem);
 
-        var email = Assert.Contains(TwoFactorProviderType.Email, (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders);
+        var email = Assert.Contains(
+            TwoFactorProviderType.Email,
+            (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders
+        );
         Assert.False(email.Enabled);
         Assert.NotNull(email.MetaData);
         var emailMetaDataEmail = Assert.Contains("Email", (IDictionary<string, object>)email.MetaData);
@@ -129,13 +122,19 @@ public class UserTests
         // Actual checks
         var twoFactorProviders = user.GetTwoFactorProviders();
 
-        var webAuthn = Assert.Contains(TwoFactorProviderType.WebAuthn, (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders);
+        var webAuthn = Assert.Contains(
+            TwoFactorProviderType.WebAuthn,
+            (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders
+        );
         Assert.True(webAuthn.Enabled);
         Assert.NotNull(webAuthn.MetaData);
         var webAuthnMetaDataItem = Assert.Contains("Item", (IDictionary<string, object>)webAuthn.MetaData);
         Assert.Equal("thing", webAuthnMetaDataItem);
 
-        var email = Assert.Contains(TwoFactorProviderType.Email, (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders);
+        var email = Assert.Contains(
+            TwoFactorProviderType.Email,
+            (IDictionary<TwoFactorProviderType, TwoFactorProvider>)twoFactorProviders
+        );
         Assert.False(email.Enabled);
         Assert.NotNull(email.MetaData);
         var emailMetaDataEmail = Assert.Contains("Email", (IDictionary<string, object>)email.MetaData);

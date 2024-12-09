@@ -6,7 +6,8 @@ using Bit.Core.Vault.Repositories;
 
 namespace Bit.Api.KeyManagement.Validators;
 
-public class CipherRotationValidator : IRotationValidator<IEnumerable<CipherWithIdRequestModel>, IEnumerable<Cipher>>
+public class CipherRotationValidator
+    : IRotationValidator<IEnumerable<CipherWithIdRequestModel>, IEnumerable<Cipher>>
 {
     private readonly ICipherRepository _cipherRepository;
 

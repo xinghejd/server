@@ -9,7 +9,10 @@ public class BlockingMailEnqueuingService : IMailEnqueuingService
         await fallback(message);
     }
 
-    public async Task EnqueueManyAsync(IEnumerable<IMailQueueMessage> messages, Func<IMailQueueMessage, Task> fallback)
+    public async Task EnqueueManyAsync(
+        IEnumerable<IMailQueueMessage> messages,
+        Func<IMailQueueMessage, Task> fallback
+    )
     {
         foreach (var message in messages)
         {

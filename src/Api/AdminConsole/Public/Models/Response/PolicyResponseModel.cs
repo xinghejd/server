@@ -37,12 +37,14 @@ public class PolicyResponseModel : PolicyBaseModel, IResponseModel
     /// <example>policy</example>
     [Required]
     public string Object => "policy";
+
     /// <summary>
     /// The policy's unique identifier.
     /// </summary>
     /// <example>539a36c5-e0d2-4cf9-979e-51ecf5cf6593</example>
     [Required]
     public Guid Id { get; set; }
+
     /// <summary>
     /// The type of policy.
     /// </summary>

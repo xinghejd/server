@@ -5,8 +5,10 @@ namespace Bit.Sso.Utilities;
 
 public static class ClaimsExtensions
 {
-    private static readonly Regex _normalizeTextRegEx =
-        new Regex(@"[^a-zA-Z]", RegexOptions.CultureInvariant | RegexOptions.Singleline);
+    private static readonly Regex _normalizeTextRegEx = new Regex(
+        @"[^a-zA-Z]",
+        RegexOptions.CultureInvariant | RegexOptions.Singleline
+    );
 
     public static string GetFirstMatch(this IEnumerable<Claim> claims, params string[] possibleNames)
     {
@@ -29,9 +31,9 @@ public static class ClaimsExtensions
 
     private static bool Equals(string text, string compare)
     {
-        return text == compare ||
-            (string.IsNullOrWhiteSpace(text) && string.IsNullOrWhiteSpace(compare)) ||
-            string.Equals(Normalize(text), compare, StringComparison.InvariantCultureIgnoreCase);
+        return text == compare
+            || (string.IsNullOrWhiteSpace(text) && string.IsNullOrWhiteSpace(compare))
+            || string.Equals(Normalize(text), compare, StringComparison.InvariantCultureIgnoreCase);
     }
 
     private static string Normalize(string text)

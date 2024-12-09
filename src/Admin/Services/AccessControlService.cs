@@ -14,7 +14,8 @@ public class AccessControlService : IAccessControlService
     public AccessControlService(
         IHttpContextAccessor httpContextAccessor,
         IConfiguration configuration,
-        IGlobalSettings globalSettings)
+        IGlobalSettings globalSettings
+    )
     {
         _httpContextAccessor = httpContextAccessor;
         _configuration = configuration;
@@ -48,7 +49,9 @@ public class AccessControlService : IAccessControlService
 
         userEmail = userEmail.ToLowerInvariant();
 
-        var userRole = roles.FirstOrDefault(s => (s.Value != null ? s.Value.ToLowerInvariant().Split(',').Contains(userEmail) : false));
+        var userRole = roles.FirstOrDefault(s =>
+            (s.Value != null ? s.Value.ToLowerInvariant().Split(',').Contains(userEmail) : false)
+        );
 
         if (userRole == null)
         {
@@ -60,7 +63,8 @@ public class AccessControlService : IAccessControlService
 
     private string GetUserRoleFromClaim()
     {
-        return _httpContextAccessor.HttpContext?.User?.Claims?
-                 .FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        return _httpContextAccessor
+            .HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.Role)
+            ?.Value;
     }
 }

@@ -21,10 +21,7 @@ public class HCaptchaTokenableTests
     [Fact]
     public void TokenWithNullUserIsInvalid()
     {
-        var token = new HCaptchaTokenable(null)
-        {
-            ExpirationDate = DateTime.UtcNow + TimeSpan.FromDays(1)
-        };
+        var token = new HCaptchaTokenable(null) { ExpirationDate = DateTime.UtcNow + TimeSpan.FromDays(1) };
 
         Assert.False(token.Valid);
     }
@@ -32,10 +29,7 @@ public class HCaptchaTokenableTests
     [Theory, BitAutoData]
     public void TokenValidityCheckNullUserIdIsInvalid(User user)
     {
-        var token = new HCaptchaTokenable(user)
-        {
-            ExpirationDate = DateTime.UtcNow + TimeSpan.FromDays(1)
-        };
+        var token = new HCaptchaTokenable(user) { ExpirationDate = DateTime.UtcNow + TimeSpan.FromDays(1) };
 
         Assert.False(token.TokenIsValid(null));
     }
@@ -43,10 +37,7 @@ public class HCaptchaTokenableTests
     [Theory, AutoData]
     public void CanUpdateExpirationToNonStandard(User user)
     {
-        var token = new HCaptchaTokenable(user)
-        {
-            ExpirationDate = DateTime.MinValue
-        };
+        var token = new HCaptchaTokenable(user) { ExpirationDate = DateTime.MinValue };
 
         Assert.Equal(DateTime.MinValue, token.ExpirationDate, TimeSpan.FromMilliseconds(10));
     }
@@ -64,10 +55,7 @@ public class HCaptchaTokenableTests
     public void SerializationSetsCorrectDateTime(User user)
     {
         var expectedDateTime = DateTime.UtcNow.AddHours(-5);
-        var token = new HCaptchaTokenable(user)
-        {
-            ExpirationDate = expectedDateTime
-        };
+        var token = new HCaptchaTokenable(user) { ExpirationDate = expectedDateTime };
 
         var result = Tokenable.FromToken<HCaptchaTokenable>(token.ToToken());
 
@@ -77,10 +65,7 @@ public class HCaptchaTokenableTests
     [Theory, AutoData]
     public void IsInvalidIfIdentifierIsWrong(User user)
     {
-        var token = new HCaptchaTokenable(user)
-        {
-            Identifier = "not correct"
-        };
+        var token = new HCaptchaTokenable(user) { Identifier = "not correct" };
 
         Assert.False(token.Valid);
     }

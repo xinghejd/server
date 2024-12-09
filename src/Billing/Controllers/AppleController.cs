@@ -12,9 +12,7 @@ public class AppleController : Controller
     private readonly BillingSettings _billingSettings;
     private readonly ILogger<AppleController> _logger;
 
-    public AppleController(
-        IOptions<BillingSettings> billingSettings,
-        ILogger<AppleController> logger)
+    public AppleController(IOptions<BillingSettings> billingSettings, ILogger<AppleController> logger)
     {
         _billingSettings = billingSettings?.Value;
         _logger = logger;
@@ -28,8 +26,9 @@ public class AppleController : Controller
             return new BadRequestResult();
         }
 
-        var key = HttpContext.Request.Query.ContainsKey("key") ?
-            HttpContext.Request.Query["key"].ToString() : null;
+        var key = HttpContext.Request.Query.ContainsKey("key")
+            ? HttpContext.Request.Query["key"].ToString()
+            : null;
         if (!CoreHelpers.FixedTimeEquals(key, _billingSettings.AppleWebhookKey))
         {
             return new BadRequestResult();
@@ -48,8 +47,15 @@ public class AppleController : Controller
 
         try
         {
-            var json = JsonSerializer.Serialize(JsonSerializer.Deserialize<JsonDocument>(body), JsonHelpers.Indented);
-            _logger.LogInformation(Bit.Core.Constants.BypassFiltersEventId, "Apple IAP Notification:\n\n{0}", json);
+            var json = JsonSerializer.Serialize(
+                JsonSerializer.Deserialize<JsonDocument>(body),
+                JsonHelpers.Indented
+            );
+            _logger.LogInformation(
+                Bit.Core.Constants.BypassFiltersEventId,
+                "Apple IAP Notification:\n\n{0}",
+                json
+            );
             return new OkResult();
         }
         catch (Exception e)

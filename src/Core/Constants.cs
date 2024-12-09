@@ -57,7 +57,6 @@ public static class AuthConstants
     public static readonly RangeConstant ARGON2_ITERATIONS = new(2, 10, 3);
     public static readonly RangeConstant ARGON2_MEMORY = new(15, 1024, 64);
     public static readonly RangeConstant ARGON2_PARALLELISM = new(1, 16, 4);
-
 }
 
 public class RangeConstant
@@ -103,7 +102,8 @@ public static class FeatureFlagKeys
 {
     public const string BrowserFilelessImport = "browser-fileless-import";
     public const string ReturnErrorOnExistingKeypair = "return-error-on-existing-keypair";
-    public const string UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection";
+    public const string UseTreeWalkerApiForPageDetailsCollection =
+        "use-tree-walker-api-for-page-details-collection";
     public const string ItemShare = "item-share";
     public const string DuoRedirect = "duo-redirect";
     public const string AC2101UpdateTrialInitiationEmail = "AC-2101-update-trial-initiation-email";
@@ -152,7 +152,8 @@ public static class FeatureFlagKeys
     public const string NewDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss";
     public const string NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss";
     public const string SecurityTasks = "security-tasks";
-    public const string PM14401_ScaleMSPOnClientOrganizationUpdate = "PM-14401-scale-msp-on-client-organization-update";
+    public const string PM14401_ScaleMSPOnClientOrganizationUpdate =
+        "PM-14401-scale-msp-on-client-organization-update";
     public const string PM11360RemoveProviderExportPermission = "pm-11360-remove-provider-export-permission";
     public const string DisableFreeFamiliesSponsorship = "PM-12274-disable-free-families-sponsorship";
     public const string MacOsNativeCredentialSync = "macos-native-credential-sync";
@@ -162,7 +163,8 @@ public static class FeatureFlagKeys
 
     public static List<string> GetAllKeys()
     {
-        return typeof(FeatureFlagKeys).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+        return typeof(FeatureFlagKeys)
+            .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
             .Where(fi => fi.IsLiteral && !fi.IsInitOnly && fi.FieldType == typeof(string))
             .Select(x => (string)x.GetRawConstantValue())
             .ToList();
@@ -171,10 +173,6 @@ public static class FeatureFlagKeys
     public static Dictionary<string, string> GetLocalOverrideFlagValues()
     {
         // place overriding values when needed locally (offline), or return null
-        return new Dictionary<string, string>()
-        {
-            { DuoRedirect, "true" },
-            { CipherKeyEncryption, "true" },
-        };
+        return new Dictionary<string, string>() { { DuoRedirect, "true" }, { CipherKeyEncryption, "true" } };
     }
 }

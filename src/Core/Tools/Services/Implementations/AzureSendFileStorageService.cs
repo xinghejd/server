@@ -19,11 +19,10 @@ public class AzureSendFileStorageService : ISendFileStorageService
     public FileUploadType FileUploadType => FileUploadType.Azure;
 
     public static string SendIdFromBlobName(string blobName) => blobName.Split('/')[0];
+
     public static string BlobName(Send send, string fileId) => $"{send.Id}/{fileId}";
 
-    public AzureSendFileStorageService(
-        GlobalSettings globalSettings,
-        ILogger<AzureSendFileStorageService> logger)
+    public AzureSendFileStorageService(GlobalSettings globalSettings, ILogger<AzureSendFileStorageService> logger)
     {
         _blobServiceClient = new BlobServiceClient(globalSettings.Send.ConnectionString);
         _logger = logger;
@@ -45,10 +44,7 @@ public class AzureSendFileStorageService : ISendFileStorageService
             metadata.Add("organizationId", send.OrganizationId.Value.ToString());
         }
 
-        var headers = new BlobHttpHeaders
-        {
-            ContentDisposition = $"attachment; filename=\"{fileId}\""
-        };
+        var headers = new BlobHttpHeaders { ContentDisposition = $"attachment; filename=\"{fileId}\"" };
 
         await blobClient.UploadAsync(stream, new BlobUploadOptions { Metadata = metadata, HttpHeaders = headers });
     }
@@ -76,7 +72,10 @@ public class AzureSendFileStorageService : ISendFileStorageService
     {
         await InitAsync();
         var blobClient = _sendFilesContainerClient.GetBlobClient(BlobName(send, fileId));
-        var sasUri = blobClient.GenerateSasUri(BlobSasPermissions.Read, DateTime.UtcNow.Add(_downloadLinkLiveTime));
+        var sasUri = blobClient.GenerateSasUri(
+            BlobSasPermissions.Read,
+            DateTime.UtcNow.Add(_downloadLinkLiveTime)
+        );
         return sasUri.ToString();
     }
 
@@ -84,11 +83,19 @@ public class AzureSendFileStorageService : ISendFileStorageService
     {
         await InitAsync();
         var blobClient = _sendFilesContainerClient.GetBlobClient(BlobName(send, fileId));
-        var sasUri = blobClient.GenerateSasUri(BlobSasPermissions.Create | BlobSasPermissions.Write, DateTime.UtcNow.Add(_downloadLinkLiveTime));
+        var sasUri = blobClient.GenerateSasUri(
+            BlobSasPermissions.Create | BlobSasPermissions.Write,
+            DateTime.UtcNow.Add(_downloadLinkLiveTime)
+        );
         return sasUri.ToString();
     }
 
-    public async Task<(bool, long?)> ValidateFileAsync(Send send, string fileId, long expectedFileSize, long leeway)
+    public async Task<(bool, long?)> ValidateFileAsync(
+        Send send,
+        string fileId,
+        long expectedFileSize,
+        long leeway
+    )
     {
         await InitAsync();
 
@@ -109,10 +116,7 @@ public class AzureSendFileStorageService : ISendFileStorageService
             }
             await blobClient.SetMetadataAsync(metadata);
 
-            var headers = new BlobHttpHeaders
-            {
-                ContentDisposition = $"attachment; filename=\"{fileId}\""
-            };
+            var headers = new BlobHttpHeaders { ContentDisposition = $"attachment; filename=\"{fileId}\"" };
             await blobClient.SetHttpHeadersAsync(headers);
 
             var length = blobProperties.Value.ContentLength;

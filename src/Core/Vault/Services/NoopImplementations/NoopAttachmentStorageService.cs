@@ -34,12 +34,21 @@ public class NoopAttachmentStorageService : IAttachmentStorageService
         return Task.FromResult(0);
     }
 
-    public Task RollbackShareAttachmentAsync(Guid cipherId, Guid organizationId, CipherAttachment.MetaData attachmentData, string originalContainer)
+    public Task RollbackShareAttachmentAsync(
+        Guid cipherId,
+        Guid organizationId,
+        CipherAttachment.MetaData attachmentData,
+        string originalContainer
+    )
     {
         return Task.FromResult(0);
     }
 
-    public Task StartShareAttachmentAsync(Guid cipherId, Guid organizationId, CipherAttachment.MetaData attachmentData)
+    public Task StartShareAttachmentAsync(
+        Guid cipherId,
+        Guid organizationId,
+        CipherAttachment.MetaData attachmentData
+    )
     {
         return Task.FromResult(0);
     }
@@ -49,7 +58,12 @@ public class NoopAttachmentStorageService : IAttachmentStorageService
         return Task.FromResult(0);
     }
 
-    public Task UploadShareAttachmentAsync(Stream stream, Guid cipherId, Guid organizationId, CipherAttachment.MetaData attachmentData)
+    public Task UploadShareAttachmentAsync(
+        Stream stream,
+        Guid cipherId,
+        Guid organizationId,
+        CipherAttachment.MetaData attachmentData
+    )
     {
         return Task.FromResult(0);
     }
@@ -63,7 +77,12 @@ public class NoopAttachmentStorageService : IAttachmentStorageService
     {
         return Task.FromResult(default(string));
     }
-    public Task<(bool, long?)> ValidateFileAsync(Cipher cipher, CipherAttachment.MetaData attachmentData, long leeway)
+
+    public Task<(bool, long?)> ValidateFileAsync(
+        Cipher cipher,
+        CipherAttachment.MetaData attachmentData,
+        long leeway
+    )
     {
         return Task.FromResult((false, (long?)null));
     }

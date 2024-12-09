@@ -17,12 +17,15 @@ public class InMemoryServiceBusApplicationCacheService : InMemoryApplicationCach
     public InMemoryServiceBusApplicationCacheService(
         IOrganizationRepository organizationRepository,
         IProviderRepository providerRepository,
-        GlobalSettings globalSettings)
+        GlobalSettings globalSettings
+    )
         : base(organizationRepository, providerRepository)
     {
         _subName = CoreHelpers.GetApplicationCacheServiceBusSubscriptionName(globalSettings);
         _serviceBusClient = new ServiceBusClient(globalSettings.ServiceBus.ConnectionString);
-        _topicMessageSender = new ServiceBusClient(globalSettings.ServiceBus.ConnectionString).CreateSender(globalSettings.ServiceBus.ApplicationCacheTopicName);
+        _topicMessageSender = new ServiceBusClient(globalSettings.ServiceBus.ConnectionString).CreateSender(
+            globalSettings.ServiceBus.ApplicationCacheTopicName
+        );
     }
 
     public override async Task UpsertOrganizationAbilityAsync(Organization organization)
@@ -35,7 +38,7 @@ public class InMemoryServiceBusApplicationCacheService : InMemoryApplicationCach
             {
                 { "type", (byte)ApplicationCacheMessageType.UpsertOrganizationAbility },
                 { "id", organization.Id },
-            }
+            },
         };
         var task = _topicMessageSender.SendMessageAsync(message);
     }
@@ -50,7 +53,7 @@ public class InMemoryServiceBusApplicationCacheService : InMemoryApplicationCach
             {
                 { "type", (byte)ApplicationCacheMessageType.DeleteOrganizationAbility },
                 { "id", organizationId },
-            }
+            },
         };
         var task = _topicMessageSender.SendMessageAsync(message);
     }
@@ -75,7 +78,7 @@ public class InMemoryServiceBusApplicationCacheService : InMemoryApplicationCach
             {
                 { "type", (byte)ApplicationCacheMessageType.DeleteProviderAbility },
                 { "id", providerId },
-            }
+            },
         };
         var task = _topicMessageSender.SendMessageAsync(message);
     }

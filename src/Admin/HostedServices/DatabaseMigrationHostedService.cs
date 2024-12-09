@@ -8,9 +8,7 @@ public class DatabaseMigrationHostedService : IHostedService, IDisposable
     private readonly ILogger<DatabaseMigrationHostedService> _logger;
     private readonly IDbMigrator _dbMigrator;
 
-    public DatabaseMigrationHostedService(
-        IDbMigrator dbMigrator,
-        ILogger<DatabaseMigrationHostedService> logger)
+    public DatabaseMigrationHostedService(IDbMigrator dbMigrator, ILogger<DatabaseMigrationHostedService> logger)
     {
         _logger = logger;
         _dbMigrator = dbMigrator;
@@ -39,8 +37,11 @@ public class DatabaseMigrationHostedService : IHostedService, IDisposable
                 }
                 else
                 {
-                    _logger.LogError(e,
-                        "Database unavailable for migration. Trying again (attempt #{0})...", i + 1);
+                    _logger.LogError(
+                        e,
+                        "Database unavailable for migration. Trying again (attempt #{0})...",
+                        i + 1
+                    );
                     await Task.Delay(20000);
                 }
             }
@@ -52,6 +53,5 @@ public class DatabaseMigrationHostedService : IHostedService, IDisposable
         return Task.FromResult(0);
     }
 
-    public virtual void Dispose()
-    { }
+    public virtual void Dispose() { }
 }

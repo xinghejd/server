@@ -41,14 +41,16 @@ public abstract class WebApplicationFactoryBase<T> : WebApplicationFactory<T>
 
     private bool _handleSqliteDisposal { get; set; }
 
-
     public void SubstituteService<TService>(Action<TService> mockService)
         where TService : class
     {
         _configureTestServices.Add(services =>
         {
-            var foundServiceDescriptor = services.FirstOrDefault(sd => sd.ServiceType == typeof(TService))
-                ?? throw new InvalidOperationException($"Could not find service of type {typeof(TService).FullName} to substitute");
+            var foundServiceDescriptor =
+                services.FirstOrDefault(sd => sd.ServiceType == typeof(TService))
+                ?? throw new InvalidOperationException(
+                    $"Could not find service of type {typeof(TService).FullName} to substitute"
+                );
             services.Remove(foundServiceDescriptor);
 
             var substitutedService = Substitute.For<TService>();
@@ -104,10 +106,7 @@ public abstract class WebApplicationFactoryBase<T> : WebApplicationFactory<T>
     {
         _configureAppConfiguration.Add(builder =>
         {
-            builder.AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                { key, value },
-            });
+            builder.AddInMemoryCollection(new Dictionary<string, string?> { { key, value } });
         });
     }
 
@@ -131,35 +130,34 @@ public abstract class WebApplicationFactoryBase<T> : WebApplicationFactory<T>
 
             c.AddUserSecrets(typeof(Identity.Startup).Assembly, optional: true);
 
-            c.AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                // Manually insert a EF provider so that ConfigureServices will add EF repositories but we will override
-                // DbContextOptions to use an in memory database
-                { "globalSettings:databaseProvider", "postgres" },
-                { "globalSettings:postgreSql:connectionString", "Host=localhost;Username=test;Password=test;Database=test" },
-
-                // Clear the redis connection string for distributed caching, forcing an in-memory implementation
-                { "globalSettings:redis:connectionString", ""},
-
-                // Clear Storage
-                { "globalSettings:attachment:connectionString", null},
-                { "globalSettings:events:connectionString", null},
-                { "globalSettings:send:connectionString", null},
-                { "globalSettings:notifications:connectionString", null},
-                { "globalSettings:storage:connectionString", null},
-
-                // This will force it to use an ephemeral key for IdentityServer
-                { "globalSettings:developmentDirectory", null },
-
-
-                // Email Verification
-                { "globalSettings:enableEmailVerification", "true" },
-                { "globalSettings:disableUserRegistration", "false" },
-                { "globalSettings:launchDarkly:flagValues:email-verification", "true" },
-
-                // New Device Verification
-                { "globalSettings:disableEmailNewDevice", "false" },
-            });
+            c.AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    // Manually insert a EF provider so that ConfigureServices will add EF repositories but we will override
+                    // DbContextOptions to use an in memory database
+                    { "globalSettings:databaseProvider", "postgres" },
+                    {
+                        "globalSettings:postgreSql:connectionString",
+                        "Host=localhost;Username=test;Password=test;Database=test"
+                    },
+                    // Clear the redis connection string for distributed caching, forcing an in-memory implementation
+                    { "globalSettings:redis:connectionString", "" },
+                    // Clear Storage
+                    { "globalSettings:attachment:connectionString", null },
+                    { "globalSettings:events:connectionString", null },
+                    { "globalSettings:send:connectionString", null },
+                    { "globalSettings:notifications:connectionString", null },
+                    { "globalSettings:storage:connectionString", null },
+                    // This will force it to use an ephemeral key for IdentityServer
+                    { "globalSettings:developmentDirectory", null },
+                    // Email Verification
+                    { "globalSettings:enableEmailVerification", "true" },
+                    { "globalSettings:disableUserRegistration", "false" },
+                    { "globalSettings:launchDarkly:flagValues:email-verification", "true" },
+                    // New Device Verification
+                    { "globalSettings:disableEmailNewDevice", "false" },
+                }
+            );
         });
 
         // Run configured actions after defaults to allow them to take precedence
@@ -170,7 +168,9 @@ public abstract class WebApplicationFactoryBase<T> : WebApplicationFactory<T>
 
         builder.ConfigureTestServices(services =>
         {
-            var dbContextOptions = services.First(sd => sd.ServiceType == typeof(DbContextOptions<DatabaseContext>));
+            var dbContextOptions = services.First(sd =>
+                sd.ServiceType == typeof(DbContextOptions<DatabaseContext>)
+            );
             services.Remove(dbContextOptions);
             services.AddScoped(services =>
             {
@@ -209,13 +209,16 @@ public abstract class WebApplicationFactoryBase<T> : WebApplicationFactory<T>
             services.Remove(mailDeliveryService);
             services.AddSingleton<IMailDeliveryService, NoopMailDeliveryService>();
 
-            var captchaValidationService = services.First(sd => sd.ServiceType == typeof(ICaptchaValidationService));
+            var captchaValidationService = services.First(sd =>
+                sd.ServiceType == typeof(ICaptchaValidationService)
+            );
             services.Remove(captchaValidationService);
             services.AddSingleton<ICaptchaValidationService, NoopCaptchaValidationService>();
 
             // TODO: Install and use azurite in CI pipeline
-            var installationDeviceRepository =
-                services.First(sd => sd.ServiceType == typeof(IInstallationDeviceRepository));
+            var installationDeviceRepository = services.First(sd =>
+                sd.ServiceType == typeof(IInstallationDeviceRepository)
+            );
             services.Remove(installationDeviceRepository);
             services.AddSingleton<IInstallationDeviceRepository, NoopRepos.InstallationDeviceRepository>();
 
@@ -229,10 +232,7 @@ public abstract class WebApplicationFactoryBase<T> : WebApplicationFactory<T>
             // to something that is NOT whitelisted
             services.Configure<IpRateLimitOptions>(options =>
             {
-                options.IpWhitelist = new List<string>
-                {
-                    FactoryConstants.WhitelistedIp,
-                };
+                options.IpWhitelist = new List<string> { FactoryConstants.WhitelistedIp };
             });
 
             // Fix IP Rate Limiting
@@ -275,7 +275,8 @@ public abstract class WebApplicationFactoryBase<T> : WebApplicationFactory<T>
         }
     }
 
-    private void MigrateDbContext<TContext>(IServiceCollection serviceCollection) where TContext : DbContext
+    private void MigrateDbContext<TContext>(IServiceCollection serviceCollection)
+        where TContext : DbContext
     {
         var serviceProvider = serviceCollection.BuildServiceProvider();
         using var scope = serviceProvider.CreateScope();

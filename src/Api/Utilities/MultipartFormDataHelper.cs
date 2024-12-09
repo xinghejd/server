@@ -13,8 +13,10 @@ public static class MultipartFormDataHelper
 
     public static async Task GetFileAsync(this HttpRequest request, Func<Stream, string, string, Task> callback)
     {
-        var boundary = GetBoundary(MediaTypeHeaderValue.Parse(request.ContentType),
-            _defaultFormOptions.MultipartBoundaryLengthLimit);
+        var boundary = GetBoundary(
+            MediaTypeHeaderValue.Parse(request.ContentType),
+            _defaultFormOptions.MultipartBoundaryLengthLimit
+        );
         var reader = new MultipartReader(boundary, request.Body);
 
         var firstSection = await reader.ReadNextSectionAsync();
@@ -43,8 +45,12 @@ public static class MultipartFormDataHelper
                     var secondSection = await reader.ReadNextSectionAsync();
                     if (secondSection != null)
                     {
-                        if (ContentDispositionHeaderValue.TryParse(secondSection.ContentDisposition,
-                            out var secondContent) && HasFileContentDisposition(secondContent))
+                        if (
+                            ContentDispositionHeaderValue.TryParse(
+                                secondSection.ContentDisposition,
+                                out var secondContent
+                            ) && HasFileContentDisposition(secondContent)
+                        )
                         {
                             var fileName = HeaderUtilities.RemoveQuotes(secondContent.FileName).ToString();
                             using (secondSection.Body)
@@ -62,11 +68,15 @@ public static class MultipartFormDataHelper
         }
     }
 
-    public static async Task GetSendFileAsync(this HttpRequest request, Func<Stream, string,
-        SendRequestModel, Task> callback)
+    public static async Task GetSendFileAsync(
+        this HttpRequest request,
+        Func<Stream, string, SendRequestModel, Task> callback
+    )
     {
-        var boundary = GetBoundary(MediaTypeHeaderValue.Parse(request.ContentType),
-            _defaultFormOptions.MultipartBoundaryLengthLimit);
+        var boundary = GetBoundary(
+            MediaTypeHeaderValue.Parse(request.ContentType),
+            _defaultFormOptions.MultipartBoundaryLengthLimit
+        );
         var reader = new MultipartReader(boundary, request.Body);
 
         var firstSection = await reader.ReadNextSectionAsync();
@@ -77,8 +87,12 @@ public static class MultipartFormDataHelper
                 var secondSection = await reader.ReadNextSectionAsync();
                 if (secondSection != null)
                 {
-                    if (ContentDispositionHeaderValue.TryParse(secondSection.ContentDisposition,
-                        out var secondContent) && HasFileContentDisposition(secondContent))
+                    if (
+                        ContentDispositionHeaderValue.TryParse(
+                            secondSection.ContentDisposition,
+                            out var secondContent
+                        ) && HasFileContentDisposition(secondContent)
+                    )
                     {
                         var fileName = HeaderUtilities.RemoveQuotes(secondContent.FileName).ToString();
                         using (secondSection.Body)
@@ -90,7 +104,6 @@ public static class MultipartFormDataHelper
 
                     secondSection = null;
                 }
-
             }
 
             firstSection = null;
@@ -99,15 +112,19 @@ public static class MultipartFormDataHelper
 
     public static async Task GetFileAsync(this HttpRequest request, Func<Stream, Task> callback)
     {
-        var boundary = GetBoundary(MediaTypeHeaderValue.Parse(request.ContentType),
-            _defaultFormOptions.MultipartBoundaryLengthLimit);
+        var boundary = GetBoundary(
+            MediaTypeHeaderValue.Parse(request.ContentType),
+            _defaultFormOptions.MultipartBoundaryLengthLimit
+        );
         var reader = new MultipartReader(boundary, request.Body);
 
         var dataSection = await reader.ReadNextSectionAsync();
         if (dataSection != null)
         {
-            if (ContentDispositionHeaderValue.TryParse(dataSection.ContentDisposition, out var dataContent)
-                && HasFileContentDisposition(dataContent))
+            if (
+                ContentDispositionHeaderValue.TryParse(dataSection.ContentDisposition, out var dataContent)
+                && HasFileContentDisposition(dataContent)
+            )
             {
                 using (dataSection.Body)
                 {
@@ -117,7 +134,6 @@ public static class MultipartFormDataHelper
             dataSection = null;
         }
     }
-
 
     private static string GetBoundary(MediaTypeHeaderValue contentType, int lengthLimit)
     {
@@ -138,8 +154,12 @@ public static class MultipartFormDataHelper
     private static bool HasFileContentDisposition(ContentDispositionHeaderValue content)
     {
         // Content-Disposition: form-data; name="data"; filename="Misc 002.jpg"
-        return content != null && content.DispositionType.Equals("form-data") &&
-            (!StringSegment.IsNullOrEmpty(content.FileName) || !StringSegment.IsNullOrEmpty(content.FileNameStar));
+        return content != null
+            && content.DispositionType.Equals("form-data")
+            && (
+                !StringSegment.IsNullOrEmpty(content.FileName)
+                || !StringSegment.IsNullOrEmpty(content.FileNameStar)
+            );
     }
 
     private static bool HasDispositionName(ContentDispositionHeaderValue content, string name)

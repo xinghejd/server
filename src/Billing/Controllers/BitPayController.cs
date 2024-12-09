@@ -34,7 +34,8 @@ public class BitPayController : Controller
         IProviderRepository providerRepository,
         IMailService mailService,
         IPaymentService paymentService,
-        ILogger<BitPayController> logger)
+        ILogger<BitPayController> logger
+    )
     {
         _billingSettings = billingSettings?.Value;
         _bitPayClient = bitPayClient;
@@ -54,8 +55,11 @@ public class BitPayController : Controller
         {
             return new BadRequestResult();
         }
-        if (model == null || string.IsNullOrWhiteSpace(model.Data?.Id) ||
-            string.IsNullOrWhiteSpace(model.Event?.Name))
+        if (
+            model == null
+            || string.IsNullOrWhiteSpace(model.Data?.Id)
+            || string.IsNullOrWhiteSpace(model.Event?.Name)
+        )
         {
             return new BadRequestResult();
         }
@@ -121,7 +125,7 @@ public class BitPayController : Controller
                 Gateway = GatewayType.BitPay,
                 GatewayId = invoice.Id,
                 PaymentMethodType = PaymentMethodType.BitPay,
-                Details = $"{invoice.Currency}, BitPay {invoice.Id}"
+                Details = $"{invoice.Currency}, BitPay {invoice.Id}",
             };
             await _transactionRepository.CreateAsync(tx);
 
@@ -164,7 +168,10 @@ public class BitPayController : Controller
             }
             else
             {
-                _logger.LogError("Received BitPay account credit transaction that didn't have a user, org, or provider. Invoice#{InvoiceId}", invoice.Id);
+                _logger.LogError(
+                    "Received BitPay account credit transaction that didn't have a user, org, or provider. Invoice#{InvoiceId}",
+                    invoice.Id
+                );
             }
 
             if (!string.IsNullOrWhiteSpace(billingEmail))
@@ -173,9 +180,7 @@ public class BitPayController : Controller
             }
         }
         // Catch foreign key violations because user/org could have been deleted.
-        catch (SqlException e) when (e.Number == 547)
-        {
-        }
+        catch (SqlException e) when (e.Number == 547) { }
 
         return new OkResult();
     }
@@ -187,12 +192,16 @@ public class BitPayController : Controller
 
     private DateTime GetTransactionDate(BitPayLight.Models.Invoice.Invoice invoice)
     {
-        var transactions = invoice.Transactions?.Where(t => t.Type == null &&
-            !string.IsNullOrWhiteSpace(t.Confirmations) && t.Confirmations != "0");
+        var transactions = invoice.Transactions?.Where(t =>
+            t.Type == null && !string.IsNullOrWhiteSpace(t.Confirmations) && t.Confirmations != "0"
+        );
         if (transactions != null && transactions.Count() == 1)
         {
-            return DateTime.Parse(transactions.First().ReceivedTime, CultureInfo.InvariantCulture,
-                DateTimeStyles.RoundtripKind);
+            return DateTime.Parse(
+                transactions.First().ReceivedTime,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.RoundtripKind
+            );
         }
         return CoreHelpers.FromEpocMilliseconds(invoice.CurrentTime);
     }

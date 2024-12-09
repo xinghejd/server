@@ -18,11 +18,13 @@ public class IconHttpResponseTests
     public IconHttpResponseTests()
     {
         _mockedUriService = Substitute.For<IUriService>();
-        _mockedUriService.TryGetUri(Arg.Any<Uri>(), out Arg.Any<IconUri>()).Returns(x =>
-        {
-            x[1] = new IconUri(new Uri("https://icon.test"), IPAddress.Parse("192.0.2.1"));
-            return true;
-        });
+        _mockedUriService
+            .TryGetUri(Arg.Any<Uri>(), out Arg.Any<IconUri>())
+            .Returns(x =>
+            {
+                x[1] = new IconUri(new Uri("https://icon.test"), IPAddress.Parse("192.0.2.1"));
+                return true;
+            });
     }
 
     [Fact]
@@ -78,21 +80,27 @@ public class IconHttpResponseTests
         return new HttpResponseMessage(HttpStatusCode.OK)
         {
             RequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://icon.test"),
-            Content = new StringContent(content)
+            Content = new StringContent(content),
         };
     }
 
     private Func<HttpResponseMessage, IconHttpResponse> CurriedIconHttpResponse()
     {
-        return (HttpResponseMessage response) => new IconHttpResponse(response, NullLogger<IIconFetchingService>.Instance, UsableIconHttpClientFactory(), _mockedUriService);
+        return (HttpResponseMessage response) =>
+            new IconHttpResponse(
+                response,
+                NullLogger<IIconFetchingService>.Instance,
+                UsableIconHttpClientFactory(),
+                _mockedUriService
+            );
     }
 
     private static IHttpClientFactory UsableIconHttpClientFactory()
     {
         var substitute = Substitute.For<IHttpClientFactory>();
         var handler = new MockedHttpMessageHandler();
-        handler.Fallback
-            .WithStatusCode(HttpStatusCode.OK)
+        handler
+            .Fallback.WithStatusCode(HttpStatusCode.OK)
             .WithContent("image/png", new byte[] { 137, 80, 78, 71 });
 
         substitute.CreateClient("Icons").Returns(handler.ToHttpClient());

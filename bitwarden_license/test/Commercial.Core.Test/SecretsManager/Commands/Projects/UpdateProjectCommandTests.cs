@@ -17,7 +17,10 @@ public class UpdateProjectCommandTests
 {
     [Theory]
     [BitAutoData]
-    public async Task UpdateAsync_Throws_NotFoundException(Project project, SutProvider<UpdateProjectCommand> sutProvider)
+    public async Task UpdateAsync_Throws_NotFoundException(
+        Project project,
+        SutProvider<UpdateProjectCommand> sutProvider
+    )
     {
         sutProvider.GetDependency<IProjectRepository>().GetByIdAsync(project.Id).ReturnsNull();
 

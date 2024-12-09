@@ -22,11 +22,13 @@ public class IconLinkTests
         _element = Substitute.For<IElement>();
         _httpClientFactory = Substitute.For<IHttpClientFactory>();
         _uriService = Substitute.For<IUriService>();
-        _uriService.TryGetUri(Arg.Any<Uri>(), out Arg.Any<IconUri>()).Returns(x =>
-        {
-            x[1] = new IconUri(new Uri("https://icon.test"), IPAddress.Parse("192.0.2.1"));
-            return true;
-        });
+        _uriService
+            .TryGetUri(Arg.Any<Uri>(), out Arg.Any<IconUri>())
+            .Returns(x =>
+            {
+                x[1] = new IconUri(new Uri("https://icon.test"), IPAddress.Parse("192.0.2.1"));
+                return true;
+            });
     }
 
     [Fact]
@@ -70,7 +72,11 @@ public class IconLinkTests
     [Fact]
     public async Task FetchAsync_Unvalidated_ReturnsNull()
     {
-        var result = await new IconLink(_element, _uri, _baseUrlPath).FetchAsync(_logger, _httpClientFactory, _uriService);
+        var result = await new IconLink(_element, _uri, _baseUrlPath).FetchAsync(
+            _logger,
+            _httpClientFactory,
+            _uriService
+        );
 
         Assert.Null(result);
     }

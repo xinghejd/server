@@ -26,7 +26,8 @@ public class OrganizationDomainService : IOrganizationDomainService
         IVerifyOrganizationDomainCommand verifyOrganizationDomainCommand,
         TimeProvider timeProvider,
         ILogger<OrganizationDomainService> logger,
-        IGlobalSettings globalSettings)
+        IGlobalSettings globalSettings
+    )
     {
         _domainRepository = domainRepository;
         _organizationUserRepository = organizationUserRepository;
@@ -45,14 +46,20 @@ public class OrganizationDomainService : IOrganizationDomainService
 
         var verifiableDomains = await _domainRepository.GetManyByNextRunDateAsync(runDate);
 
-        _logger.LogInformation(Constants.BypassFiltersEventId, "Validating {verifiableDomainsCount} domains.", verifiableDomains.Count);
+        _logger.LogInformation(
+            Constants.BypassFiltersEventId,
+            "Validating {verifiableDomainsCount} domains.",
+            verifiableDomains.Count
+        );
 
         foreach (var domain in verifiableDomains)
         {
-            _logger.LogInformation(Constants.BypassFiltersEventId,
+            _logger.LogInformation(
+                Constants.BypassFiltersEventId,
                 "Attempting verification for organization {OrgId} with domain {Domain}",
                 domain.OrganizationId,
-                domain.DomainName);
+                domain.DomainName
+            );
 
             try
             {
@@ -63,11 +70,19 @@ public class OrganizationDomainService : IOrganizationDomainService
                 domain.SetNextRunDate(_globalSettings.DomainVerification.VerificationInterval);
                 await _domainRepository.ReplaceAsync(domain);
 
-                await _eventService.LogOrganizationDomainEventAsync(domain, EventType.OrganizationDomain_NotVerified,
-                    EventSystemUser.DomainVerification);
+                await _eventService.LogOrganizationDomainEventAsync(
+                    domain,
+                    EventType.OrganizationDomain_NotVerified,
+                    EventSystemUser.DomainVerification
+                );
 
-                _logger.LogError(ex, "Verification for organization {OrgId} with domain {Domain} threw an exception: {errorMessage}",
-                    domain.OrganizationId, domain.DomainName, ex.Message);
+                _logger.LogError(
+                    ex,
+                    "Verification for organization {OrgId} with domain {Domain} threw an exception: {errorMessage}",
+                    domain.OrganizationId,
+                    domain.DomainName,
+                    ex.Message
+                );
             }
         }
     }
@@ -79,8 +94,11 @@ public class OrganizationDomainService : IOrganizationDomainService
             //Get domains that have not been verified within 72 hours
             var expiredDomains = await _domainRepository.GetExpiredOrganizationDomainsAsync();
 
-            _logger.LogInformation(Constants.BypassFiltersEventId,
-                "Attempting email reminder for {expiredDomainCount} expired domains.", expiredDomains.Count);
+            _logger.LogInformation(
+                Constants.BypassFiltersEventId,
+                "Attempting email reminder for {expiredDomainCount} expired domains.",
+                expiredDomains.Count
+            );
 
             foreach (var domain in expiredDomains)
             {
@@ -90,14 +108,23 @@ public class OrganizationDomainService : IOrganizationDomainService
                 //Send email to administrators
                 if (adminEmails.Count > 0)
                 {
-                    await _mailService.SendUnverifiedOrganizationDomainEmailAsync(adminEmails,
-                        domain.OrganizationId.ToString(), domain.DomainName);
+                    await _mailService.SendUnverifiedOrganizationDomainEmailAsync(
+                        adminEmails,
+                        domain.OrganizationId.ToString(),
+                        domain.DomainName
+                    );
                 }
 
-                _logger.LogInformation(Constants.BypassFiltersEventId, "Expired domain: {domainName}", domain.DomainName);
+                _logger.LogInformation(
+                    Constants.BypassFiltersEventId,
+                    "Expired domain: {domainName}",
+                    domain.DomainName
+                );
             }
             // Delete domains that have not been verified within 7 days
-            var status = await _domainRepository.DeleteExpiredAsync(_globalSettings.DomainVerification.ExpirationPeriod);
+            var status = await _domainRepository.DeleteExpiredAsync(
+                _globalSettings.DomainVerification.ExpirationPeriod
+            );
             _logger.LogInformation(Constants.BypassFiltersEventId, "Delete status {status}", status);
         }
         catch (Exception ex)
@@ -109,9 +136,11 @@ public class OrganizationDomainService : IOrganizationDomainService
     private async Task<List<string>> GetAdminEmailsAsync(Guid organizationId)
     {
         var orgUsers = await _organizationUserRepository.GetManyDetailsByOrganizationAsync(organizationId);
-        var emailList = orgUsers.Where(o => o.Type <= OrganizationUserType.Admin
-                                        || o.GetPermissions()?.ManageSso == true)
-            .Select(a => a.Email).Distinct().ToList();
+        var emailList = orgUsers
+            .Where(o => o.Type <= OrganizationUserType.Admin || o.GetPermissions()?.ManageSso == true)
+            .Select(a => a.Email)
+            .Distinct()
+            .ToList();
 
         return emailList;
     }

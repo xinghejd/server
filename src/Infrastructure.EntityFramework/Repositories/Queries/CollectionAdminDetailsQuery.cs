@@ -20,42 +20,53 @@ public class CollectionAdminDetailsQuery : IQuery<CollectionAdminDetails>
 
     public virtual IQueryable<CollectionAdminDetails> Run(DatabaseContext dbContext)
     {
-        var baseCollectionQuery = from c in dbContext.Collections
-                                  join ou in dbContext.OrganizationUsers
-                                      on new { c.OrganizationId, UserId = _userId } equals
-                                      new { ou.OrganizationId, ou.UserId } into ou_g
-                                  from ou in ou_g.DefaultIfEmpty()
+        var baseCollectionQuery =
+            from c in dbContext.Collections
+            join ou in dbContext.OrganizationUsers
+                on new { c.OrganizationId, UserId = _userId } equals new { ou.OrganizationId, ou.UserId }
+                into ou_g
+            from ou in ou_g.DefaultIfEmpty()
 
-                                  join cu in dbContext.CollectionUsers
-                                      on new { CollectionId = c.Id, OrganizationUserId = ou.Id } equals
-                                      new { cu.CollectionId, cu.OrganizationUserId } into cu_g
-                                  from cu in cu_g.DefaultIfEmpty()
+            join cu in dbContext.CollectionUsers
+                on new { CollectionId = c.Id, OrganizationUserId = ou.Id } equals new
+                {
+                    cu.CollectionId,
+                    cu.OrganizationUserId,
+                }
+                into cu_g
+            from cu in cu_g.DefaultIfEmpty()
 
-                                  join gu in dbContext.GroupUsers
-                                      on new { CollectionId = (Guid?)cu.CollectionId, OrganizationUserId = ou.Id } equals
-                                      new { CollectionId = (Guid?)null, gu.OrganizationUserId } into gu_g
-                                  from gu in gu_g.DefaultIfEmpty()
+            join gu in dbContext.GroupUsers
+                on new { CollectionId = (Guid?)cu.CollectionId, OrganizationUserId = ou.Id } equals new
+                {
+                    CollectionId = (Guid?)null,
+                    gu.OrganizationUserId,
+                }
+                into gu_g
+            from gu in gu_g.DefaultIfEmpty()
 
-                                  join g in dbContext.Groups
-                                      on gu.GroupId equals g.Id into g_g
-                                  from g in g_g.DefaultIfEmpty()
+            join g in dbContext.Groups on gu.GroupId equals g.Id into g_g
+            from g in g_g.DefaultIfEmpty()
 
-                                  join cg in dbContext.CollectionGroups
-                                      on new { CollectionId = c.Id, gu.GroupId } equals
-                                      new { cg.CollectionId, cg.GroupId } into cg_g
-                                  from cg in cg_g.DefaultIfEmpty()
-                                  select new { c, cu, cg };
+            join cg in dbContext.CollectionGroups
+                on new { CollectionId = c.Id, gu.GroupId } equals new { cg.CollectionId, cg.GroupId }
+                into cg_g
+            from cg in cg_g.DefaultIfEmpty()
+            select new
+            {
+                c,
+                cu,
+                cg,
+            };
 
         // Subqueries to determine if a collection is managed by a user or group.
-        var activeUserManageRights = from cu in dbContext.CollectionUsers
-                                     join ou in dbContext.OrganizationUsers
-                                         on cu.OrganizationUserId equals ou.Id
-                                     where cu.Manage
-                                     select cu.CollectionId;
+        var activeUserManageRights =
+            from cu in dbContext.CollectionUsers
+            join ou in dbContext.OrganizationUsers on cu.OrganizationUserId equals ou.Id
+            where cu.Manage
+            select cu.CollectionId;
 
-        var activeGroupManageRights = from cg in dbContext.CollectionGroups
-                                      where cg.Manage
-                                      select cg.CollectionId;
+        var activeGroupManageRights = from cg in dbContext.CollectionGroups where cg.Manage select cg.CollectionId;
 
         if (_organizationId.HasValue)
         {
@@ -95,5 +106,4 @@ public class CollectionAdminDetailsQuery : IQuery<CollectionAdminDetails>
     {
         return new CollectionAdminDetailsQuery(userId, organizationId, null);
     }
-
 }

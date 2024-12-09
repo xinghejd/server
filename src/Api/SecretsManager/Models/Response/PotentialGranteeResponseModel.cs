@@ -63,9 +63,8 @@ public class PotentialGranteeResponseModel : ResponseModel
         Type = "project";
     }
 
-    public PotentialGranteeResponseModel() : base(_objectName)
-    {
-    }
+    public PotentialGranteeResponseModel()
+        : base(_objectName) { }
 
     public Guid Id { get; set; }
     public string Name { get; set; }

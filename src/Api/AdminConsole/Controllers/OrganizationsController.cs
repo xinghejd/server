@@ -78,7 +78,8 @@ public class OrganizationsController : Controller
         IProviderBillingService providerBillingService,
         IDataProtectorTokenFactory<OrgDeleteTokenable> orgDeleteTokenDataFactory,
         IRemoveOrganizationUserCommand removeOrganizationUserCommand,
-        ICloudOrganizationSignUpCommand cloudOrganizationSignUpCommand)
+        ICloudOrganizationSignUpCommand cloudOrganizationSignUpCommand
+    )
     {
         _organizationRepository = organizationRepository;
         _organizationUserRepository = organizationUserRepository;
@@ -123,13 +124,18 @@ public class OrganizationsController : Controller
     public async Task<ListResponseModel<ProfileOrganizationResponseModel>> GetUser()
     {
         var userId = _userService.GetProperUserId(User).Value;
-        var organizations = await _organizationUserRepository.GetManyDetailsByUserAsync(userId,
-            OrganizationUserStatusType.Confirmed);
+        var organizations = await _organizationUserRepository.GetManyDetailsByUserAsync(
+            userId,
+            OrganizationUserStatusType.Confirmed
+        );
 
         var organizationManagingActiveUser = await _userService.GetOrganizationsManagingUserAsync(userId);
         var organizationIdsManagingActiveUser = organizationManagingActiveUser.Select(o => o.Id);
 
-        var responses = organizations.Select(o => new ProfileOrganizationResponseModel(o, organizationIdsManagingActiveUser));
+        var responses = organizations.Select(o => new ProfileOrganizationResponseModel(
+            o,
+            organizationIdsManagingActiveUser
+        ));
         return new ListResponseModel<ProfileOrganizationResponseModel>(responses);
     }
 
@@ -154,14 +160,19 @@ public class OrganizationsController : Controller
             throw new NotFoundException();
         }
 
-        var resetPasswordPolicy =
-            await _policyRepository.GetByOrganizationIdTypeAsync(organization.Id, PolicyType.ResetPassword);
+        var resetPasswordPolicy = await _policyRepository.GetByOrganizationIdTypeAsync(
+            organization.Id,
+            PolicyType.ResetPassword
+        );
         if (resetPasswordPolicy == null || !resetPasswordPolicy.Enabled || resetPasswordPolicy.Data == null)
         {
             return new OrganizationAutoEnrollStatusResponseModel(organization.Id, false);
         }
 
-        var data = JsonSerializer.Deserialize<ResetPasswordDataModel>(resetPasswordPolicy.Data, JsonHelpers.IgnoreCase);
+        var data = JsonSerializer.Deserialize<ResetPasswordDataModel>(
+            resetPasswordPolicy.Data,
+            JsonHelpers.IgnoreCase
+        );
         return new OrganizationAutoEnrollStatusResponseModel(organization.Id, data?.AutoEnrollEnabled ?? false);
     }
 
@@ -182,7 +193,9 @@ public class OrganizationsController : Controller
 
     [HttpPost("create-without-payment")]
     [SelfHosted(NotSelfHostedOnly = true)]
-    public async Task<OrganizationResponseModel> CreateWithoutPaymentAsync([FromBody] OrganizationNoPaymentCreateRequest model)
+    public async Task<OrganizationResponseModel> CreateWithoutPaymentAsync(
+        [FromBody] OrganizationNoPaymentCreateRequest model
+    )
     {
         var user = await _userService.GetUserByPrincipalAsync(User);
         if (user == null)
@@ -207,8 +220,12 @@ public class OrganizationsController : Controller
             throw new NotFoundException();
         }
 
-        var updateBilling = !_globalSettings.SelfHosted && (model.BusinessName != organization.DisplayBusinessName() ||
-                                                            model.BillingEmail != organization.BillingEmail);
+        var updateBilling =
+            !_globalSettings.SelfHosted
+            && (
+                model.BusinessName != organization.DisplayBusinessName()
+                || model.BillingEmail != organization.BillingEmail
+            );
 
         var hasRequiredPermissions = updateBilling
             ? await _currentContext.EditSubscription(orgIdGuid)
@@ -248,15 +265,22 @@ public class OrganizationsController : Controller
         var user = await _userService.GetUserByPrincipalAsync(User);
 
         var ssoConfig = await _ssoConfigRepository.GetByOrganizationIdAsync(id);
-        if (ssoConfig?.GetData()?.MemberDecryptionType == MemberDecryptionType.KeyConnector && user.UsesKeyConnector)
+        if (
+            ssoConfig?.GetData()?.MemberDecryptionType == MemberDecryptionType.KeyConnector
+            && user.UsesKeyConnector
+        )
         {
             throw new BadRequestException("Your organization's Single Sign-On settings prevent you from leaving.");
         }
 
-        if (_featureService.IsEnabled(FeatureFlagKeys.AccountDeprovisioning)
-            && (await _userService.GetOrganizationsManagingUserAsync(user.Id)).Any(x => x.Id == id))
+        if (
+            _featureService.IsEnabled(FeatureFlagKeys.AccountDeprovisioning)
+            && (await _userService.GetOrganizationsManagingUserAsync(user.Id)).Any(x => x.Id == id)
+        )
         {
-            throw new BadRequestException("Managed user account cannot leave managing organization. Contact your organization administrator for additional details.");
+            throw new BadRequestException(
+                "Managed user account cannot leave managing organization. Contact your organization administrator for additional details."
+            );
         }
 
         await _removeOrganizationUserCommand.RemoveUserAsync(id, user.Id);
@@ -299,7 +323,8 @@ public class OrganizationsController : Controller
                 await _providerBillingService.ScaleSeats(
                     provider,
                     organization.PlanType,
-                    -organization.Seats ?? 0);
+                    -organization.Seats ?? 0
+                );
             }
         }
 
@@ -329,7 +354,8 @@ public class OrganizationsController : Controller
                 await _providerBillingService.ScaleSeats(
                     provider,
                     organization.PlanType,
-                    -organization.Seats ?? 0);
+                    -organization.Seats ?? 0
+                );
             }
         }
 
@@ -361,9 +387,9 @@ public class OrganizationsController : Controller
             }
         }
 
-        var organizationApiKey = await _getOrganizationApiKeyQuery
-                                     .GetOrganizationApiKeyAsync(organization.Id, model.Type) ??
-                                 await _createOrganizationApiKeyCommand.CreateAsync(organization.Id, model.Type);
+        var organizationApiKey =
+            await _getOrganizationApiKeyQuery.GetOrganizationApiKeyAsync(organization.Id, model.Type)
+            ?? await _createOrganizationApiKeyCommand.CreateAsync(organization.Id, model.Type);
 
         var user = await _userService.GetUserByPrincipalAsync(User);
         if (user == null)
@@ -371,8 +397,7 @@ public class OrganizationsController : Controller
             throw new UnauthorizedAccessException();
         }
 
-        if (model.Type != OrganizationApiKeyType.Scim
-            && !await _userService.VerifySecretAsync(user, model.Secret))
+        if (model.Type != OrganizationApiKeyType.Scim && !await _userService.VerifySecretAsync(user, model.Secret))
         {
             await Task.Delay(2000);
             throw new BadRequestException("MasterPasswordHash", "Invalid password.");
@@ -385,8 +410,10 @@ public class OrganizationsController : Controller
     }
 
     [HttpGet("{id}/api-key-information/{type?}")]
-    public async Task<ListResponseModel<OrganizationApiKeyInformation>> ApiKeyInformation(Guid id,
-        [FromRoute] OrganizationApiKeyType? type)
+    public async Task<ListResponseModel<OrganizationApiKeyInformation>> ApiKeyInformation(
+        Guid id,
+        [FromRoute] OrganizationApiKeyType? type
+    )
     {
         if (!await HasApiKeyAccessAsync(id, type))
         {
@@ -396,7 +423,8 @@ public class OrganizationsController : Controller
         var apiKeys = await _organizationApiKeyRepository.GetManyByOrganizationIdTypeAsync(id, type);
 
         return new ListResponseModel<OrganizationApiKeyInformation>(
-            apiKeys.Select(k => new OrganizationApiKeyInformation(k)));
+            apiKeys.Select(k => new OrganizationApiKeyInformation(k))
+        );
     }
 
     [HttpPost("{id}/rotate-api-key")]
@@ -414,9 +442,9 @@ public class OrganizationsController : Controller
             throw new NotFoundException();
         }
 
-        var organizationApiKey = await _getOrganizationApiKeyQuery
-                                     .GetOrganizationApiKeyAsync(organization.Id, model.Type) ??
-                                 await _createOrganizationApiKeyCommand.CreateAsync(organization.Id, model.Type);
+        var organizationApiKey =
+            await _getOrganizationApiKeyQuery.GetOrganizationApiKeyAsync(organization.Id, model.Type)
+            ?? await _createOrganizationApiKeyCommand.CreateAsync(organization.Id, model.Type);
 
         var user = await _userService.GetUserByPrincipalAsync(User);
         if (user == null)
@@ -424,8 +452,7 @@ public class OrganizationsController : Controller
             throw new UnauthorizedAccessException();
         }
 
-        if (model.Type != OrganizationApiKeyType.Scim
-            && !await _userService.VerifySecretAsync(user, model.Secret))
+        if (model.Type != OrganizationApiKeyType.Scim && !await _userService.VerifySecretAsync(user, model.Secret))
         {
             await Task.Delay(2000);
             throw new BadRequestException("MasterPasswordHash", "Invalid password.");
@@ -467,7 +494,10 @@ public class OrganizationsController : Controller
     }
 
     [HttpPost("{id}/keys")]
-    public async Task<OrganizationKeysResponseModel> PostKeys(string id, [FromBody] OrganizationKeysRequestModel model)
+    public async Task<OrganizationKeysResponseModel> PostKeys(
+        string id,
+        [FromBody] OrganizationKeysRequestModel model
+    )
     {
         var user = await _userService.GetUserByPrincipalAsync(User);
         if (user == null)
@@ -475,8 +505,11 @@ public class OrganizationsController : Controller
             throw new UnauthorizedAccessException();
         }
 
-        var org = await _organizationService.UpdateOrganizationKeysAsync(new Guid(id), model.PublicKey,
-            model.EncryptedPrivateKey);
+        var org = await _organizationService.UpdateOrganizationKeysAsync(
+            new Guid(id),
+            model.PublicKey,
+            model.EncryptedPrivateKey
+        );
         return new OrganizationKeysResponseModel(org);
     }
 
@@ -524,7 +557,10 @@ public class OrganizationsController : Controller
     }
 
     [HttpPut("{id}/collection-management")]
-    public async Task<OrganizationResponseModel> PutCollectionManagement(Guid id, [FromBody] OrganizationCollectionManagementUpdateRequestModel model)
+    public async Task<OrganizationResponseModel> PutCollectionManagement(
+        Guid id,
+        [FromBody] OrganizationCollectionManagementUpdateRequestModel model
+    )
     {
         var organization = await _organizationRepository.GetByIdAsync(id);
         if (organization == null)
@@ -537,7 +573,10 @@ public class OrganizationsController : Controller
             throw new NotFoundException();
         }
 
-        await _organizationService.UpdateAsync(model.ToOrganization(organization, _featureService), eventType: EventType.Organization_CollectionManagement_Updated);
+        await _organizationService.UpdateAsync(
+            model.ToOrganization(organization, _featureService),
+            eventType: EventType.Organization_CollectionManagement_Updated
+        );
         return new OrganizationResponseModel(organization);
     }
 }

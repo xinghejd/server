@@ -22,7 +22,7 @@ public class ServiceAccountGrantedPoliciesRequestModel
         {
             ServiceAccountId = serviceAccount.Id,
             OrganizationId = serviceAccount.OrganizationId,
-            ProjectGrantedPolicies = projectGrantedPolicies
+            ProjectGrantedPolicies = projectGrantedPolicies,
         };
     }
 }

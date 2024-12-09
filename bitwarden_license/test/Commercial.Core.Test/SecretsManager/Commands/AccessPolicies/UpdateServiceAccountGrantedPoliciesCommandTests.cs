@@ -18,12 +18,14 @@ public class UpdateServiceAccountGrantedPoliciesCommandTests
     [BitAutoData]
     public async Task UpdateAsync_NoUpdates_DoesNotCallRepository(
         SutProvider<UpdateServiceAccountGrantedPoliciesCommand> sutProvider,
-        ServiceAccountGrantedPoliciesUpdates data)
+        ServiceAccountGrantedPoliciesUpdates data
+    )
     {
         data.ProjectGrantedPolicyUpdates = [];
         await sutProvider.Sut.UpdateAsync(data);
 
-        await sutProvider.GetDependency<IAccessPolicyRepository>()
+        await sutProvider
+            .GetDependency<IAccessPolicyRepository>()
             .DidNotReceiveWithAnyArgs()
             .UpdateServiceAccountGrantedPoliciesAsync(Arg.Any<ServiceAccountGrantedPoliciesUpdates>());
     }
@@ -32,11 +34,13 @@ public class UpdateServiceAccountGrantedPoliciesCommandTests
     [BitAutoData]
     public async Task UpdateAsync_HasUpdates_CallsRepository(
         SutProvider<UpdateServiceAccountGrantedPoliciesCommand> sutProvider,
-        ServiceAccountGrantedPoliciesUpdates data)
+        ServiceAccountGrantedPoliciesUpdates data
+    )
     {
         await sutProvider.Sut.UpdateAsync(data);
 
-        await sutProvider.GetDependency<IAccessPolicyRepository>()
+        await sutProvider
+            .GetDependency<IAccessPolicyRepository>()
             .Received(1)
             .UpdateServiceAccountGrantedPoliciesAsync(Arg.Any<ServiceAccountGrantedPoliciesUpdates>());
     }

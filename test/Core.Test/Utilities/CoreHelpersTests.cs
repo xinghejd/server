@@ -19,7 +19,7 @@ public class CoreHelpersTests
 {
     public static IEnumerable<object[]> _epochTestCases = new[]
     {
-        new object[] {new DateTime(2020, 12, 30, 11, 49, 12, DateTimeKind.Utc), 1609328952000L},
+        new object[] { new DateTime(2020, 12, 30, 11, 49, 12, DateTimeKind.Utc), 1609328952000L },
     };
 
     [Fact]
@@ -34,7 +34,8 @@ public class CoreHelpersTests
         // the comb are working properly
     }
 
-    public static IEnumerable<object[]> GuidSeedCases = [
+    public static IEnumerable<object[]> GuidSeedCases =
+    [
         [
             Guid.Parse("a58db474-43d8-42f1-b4ee-0c17647cd0c0"), // Input Guid
             new DateTime(2022, 3, 12, 12, 12, 0, DateTimeKind.Utc), // Input Time
@@ -50,14 +51,18 @@ public class CoreHelpersTests
         [
             Guid.Parse("bfb8f353-3b32-4a9e-bef6-24fe0b54bfb0"),
             new DateTime(2024, 10, 20, 1, 32, 16, DateTimeKind.Utc),
-        ]
+        ],
     ];
-    public static IEnumerable<object[]> GenerateCombCases = GuidSeedCases.Zip([
-            Guid.Parse("a58db474-43d8-42f1-b4ee-ae5600c90cc1"), // Expected Comb for each Guid Seed case
-        Guid.Parse("f776e6ee-511f-4352-bb28-ad2400b313c1"),
-        Guid.Parse("51a25fc7-3cad-497d-8e2f-8d77011649cd"),
-        Guid.Parse("bfb8f353-3b32-4a9e-bef6-b20f00195780"),
-    ]).Select((zip) => new object[] { zip.Item1[0], zip.Item1[1], zip.Item2 });
+    public static IEnumerable<object[]> GenerateCombCases = GuidSeedCases
+        .Zip(
+            [
+                Guid.Parse("a58db474-43d8-42f1-b4ee-ae5600c90cc1"), // Expected Comb for each Guid Seed case
+                Guid.Parse("f776e6ee-511f-4352-bb28-ad2400b313c1"),
+                Guid.Parse("51a25fc7-3cad-497d-8e2f-8d77011649cd"),
+                Guid.Parse("bfb8f353-3b32-4a9e-bef6-b20f00195780"),
+            ]
+        )
+        .Select((zip) => new object[] { zip.Item1[0], zip.Item1[1], zip.Item2 });
 
     [Theory]
     [MemberData(nameof(GenerateCombCases))]
@@ -208,8 +213,7 @@ public class CoreHelpersTests
         var uri = new Uri("https://bitwarden.com/?param1=value1");
 
         // Act
-        var newUri = CoreHelpers.ExtendQuery(uri,
-            new Dictionary<string, string> { { "param2", "value2" } });
+        var newUri = CoreHelpers.ExtendQuery(uri, new Dictionary<string, string> { { "param2", "value2" } });
 
         // Assert
         Assert.Equal("https://bitwarden.com/?param1=value1&param2=value2", newUri.ToString());
@@ -222,12 +226,10 @@ public class CoreHelpersTests
         var uri = new Uri("https://bitwarden.com/?param1=value1");
 
         // Act
-        var newUri = CoreHelpers.ExtendQuery(uri,
-            new Dictionary<string, string>
-            {
-                { "param2", "value2" },
-                { "param3", "value3" }
-            });
+        var newUri = CoreHelpers.ExtendQuery(
+            uri,
+            new Dictionary<string, string> { { "param2", "value2" }, { "param3", "value3" } }
+        );
 
         // Assert
         Assert.Equal("https://bitwarden.com/?param1=value1&param2=value2&param3=value3", newUri.ToString());
@@ -240,8 +242,7 @@ public class CoreHelpersTests
         var uri = new Uri("https://bitwarden.com/?param1=value1&param2=value2");
 
         // Act
-        var newUri = CoreHelpers.ExtendQuery(uri,
-            new Dictionary<string, string> { { "param1", "test_value" } });
+        var newUri = CoreHelpers.ExtendQuery(uri, new Dictionary<string, string> { { "param1", "test_value" } });
 
         // Assert
         Assert.Equal("https://bitwarden.com/?param1=test_value&param2=value2", newUri.ToString());
@@ -296,8 +297,12 @@ public class CoreHelpersTests
             { "sstamp", user.SecurityStamp },
         }.ToList();
 
-        var actual = CoreHelpers.BuildIdentityClaims(user, Array.Empty<CurrentContextOrganization>(),
-            Array.Empty<CurrentContextProvider>(), isPremium);
+        var actual = CoreHelpers.BuildIdentityClaims(
+            user,
+            Array.Empty<CurrentContextOrganization>(),
+            Array.Empty<CurrentContextProvider>(),
+            isPremium
+        );
 
         foreach (var claim in expected)
         {
@@ -310,13 +315,24 @@ public class CoreHelpersTests
     public void BuildIdentityClaims_NonCustomOrganizationUserType_Success(User user)
     {
         var fixture = new Fixture().WithAutoNSubstitutions();
-        foreach (var organizationUserType in Enum.GetValues<OrganizationUserType>().Except(new[] { OrganizationUserType.Custom }))
+        foreach (
+            var organizationUserType in Enum.GetValues<OrganizationUserType>()
+                .Except(new[] { OrganizationUserType.Custom })
+        )
         {
             var org = fixture.Create<CurrentContextOrganization>();
             org.Type = organizationUserType;
 
-            var expected = new KeyValuePair<string, string>($"org{organizationUserType.ToString().ToLower()}", org.Id.ToString());
-            var actual = CoreHelpers.BuildIdentityClaims(user, new[] { org }, Array.Empty<CurrentContextProvider>(), false);
+            var expected = new KeyValuePair<string, string>(
+                $"org{organizationUserType.ToString().ToLower()}",
+                org.Id.ToString()
+            );
+            var actual = CoreHelpers.BuildIdentityClaims(
+                user,
+                new[] { org },
+                Array.Empty<CurrentContextProvider>(),
+                false
+            );
 
             Assert.Contains(expected, actual);
         }
@@ -328,13 +344,17 @@ public class CoreHelpersTests
         var fixture = new Fixture().WithAutoNSubstitutions();
         org.Type = OrganizationUserType.Custom;
 
-        var actual = CoreHelpers.BuildIdentityClaims(user, new[] { org }, Array.Empty<CurrentContextProvider>(), false);
+        var actual = CoreHelpers.BuildIdentityClaims(
+            user,
+            new[] { org },
+            Array.Empty<CurrentContextProvider>(),
+            false
+        );
         foreach (var (permitted, claimName) in org.Permissions.ClaimsMap)
         {
             var claim = new KeyValuePair<string, string>(claimName, org.Id.ToString());
             if (permitted)
             {
-
                 Assert.Contains(claim, actual);
             }
             else
@@ -367,20 +387,29 @@ public class CoreHelpersTests
                     case ProviderUserType.ProviderAdmin:
                         foreach (var provider in group)
                         {
-                            claims.Add(new KeyValuePair<string, string>("providerprovideradmin", provider.Id.ToString()));
+                            claims.Add(
+                                new KeyValuePair<string, string>("providerprovideradmin", provider.Id.ToString())
+                            );
                         }
                         break;
                     case ProviderUserType.ServiceUser:
                         foreach (var provider in group)
                         {
-                            claims.Add(new KeyValuePair<string, string>("providerserviceuser", provider.Id.ToString()));
+                            claims.Add(
+                                new KeyValuePair<string, string>("providerserviceuser", provider.Id.ToString())
+                            );
                         }
                         break;
                 }
             }
         }
 
-        var actual = CoreHelpers.BuildIdentityClaims(user, Array.Empty<CurrentContextOrganization>(), providers, false);
+        var actual = CoreHelpers.BuildIdentityClaims(
+            user,
+            Array.Empty<CurrentContextOrganization>(),
+            providers,
+            false
+        );
         foreach (var claim in claims)
         {
             Assert.Contains(claim, actual);
@@ -400,28 +429,45 @@ public class CoreHelpersTests
                 DateTime.UtcNow.AddHours(-1), // creationTime
                 12, // expirationInHours
                 true, // isValid
-            }
+            },
         };
     }
 
     [Theory]
     [MemberData(nameof(TokenIsValidData))]
-    public void TokenIsValid_Success(string unprotectedTokenTemplate, string firstPart, string userEmail, Guid id, DateTime creationTime, double expirationInHours, bool isValid)
+    public void TokenIsValid_Success(
+        string unprotectedTokenTemplate,
+        string firstPart,
+        string userEmail,
+        Guid id,
+        DateTime creationTime,
+        double expirationInHours,
+        bool isValid
+    )
     {
-        var protector = new TestDataProtector(string.Format(unprotectedTokenTemplate, CoreHelpers.ToEpocMilliseconds(creationTime)));
+        var protector = new TestDataProtector(
+            string.Format(unprotectedTokenTemplate, CoreHelpers.ToEpocMilliseconds(creationTime))
+        );
 
-        Assert.Equal(isValid, CoreHelpers.TokenIsValid(firstPart, protector, "protected_token", userEmail, id, expirationInHours));
+        Assert.Equal(
+            isValid,
+            CoreHelpers.TokenIsValid(firstPart, protector, "protected_token", userEmail, id, expirationInHours)
+        );
     }
 
     private class TestDataProtector : IDataProtector
     {
         private readonly string _token;
+
         public TestDataProtector(string token)
         {
             _token = token;
         }
+
         public IDataProtector CreateProtector(string purpose) => throw new NotImplementedException();
+
         public byte[] Protect(byte[] plaintext) => throw new NotImplementedException();
+
         public byte[] Unprotect(byte[] protectedData)
         {
             return Encoding.UTF8.GetBytes(_token);

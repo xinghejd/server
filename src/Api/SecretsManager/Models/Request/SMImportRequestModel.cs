@@ -52,11 +52,7 @@ public class SMImportRequestModel
     {
         return new SMImport
         {
-            Projects = Projects?.Select(p => new SMImport.InnerProject
-            {
-                Id = p.Id,
-                Name = p.Name,
-            }),
+            Projects = Projects?.Select(p => new SMImport.InnerProject { Id = p.Id, Name = p.Name }),
             Secrets = Secrets?.Select(s => new SMImport.InnerSecret
             {
                 Id = s.Id,

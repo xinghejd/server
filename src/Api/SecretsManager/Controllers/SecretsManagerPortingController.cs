@@ -22,9 +22,14 @@ public class SecretsManagerPortingController : Controller
     private readonly IImportCommand _importCommand;
     private readonly ICurrentContext _currentContext;
 
-    public SecretsManagerPortingController(ISecretRepository secretRepository, IProjectRepository projectRepository,
-        IUserService userService, IMaxProjectsQuery maxProjectsQuery, IImportCommand importCommand,
-        ICurrentContext currentContext)
+    public SecretsManagerPortingController(
+        ISecretRepository secretRepository,
+        IProjectRepository projectRepository,
+        IUserService userService,
+        IMaxProjectsQuery maxProjectsQuery,
+        IImportCommand importCommand,
+        ICurrentContext currentContext
+    )
     {
         _secretRepository = secretRepository;
         _projectRepository = projectRepository;
@@ -37,14 +42,25 @@ public class SecretsManagerPortingController : Controller
     [HttpGet("sm/{organizationId}/export")]
     public async Task<SMExportResponseModel> Export([FromRoute] Guid organizationId)
     {
-        if (!await _currentContext.OrganizationAdmin(organizationId) || !_currentContext.AccessSecretsManager(organizationId))
+        if (
+            !await _currentContext.OrganizationAdmin(organizationId)
+            || !_currentContext.AccessSecretsManager(organizationId)
+        )
         {
             throw new NotFoundException();
         }
 
         var userId = _userService.GetProperUserId(User).Value;
-        var projects = await _projectRepository.GetManyByOrganizationIdAsync(organizationId, userId, AccessClientType.NoAccessCheck);
-        var secrets = await _secretRepository.GetManyDetailsByOrganizationIdAsync(organizationId, userId, AccessClientType.NoAccessCheck);
+        var projects = await _projectRepository.GetManyByOrganizationIdAsync(
+            organizationId,
+            userId,
+            AccessClientType.NoAccessCheck
+        );
+        var secrets = await _secretRepository.GetManyDetailsByOrganizationIdAsync(
+            organizationId,
+            userId,
+            AccessClientType.NoAccessCheck
+        );
 
         if (projects == null && secrets == null)
         {
@@ -57,14 +73,19 @@ public class SecretsManagerPortingController : Controller
     [HttpPost("sm/{organizationId}/import")]
     public async Task Import([FromRoute] Guid organizationId, [FromBody] SMImportRequestModel importRequest)
     {
-        if (!await _currentContext.OrganizationAdmin(organizationId) || !_currentContext.AccessSecretsManager(organizationId))
+        if (
+            !await _currentContext.OrganizationAdmin(organizationId)
+            || !_currentContext.AccessSecretsManager(organizationId)
+        )
         {
             throw new NotFoundException();
         }
 
         if (importRequest.Projects?.Count() > 1000 || importRequest.Secrets?.Count() > 6000)
         {
-            throw new BadRequestException("You cannot import this much data at once, the limit is 1000 projects and 6000 secrets.");
+            throw new BadRequestException(
+                "You cannot import this much data at once, the limit is 1000 projects and 6000 secrets."
+            );
         }
 
         if (importRequest.Secrets.Any(s => s.ProjectIds.Count() > 1))

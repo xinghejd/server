@@ -23,7 +23,8 @@ public class RelayPushNotificationService : BaseIdentityClientService, IPushNoti
         IDeviceRepository deviceRepository,
         GlobalSettings globalSettings,
         IHttpContextAccessor httpContextAccessor,
-        ILogger<RelayPushNotificationService> logger)
+        ILogger<RelayPushNotificationService> logger
+    )
         : base(
             httpFactory,
             globalSettings.PushRelayBaseUri,
@@ -31,7 +32,8 @@ public class RelayPushNotificationService : BaseIdentityClientService, IPushNoti
             ApiScopes.ApiPush,
             $"installation.{globalSettings.Installation.Id}",
             globalSettings.Installation.Key,
-            logger)
+            logger
+        )
     {
         _deviceRepository = deviceRepository;
         _httpContextAccessor = httpContextAccessor;
@@ -98,7 +100,7 @@ public class RelayPushNotificationService : BaseIdentityClientService, IPushNoti
         {
             Id = folder.Id,
             UserId = folder.UserId,
-            RevisionDate = folder.RevisionDate
+            RevisionDate = folder.RevisionDate,
         };
 
         await SendPayloadToUserAsync(folder.UserId, type, message, true);
@@ -136,11 +138,7 @@ public class RelayPushNotificationService : BaseIdentityClientService, IPushNoti
 
     private async Task PushUserAsync(Guid userId, PushType type, bool excludeCurrentContext = false)
     {
-        var message = new UserPushNotification
-        {
-            UserId = userId,
-            Date = DateTime.UtcNow
-        };
+        var message = new UserPushNotification { UserId = userId, Date = DateTime.UtcNow };
 
         await SendPayloadToUserAsync(userId, type, message, excludeCurrentContext);
     }
@@ -168,7 +166,7 @@ public class RelayPushNotificationService : BaseIdentityClientService, IPushNoti
             {
                 Id = send.Id,
                 UserId = send.UserId.Value,
-                RevisionDate = send.RevisionDate
+                RevisionDate = send.RevisionDate,
             };
 
             await SendPayloadToUserAsync(message.UserId, type, message, true);
@@ -187,35 +185,41 @@ public class RelayPushNotificationService : BaseIdentityClientService, IPushNoti
 
     private async Task PushAuthRequestAsync(AuthRequest authRequest, PushType type)
     {
-        var message = new AuthRequestPushNotification
-        {
-            Id = authRequest.Id,
-            UserId = authRequest.UserId
-        };
+        var message = new AuthRequestPushNotification { Id = authRequest.Id, UserId = authRequest.UserId };
 
         await SendPayloadToUserAsync(authRequest.UserId, type, message, true);
     }
 
-    private async Task SendPayloadToUserAsync(Guid userId, PushType type, object payload, bool excludeCurrentContext)
+    private async Task SendPayloadToUserAsync(
+        Guid userId,
+        PushType type,
+        object payload,
+        bool excludeCurrentContext
+    )
     {
         var request = new PushSendRequestModel
         {
             UserId = userId.ToString(),
             Type = type,
-            Payload = payload
+            Payload = payload,
         };
 
         await AddCurrentContextAsync(request, excludeCurrentContext);
         await SendAsync(HttpMethod.Post, "push/send", request);
     }
 
-    private async Task SendPayloadToOrganizationAsync(Guid orgId, PushType type, object payload, bool excludeCurrentContext)
+    private async Task SendPayloadToOrganizationAsync(
+        Guid orgId,
+        PushType type,
+        object payload,
+        bool excludeCurrentContext
+    )
     {
         var request = new PushSendRequestModel
         {
             OrganizationId = orgId.ToString(),
             Type = type,
-            Payload = payload
+            Payload = payload,
         };
 
         await AddCurrentContextAsync(request, excludeCurrentContext);
@@ -224,8 +228,9 @@ public class RelayPushNotificationService : BaseIdentityClientService, IPushNoti
 
     private async Task AddCurrentContextAsync(PushSendRequestModel request, bool addIdentifier)
     {
-        var currentContext = _httpContextAccessor?.HttpContext?.
-            RequestServices.GetService(typeof(ICurrentContext)) as ICurrentContext;
+        var currentContext =
+            _httpContextAccessor?.HttpContext?.RequestServices.GetService(typeof(ICurrentContext))
+            as ICurrentContext;
         if (!string.IsNullOrWhiteSpace(currentContext?.DeviceIdentifier))
         {
             var device = await _deviceRepository.GetByIdentifierAsync(currentContext.DeviceIdentifier);
@@ -240,14 +245,24 @@ public class RelayPushNotificationService : BaseIdentityClientService, IPushNoti
         }
     }
 
-    public Task SendPayloadToUserAsync(string userId, PushType type, object payload, string identifier,
-        string deviceId = null)
+    public Task SendPayloadToUserAsync(
+        string userId,
+        PushType type,
+        object payload,
+        string identifier,
+        string deviceId = null
+    )
     {
         throw new NotImplementedException();
     }
 
-    public Task SendPayloadToOrganizationAsync(string orgId, PushType type, object payload, string identifier,
-        string deviceId = null)
+    public Task SendPayloadToOrganizationAsync(
+        string orgId,
+        PushType type,
+        object payload,
+        string identifier,
+        string deviceId = null
+    )
     {
         throw new NotImplementedException();
     }

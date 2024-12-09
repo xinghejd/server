@@ -17,7 +17,8 @@ public class GroupService : IGroupService
     public GroupService(
         IEventService eventService,
         IOrganizationUserRepository organizationUserRepository,
-        IGroupRepository groupRepository)
+        IGroupRepository groupRepository
+    )
     {
         _eventService = eventService;
         _organizationUserRepository = organizationUserRepository;
@@ -47,10 +48,18 @@ public class GroupService : IGroupService
     public async Task DeleteUserAsync(Group group, Guid organizationUserId, EventSystemUser systemUser)
     {
         var orgUser = await GroupRepositoryDeleteUserAsync(group, organizationUserId, systemUser);
-        await _eventService.LogOrganizationUserEventAsync(orgUser, EventType.OrganizationUser_UpdatedGroups, systemUser);
+        await _eventService.LogOrganizationUserEventAsync(
+            orgUser,
+            EventType.OrganizationUser_UpdatedGroups,
+            systemUser
+        );
     }
 
-    private async Task<OrganizationUser> GroupRepositoryDeleteUserAsync(Group group, Guid organizationUserId, EventSystemUser? systemUser)
+    private async Task<OrganizationUser> GroupRepositoryDeleteUserAsync(
+        Group group,
+        Guid organizationUserId,
+        EventSystemUser? systemUser
+    )
     {
         var orgUser = await _organizationUserRepository.GetByIdAsync(organizationUserId);
         if (orgUser == null || orgUser.OrganizationId != group.OrganizationId)

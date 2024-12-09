@@ -39,13 +39,10 @@ public class DeleteGroupCommand : IDeleteGroupCommand
     public async Task DeleteManyAsync(ICollection<Group> groups)
     {
         await _eventService.LogGroupEventsAsync(
-            groups.Select(g =>
-                (g, EventType.Group_Deleted, (EventSystemUser?)null, (DateTime?)DateTime.UtcNow)
-            ));
+            groups.Select(g => (g, EventType.Group_Deleted, (EventSystemUser?)null, (DateTime?)DateTime.UtcNow))
+        );
 
-        await _groupRepository.DeleteManyAsync(
-            groups.Select(g => g.Id)
-            );
+        await _groupRepository.DeleteManyAsync(groups.Select(g => g.Id));
     }
 
     private async Task<Group> GroupRepositoryDeleteGroupAsync(Guid organizationId, Guid id)

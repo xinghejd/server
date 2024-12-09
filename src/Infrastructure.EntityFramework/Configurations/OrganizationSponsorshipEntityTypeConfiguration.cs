@@ -8,13 +8,9 @@ public class OrganizationSponsorshipEntityTypeConfiguration : IEntityTypeConfigu
 {
     public void Configure(EntityTypeBuilder<OrganizationSponsorship> builder)
     {
-        builder
-            .Property(o => o.Id)
-            .ValueGeneratedNever();
+        builder.Property(o => o.Id).ValueGeneratedNever();
 
-        builder
-            .HasIndex(o => o.SponsoringOrganizationUserId)
-            .IsClustered(false);
+        builder.HasIndex(o => o.SponsoringOrganizationUserId).IsClustered(false);
 
         builder.ToTable(nameof(OrganizationSponsorship));
     }

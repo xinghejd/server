@@ -49,7 +49,8 @@ public class SyncController : Controller
         ISendRepository sendRepository,
         GlobalSettings globalSettings,
         ICurrentContext currentContext,
-        IFeatureService featureService)
+        IFeatureService featureService
+    )
     {
         _userService = userService;
         _folderRepository = folderRepository;
@@ -74,13 +75,18 @@ public class SyncController : Controller
             throw new BadRequestException("User not found.");
         }
 
-        var organizationUserDetails = await _organizationUserRepository.GetManyDetailsByUserAsync(user.Id,
-            OrganizationUserStatusType.Confirmed);
-        var providerUserDetails = await _providerUserRepository.GetManyDetailsByUserAsync(user.Id,
-            ProviderUserStatusType.Confirmed);
-        var providerUserOrganizationDetails =
-            await _providerUserRepository.GetManyOrganizationDetailsByUserAsync(user.Id,
-                ProviderUserStatusType.Confirmed);
+        var organizationUserDetails = await _organizationUserRepository.GetManyDetailsByUserAsync(
+            user.Id,
+            OrganizationUserStatusType.Confirmed
+        );
+        var providerUserDetails = await _providerUserRepository.GetManyDetailsByUserAsync(
+            user.Id,
+            ProviderUserStatusType.Confirmed
+        );
+        var providerUserOrganizationDetails = await _providerUserRepository.GetManyOrganizationDetailsByUserAsync(
+            user.Id,
+            ProviderUserStatusType.Confirmed
+        );
         var hasEnabledOrgs = organizationUserDetails.Any(o => o.Enabled);
 
         var folders = await _folderRepository.GetManyByUserIdAsync(user.Id);
@@ -104,15 +110,32 @@ public class SyncController : Controller
         var organizationManagingActiveUser = await _userService.GetOrganizationsManagingUserAsync(user.Id);
         var organizationIdsManagingActiveUser = organizationManagingActiveUser.Select(o => o.Id);
 
-        var response = new SyncResponseModel(_globalSettings, user, userTwoFactorEnabled, userHasPremiumFromOrganization,
-            organizationIdsManagingActiveUser, organizationUserDetails, providerUserDetails, providerUserOrganizationDetails,
-            folders, collections, ciphers, collectionCiphersGroupDict, excludeDomains, policies, sends);
+        var response = new SyncResponseModel(
+            _globalSettings,
+            user,
+            userTwoFactorEnabled,
+            userHasPremiumFromOrganization,
+            organizationIdsManagingActiveUser,
+            organizationUserDetails,
+            providerUserDetails,
+            providerUserOrganizationDetails,
+            folders,
+            collections,
+            ciphers,
+            collectionCiphersGroupDict,
+            excludeDomains,
+            policies,
+            sends
+        );
         return response;
     }
 
     private ICollection<CipherDetails> FilterSSHKeys(ICollection<CipherDetails> ciphers)
     {
-        if (_currentContext.ClientVersion >= _sshKeyCipherMinimumVersion || _featureService.IsEnabled(FeatureFlagKeys.SSHVersionCheckQAOverride))
+        if (
+            _currentContext.ClientVersion >= _sshKeyCipherMinimumVersion
+            || _featureService.IsEnabled(FeatureFlagKeys.SSHVersionCheckQAOverride)
+        )
         {
             return ciphers;
         }

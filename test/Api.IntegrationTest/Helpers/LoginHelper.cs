@@ -26,7 +26,8 @@ public class LoginHelper
 
     private async Task<(string clientId, string apiKey)> GetOrganizationApiKey<T>(
         WebApplicationFactoryBase<T> factory,
-        Guid organizationId)
+        Guid organizationId
+    )
         where T : class
     {
         var organizationApiKeyRepository = factory.GetService<IOrganizationApiKeyRepository>();

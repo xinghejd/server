@@ -34,7 +34,8 @@ public class OrganizationConnectionsController : Controller
         IOrganizationConnectionRepository organizationConnectionRepository,
         ICurrentContext currentContext,
         IGlobalSettings globalSettings,
-        ILicensingService licensingService)
+        ILicensingService licensingService
+    )
     {
         _createOrganizationConnectionCommand = createOrganizationConnectionCommand;
         _updateOrganizationConnectionCommand = updateOrganizationConnectionCommand;
@@ -52,22 +53,32 @@ public class OrganizationConnectionsController : Controller
     }
 
     [HttpPost]
-    public async Task<OrganizationConnectionResponseModel> CreateConnection([FromBody] OrganizationConnectionRequestModel model)
+    public async Task<OrganizationConnectionResponseModel> CreateConnection(
+        [FromBody] OrganizationConnectionRequestModel model
+    )
     {
         if (!await HasPermissionAsync(model?.OrganizationId))
         {
-            throw new BadRequestException($"You do not have permission to create a connection of type {model.Type}.");
+            throw new BadRequestException(
+                $"You do not have permission to create a connection of type {model.Type}."
+            );
         }
 
         if (await HasConnectionTypeAsync(model, null, model.Type))
         {
-            throw new BadRequestException($"The requested organization already has a connection of type {model.Type}. Only one of each connection type may exist per organization.");
+            throw new BadRequestException(
+                $"The requested organization already has a connection of type {model.Type}. Only one of each connection type may exist per organization."
+            );
         }
 
         switch (model.Type)
         {
             case OrganizationConnectionType.CloudBillingSync:
-                return await CreateOrUpdateOrganizationConnectionAsync<BillingSyncConfig>(null, model, ValidateBillingSyncConfig);
+                return await CreateOrUpdateOrganizationConnectionAsync<BillingSyncConfig>(
+                    null,
+                    model,
+                    ValidateBillingSyncConfig
+                );
             case OrganizationConnectionType.Scim:
                 return await CreateOrUpdateOrganizationConnectionAsync<ScimConfig>(null, model);
             default:
@@ -76,14 +87,20 @@ public class OrganizationConnectionsController : Controller
     }
 
     [HttpPut("{organizationConnectionId}")]
-    public async Task<OrganizationConnectionResponseModel> UpdateConnection(Guid organizationConnectionId, [FromBody] OrganizationConnectionRequestModel model)
+    public async Task<OrganizationConnectionResponseModel> UpdateConnection(
+        Guid organizationConnectionId,
+        [FromBody] OrganizationConnectionRequestModel model
+    )
     {
         if (model == null)
         {
             throw new NotFoundException();
         }
 
-        var existingOrganizationConnection = await _organizationConnectionRepository.GetByIdOrganizationIdAsync(organizationConnectionId, model.OrganizationId);
+        var existingOrganizationConnection = await _organizationConnectionRepository.GetByIdOrganizationIdAsync(
+            organizationConnectionId,
+            model.OrganizationId
+        );
         if (existingOrganizationConnection == null)
         {
             throw new NotFoundException();
@@ -96,22 +113,34 @@ public class OrganizationConnectionsController : Controller
 
         if (await HasConnectionTypeAsync(model, organizationConnectionId, model.Type))
         {
-            throw new BadRequestException($"The requested organization already has a connection of type {model.Type}. Only one of each connection type may exist per organization.");
+            throw new BadRequestException(
+                $"The requested organization already has a connection of type {model.Type}. Only one of each connection type may exist per organization."
+            );
         }
 
         switch (model.Type)
         {
             case OrganizationConnectionType.CloudBillingSync:
-                return await CreateOrUpdateOrganizationConnectionAsync<BillingSyncConfig>(organizationConnectionId, model, ValidateBillingSyncConfig);
+                return await CreateOrUpdateOrganizationConnectionAsync<BillingSyncConfig>(
+                    organizationConnectionId,
+                    model,
+                    ValidateBillingSyncConfig
+                );
             case OrganizationConnectionType.Scim:
-                return await CreateOrUpdateOrganizationConnectionAsync<ScimConfig>(organizationConnectionId, model);
+                return await CreateOrUpdateOrganizationConnectionAsync<ScimConfig>(
+                    organizationConnectionId,
+                    model
+                );
             default:
                 throw new BadRequestException($"Unknown Organization connection Type: {model.Type}");
         }
     }
 
     [HttpGet("{organizationId}/{type}")]
-    public async Task<OrganizationConnectionResponseModel> GetConnection(Guid organizationId, OrganizationConnectionType type)
+    public async Task<OrganizationConnectionResponseModel> GetConnection(
+        Guid organizationId,
+        OrganizationConnectionType type
+    )
     {
         if (!await HasPermissionAsync(organizationId, type))
         {
@@ -126,7 +155,9 @@ public class OrganizationConnectionsController : Controller
             case OrganizationConnectionType.CloudBillingSync:
                 if (!_globalSettings.SelfHosted)
                 {
-                    throw new BadRequestException($"Cannot get a {type} connection outside of a self-hosted instance.");
+                    throw new BadRequestException(
+                        $"Cannot get a {type} connection outside of a self-hosted instance."
+                    );
                 }
                 return new OrganizationConnectionResponseModel(connection, typeof(BillingSyncConfig));
             case OrganizationConnectionType.Scim:
@@ -149,21 +180,30 @@ public class OrganizationConnectionsController : Controller
 
         if (!await HasPermissionAsync(connection.OrganizationId, connection.Type))
         {
-            throw new BadRequestException($"You do not have permission to remove this connection of type {connection.Type}.");
+            throw new BadRequestException(
+                $"You do not have permission to remove this connection of type {connection.Type}."
+            );
         }
 
         await _deleteOrganizationConnectionCommand.DeleteAsync(connection);
     }
 
-    private async Task<ICollection<OrganizationConnection>> GetConnectionsAsync(Guid organizationId, OrganizationConnectionType type) =>
-        await _organizationConnectionRepository.GetByOrganizationIdTypeAsync(organizationId, type);
+    private async Task<ICollection<OrganizationConnection>> GetConnectionsAsync(
+        Guid organizationId,
+        OrganizationConnectionType type
+    ) => await _organizationConnectionRepository.GetByOrganizationIdTypeAsync(organizationId, type);
 
-    private async Task<bool> HasConnectionTypeAsync(OrganizationConnectionRequestModel model, Guid? connectionId,
-        OrganizationConnectionType type)
+    private async Task<bool> HasConnectionTypeAsync(
+        OrganizationConnectionRequestModel model,
+        Guid? connectionId,
+        OrganizationConnectionType type
+    )
     {
         var existingConnections = await GetConnectionsAsync(model.OrganizationId, type);
 
-        return existingConnections.Any(c => c.Type == model.Type && (!connectionId.HasValue || c.Id != connectionId.Value));
+        return existingConnections.Any(c =>
+            c.Type == model.Type && (!connectionId.HasValue || c.Id != connectionId.Value)
+        );
     }
 
     private async Task<bool> HasPermissionAsync(Guid? organizationId, OrganizationConnectionType? type = null)
@@ -183,7 +223,9 @@ public class OrganizationConnectionsController : Controller
     {
         if (!_globalSettings.SelfHosted)
         {
-            throw new BadRequestException($"Cannot create a {typedModel.Type} connection outside of a self-hosted instance.");
+            throw new BadRequestException(
+                $"Cannot create a {typedModel.Type} connection outside of a self-hosted instance."
+            );
         }
         var license = await _licensingService.ReadOrganizationLicenseAsync(typedModel.OrganizationId);
         if (!_licensingService.VerifyLicense(license))
@@ -196,7 +238,8 @@ public class OrganizationConnectionsController : Controller
     private async Task<OrganizationConnectionResponseModel> CreateOrUpdateOrganizationConnectionAsync<T>(
         Guid? organizationConnectionId,
         OrganizationConnectionRequestModel model,
-        Func<OrganizationConnectionRequestModel<T>, Task> validateAction = null)
+        Func<OrganizationConnectionRequestModel<T>, Task> validateAction = null
+    )
         where T : IConnectionConfig
     {
         var typedModel = new OrganizationConnectionRequestModel<T>(model);

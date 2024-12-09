@@ -72,7 +72,10 @@ namespace Bit.SharedWeb.Utilities;
 
 public static class ServiceCollectionExtensions
 {
-    public static SupportedDatabaseProviders AddDatabaseRepositories(this IServiceCollection services, GlobalSettings globalSettings)
+    public static SupportedDatabaseProviders AddDatabaseRepositories(
+        this IServiceCollection services,
+        GlobalSettings globalSettings
+    )
     {
         var (provider, connectionString) = GetDatabaseProvider(globalSettings);
         services.SetupEntityFramework(connectionString, provider);
@@ -124,87 +127,119 @@ public static class ServiceCollectionExtensions
 
     public static void AddTokenizers(this IServiceCollection services)
     {
-        services.AddSingleton<IDataProtectorTokenFactory<OrgDeleteTokenable>>(serviceProvider =>
-            new DataProtectorTokenFactory<OrgDeleteTokenable>(
+        services.AddSingleton<IDataProtectorTokenFactory<OrgDeleteTokenable>>(
+            serviceProvider => new DataProtectorTokenFactory<OrgDeleteTokenable>(
                 OrgDeleteTokenable.ClearTextPrefix,
                 OrgDeleteTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<OrgDeleteTokenable>>>())
+                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<OrgDeleteTokenable>>>()
+            )
         );
-        services.AddSingleton<IDataProtectorTokenFactory<EmergencyAccessInviteTokenable>>(serviceProvider =>
-            new DataProtectorTokenFactory<EmergencyAccessInviteTokenable>(
+        services.AddSingleton<IDataProtectorTokenFactory<EmergencyAccessInviteTokenable>>(
+            serviceProvider => new DataProtectorTokenFactory<EmergencyAccessInviteTokenable>(
                 EmergencyAccessInviteTokenable.ClearTextPrefix,
                 EmergencyAccessInviteTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<EmergencyAccessInviteTokenable>>>())
+                serviceProvider.GetRequiredService<
+                    ILogger<DataProtectorTokenFactory<EmergencyAccessInviteTokenable>>
+                >()
+            )
         );
 
-        services.AddSingleton<IDataProtectorTokenFactory<HCaptchaTokenable>>(serviceProvider =>
-            new DataProtectorTokenFactory<HCaptchaTokenable>(
+        services.AddSingleton<IDataProtectorTokenFactory<HCaptchaTokenable>>(
+            serviceProvider => new DataProtectorTokenFactory<HCaptchaTokenable>(
                 HCaptchaTokenable.ClearTextPrefix,
                 HCaptchaTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<HCaptchaTokenable>>>())
+                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<HCaptchaTokenable>>>()
+            )
         );
 
-        services.AddSingleton<IDataProtectorTokenFactory<SsoTokenable>>(serviceProvider =>
-            new DataProtectorTokenFactory<SsoTokenable>(
+        services.AddSingleton<IDataProtectorTokenFactory<SsoTokenable>>(
+            serviceProvider => new DataProtectorTokenFactory<SsoTokenable>(
                 SsoTokenable.ClearTextPrefix,
                 SsoTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<SsoTokenable>>>()));
-        services.AddSingleton<IDataProtectorTokenFactory<WebAuthnCredentialCreateOptionsTokenable>>(serviceProvider =>
-            new DataProtectorTokenFactory<WebAuthnCredentialCreateOptionsTokenable>(
+                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<SsoTokenable>>>()
+            )
+        );
+        services.AddSingleton<IDataProtectorTokenFactory<WebAuthnCredentialCreateOptionsTokenable>>(
+            serviceProvider => new DataProtectorTokenFactory<WebAuthnCredentialCreateOptionsTokenable>(
                 WebAuthnCredentialCreateOptionsTokenable.ClearTextPrefix,
                 WebAuthnCredentialCreateOptionsTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<WebAuthnCredentialCreateOptionsTokenable>>>()));
-        services.AddSingleton<IDataProtectorTokenFactory<WebAuthnLoginAssertionOptionsTokenable>>(serviceProvider =>
-            new DataProtectorTokenFactory<WebAuthnLoginAssertionOptionsTokenable>(
+                serviceProvider.GetRequiredService<
+                    ILogger<DataProtectorTokenFactory<WebAuthnCredentialCreateOptionsTokenable>>
+                >()
+            )
+        );
+        services.AddSingleton<IDataProtectorTokenFactory<WebAuthnLoginAssertionOptionsTokenable>>(
+            serviceProvider => new DataProtectorTokenFactory<WebAuthnLoginAssertionOptionsTokenable>(
                 WebAuthnLoginAssertionOptionsTokenable.ClearTextPrefix,
                 WebAuthnLoginAssertionOptionsTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<WebAuthnLoginAssertionOptionsTokenable>>>()));
-        services.AddSingleton<IDataProtectorTokenFactory<SsoEmail2faSessionTokenable>>(serviceProvider =>
-            new DataProtectorTokenFactory<SsoEmail2faSessionTokenable>(
+                serviceProvider.GetRequiredService<
+                    ILogger<DataProtectorTokenFactory<WebAuthnLoginAssertionOptionsTokenable>>
+                >()
+            )
+        );
+        services.AddSingleton<IDataProtectorTokenFactory<SsoEmail2faSessionTokenable>>(
+            serviceProvider => new DataProtectorTokenFactory<SsoEmail2faSessionTokenable>(
                 SsoEmail2faSessionTokenable.ClearTextPrefix,
                 SsoEmail2faSessionTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<SsoEmail2faSessionTokenable>>>()));
+                serviceProvider.GetRequiredService<
+                    ILogger<DataProtectorTokenFactory<SsoEmail2faSessionTokenable>>
+                >()
+            )
+        );
 
         services.AddSingleton<IOrgUserInviteTokenableFactory, OrgUserInviteTokenableFactory>();
-        services.AddSingleton<IDataProtectorTokenFactory<OrgUserInviteTokenable>>(serviceProvider =>
-            new DataProtectorTokenFactory<OrgUserInviteTokenable>(
+        services.AddSingleton<IDataProtectorTokenFactory<OrgUserInviteTokenable>>(
+            serviceProvider => new DataProtectorTokenFactory<OrgUserInviteTokenable>(
                 OrgUserInviteTokenable.ClearTextPrefix,
                 OrgUserInviteTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<OrgUserInviteTokenable>>>()));
-        services.AddSingleton<IDataProtectorTokenFactory<DuoUserStateTokenable>>(serviceProvider =>
-            new DataProtectorTokenFactory<DuoUserStateTokenable>(
+                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<OrgUserInviteTokenable>>>()
+            )
+        );
+        services.AddSingleton<IDataProtectorTokenFactory<DuoUserStateTokenable>>(
+            serviceProvider => new DataProtectorTokenFactory<DuoUserStateTokenable>(
                 DuoUserStateTokenable.ClearTextPrefix,
                 DuoUserStateTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<DuoUserStateTokenable>>>()));
+                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<DuoUserStateTokenable>>>()
+            )
+        );
 
-        services.AddSingleton<IDataProtectorTokenFactory<ProviderDeleteTokenable>>(serviceProvider =>
-            new DataProtectorTokenFactory<ProviderDeleteTokenable>(
+        services.AddSingleton<IDataProtectorTokenFactory<ProviderDeleteTokenable>>(
+            serviceProvider => new DataProtectorTokenFactory<ProviderDeleteTokenable>(
                 ProviderDeleteTokenable.ClearTextPrefix,
                 ProviderDeleteTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<ProviderDeleteTokenable>>>())
+                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<ProviderDeleteTokenable>>>()
+            )
         );
         services.AddSingleton<IDataProtectorTokenFactory<RegistrationEmailVerificationTokenable>>(
             serviceProvider => new DataProtectorTokenFactory<RegistrationEmailVerificationTokenable>(
                 RegistrationEmailVerificationTokenable.ClearTextPrefix,
                 RegistrationEmailVerificationTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<RegistrationEmailVerificationTokenable>>>()));
+                serviceProvider.GetRequiredService<
+                    ILogger<DataProtectorTokenFactory<RegistrationEmailVerificationTokenable>>
+                >()
+            )
+        );
         services.AddSingleton<IDataProtectorTokenFactory<TwoFactorAuthenticatorUserVerificationTokenable>>(
             serviceProvider => new DataProtectorTokenFactory<TwoFactorAuthenticatorUserVerificationTokenable>(
                 TwoFactorAuthenticatorUserVerificationTokenable.ClearTextPrefix,
                 TwoFactorAuthenticatorUserVerificationTokenable.DataProtectorPurpose,
                 serviceProvider.GetDataProtectionProvider(),
-                serviceProvider.GetRequiredService<ILogger<DataProtectorTokenFactory<TwoFactorAuthenticatorUserVerificationTokenable>>>()));
+                serviceProvider.GetRequiredService<
+                    ILogger<DataProtectorTokenFactory<TwoFactorAuthenticatorUserVerificationTokenable>>
+                >()
+            )
+        );
     }
 
     public static void AddDefaultServices(this IServiceCollection services, GlobalSettings globalSettings)
@@ -215,17 +250,20 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient();
 
         services.AddSingleton<IStripeAdapter, StripeAdapter>();
-        services.AddSingleton<Braintree.IBraintreeGateway>((serviceProvider) =>
-        {
-            return new Braintree.BraintreeGateway
+        services.AddSingleton<Braintree.IBraintreeGateway>(
+            (serviceProvider) =>
             {
-                Environment = globalSettings.Braintree.Production ?
-                    Braintree.Environment.PRODUCTION : Braintree.Environment.SANDBOX,
-                MerchantId = globalSettings.Braintree.MerchantId,
-                PublicKey = globalSettings.Braintree.PublicKey,
-                PrivateKey = globalSettings.Braintree.PrivateKey
-            };
-        });
+                return new Braintree.BraintreeGateway
+                {
+                    Environment = globalSettings.Braintree.Production
+                        ? Braintree.Environment.PRODUCTION
+                        : Braintree.Environment.SANDBOX,
+                    MerchantId = globalSettings.Braintree.MerchantId,
+                    PublicKey = globalSettings.Braintree.PublicKey,
+                    PrivateKey = globalSettings.Braintree.PrivateKey,
+                };
+            }
+        );
         services.AddScoped<IPaymentService, StripePaymentService>();
         services.AddScoped<IPaymentHistoryService, PaymentHistoryService>();
         services.AddSingleton<IStripeSyncService, StripeSyncService>();
@@ -240,8 +278,10 @@ public static class ServiceCollectionExtensions
         services.AddOptionality();
         services.AddTokenizers();
 
-        if (CoreHelpers.SettingHasValue(globalSettings.ServiceBus.ConnectionString) &&
-            CoreHelpers.SettingHasValue(globalSettings.ServiceBus.ApplicationCacheTopicName))
+        if (
+            CoreHelpers.SettingHasValue(globalSettings.ServiceBus.ConnectionString)
+            && CoreHelpers.SettingHasValue(globalSettings.ServiceBus.ApplicationCacheTopicName)
+        )
         {
             services.AddSingleton<IApplicationCacheService, InMemoryServiceBusApplicationCacheService>();
         }
@@ -271,11 +311,15 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IPushNotificationService, MultiServicePushNotificationService>();
         if (globalSettings.SelfHosted)
         {
-            if (CoreHelpers.SettingHasValue(globalSettings.PushRelayBaseUri) &&
-                globalSettings.Installation?.Id != null &&
-                CoreHelpers.SettingHasValue(globalSettings.Installation?.Key))
+            if (
+                CoreHelpers.SettingHasValue(globalSettings.PushRelayBaseUri)
+                && globalSettings.Installation?.Id != null
+                && CoreHelpers.SettingHasValue(globalSettings.Installation?.Key)
+            )
             {
-                services.AddKeyedSingleton<IPushNotificationService, RelayPushNotificationService>("implementation");
+                services.AddKeyedSingleton<IPushNotificationService, RelayPushNotificationService>(
+                    "implementation"
+                );
                 services.AddSingleton<IPushRegistrationService, RelayPushRegistrationService>();
             }
             else
@@ -283,20 +327,28 @@ public static class ServiceCollectionExtensions
                 services.AddSingleton<IPushRegistrationService, NoopPushRegistrationService>();
             }
 
-            if (CoreHelpers.SettingHasValue(globalSettings.InternalIdentityKey) &&
-                CoreHelpers.SettingHasValue(globalSettings.BaseServiceUri.InternalNotifications))
+            if (
+                CoreHelpers.SettingHasValue(globalSettings.InternalIdentityKey)
+                && CoreHelpers.SettingHasValue(globalSettings.BaseServiceUri.InternalNotifications)
+            )
             {
-                services.AddKeyedSingleton<IPushNotificationService, NotificationsApiPushNotificationService>("implementation");
+                services.AddKeyedSingleton<IPushNotificationService, NotificationsApiPushNotificationService>(
+                    "implementation"
+                );
             }
         }
         else if (!globalSettings.SelfHosted)
         {
             services.AddSingleton<INotificationHubPool, NotificationHubPool>();
             services.AddSingleton<IPushRegistrationService, NotificationHubPushRegistrationService>();
-            services.AddKeyedSingleton<IPushNotificationService, NotificationHubPushNotificationService>("implementation");
+            services.AddKeyedSingleton<IPushNotificationService, NotificationHubPushNotificationService>(
+                "implementation"
+            );
             if (CoreHelpers.SettingHasValue(globalSettings.Notifications?.ConnectionString))
             {
-                services.AddKeyedSingleton<IPushNotificationService, AzureQueuePushNotificationService>("implementation");
+                services.AddKeyedSingleton<IPushNotificationService, AzureQueuePushNotificationService>(
+                    "implementation"
+                );
             }
         }
 
@@ -357,8 +409,10 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<IReferenceEventService, AzureQueueReferenceEventService>();
         }
 
-        if (CoreHelpers.SettingHasValue(globalSettings.Captcha?.HCaptchaSecretKey) &&
-            CoreHelpers.SettingHasValue(globalSettings.Captcha?.HCaptchaSiteKey))
+        if (
+            CoreHelpers.SettingHasValue(globalSettings.Captcha?.HCaptchaSecretKey)
+            && CoreHelpers.SettingHasValue(globalSettings.Captcha?.HCaptchaSiteKey)
+        )
         {
             services.AddSingleton<ICaptchaValidationService, HCaptchaValidationService>();
         }
@@ -388,7 +442,9 @@ public static class ServiceCollectionExtensions
     }
 
     public static IdentityBuilder AddCustomIdentityServices(
-        this IServiceCollection services, GlobalSettings globalSettings)
+        this IServiceCollection services,
+        GlobalSettings globalSettings
+    )
     {
         services.AddScoped<IOrganizationDuoUniversalTokenProvider, OrganizationDuoUniversalTokenProvider>();
         services.Configure<PasswordHasherOptions>(options => options.IterationCount = 100000);
@@ -402,7 +458,7 @@ public static class ServiceCollectionExtensions
             options.User = new UserOptions
             {
                 RequireUniqueEmail = true,
-                AllowedUserNameCharacters = null // all
+                AllowedUserNameCharacters = null, // all
             };
             options.Password = new PasswordOptions
             {
@@ -410,7 +466,7 @@ public static class ServiceCollectionExtensions
                 RequireLowercase = false,
                 RequiredLength = 12,
                 RequireNonAlphanumeric = false,
-                RequireUppercase = false
+                RequireUppercase = false,
             };
             options.ClaimsIdentity = new ClaimsIdentityOptions
             {
@@ -426,33 +482,42 @@ public static class ServiceCollectionExtensions
             .AddRoleStore<RoleStore>()
             .AddTokenProvider<DataProtectorTokenProvider<User>>(TokenOptions.DefaultProvider)
             .AddTokenProvider<AuthenticatorTokenProvider>(
-                CoreHelpers.CustomProviderName(TwoFactorProviderType.Authenticator))
+                CoreHelpers.CustomProviderName(TwoFactorProviderType.Authenticator)
+            )
             .AddTokenProvider<EmailTwoFactorTokenProvider>(
-                CoreHelpers.CustomProviderName(TwoFactorProviderType.Email))
+                CoreHelpers.CustomProviderName(TwoFactorProviderType.Email)
+            )
             .AddTokenProvider<YubicoOtpTokenProvider>(
-                CoreHelpers.CustomProviderName(TwoFactorProviderType.YubiKey))
-            .AddTokenProvider<DuoUniversalTokenProvider>(
-                CoreHelpers.CustomProviderName(TwoFactorProviderType.Duo))
+                CoreHelpers.CustomProviderName(TwoFactorProviderType.YubiKey)
+            )
+            .AddTokenProvider<DuoUniversalTokenProvider>(CoreHelpers.CustomProviderName(TwoFactorProviderType.Duo))
             .AddTokenProvider<TwoFactorRememberTokenProvider>(
-                CoreHelpers.CustomProviderName(TwoFactorProviderType.Remember))
+                CoreHelpers.CustomProviderName(TwoFactorProviderType.Remember)
+            )
             .AddTokenProvider<EmailTokenProvider>(TokenOptions.DefaultEmailProvider)
             .AddTokenProvider<WebAuthnTokenProvider>(
-                CoreHelpers.CustomProviderName(TwoFactorProviderType.WebAuthn));
+                CoreHelpers.CustomProviderName(TwoFactorProviderType.WebAuthn)
+            );
 
         return identityBuilder;
     }
 
     public static void AddIdentityAuthenticationServices(
-        this IServiceCollection services, GlobalSettings globalSettings, IWebHostEnvironment environment,
-        Action<AuthorizationOptions> addAuthorization)
+        this IServiceCollection services,
+        GlobalSettings globalSettings,
+        IWebHostEnvironment environment,
+        Action<AuthorizationOptions> addAuthorization
+    )
     {
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.MapInboundClaims = false;
                 options.Authority = globalSettings.BaseServiceUri.InternalIdentity;
-                options.RequireHttpsMetadata = !environment.IsDevelopment() &&
-                    globalSettings.BaseServiceUri.InternalIdentity.StartsWith("https");
+                options.RequireHttpsMetadata =
+                    !environment.IsDevelopment()
+                    && globalSettings.BaseServiceUri.InternalIdentity.StartsWith("https");
                 options.TokenValidationParameters.ValidateAudience = false;
                 options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
                 options.TokenValidationParameters.NameClaimType = ClaimTypes.Email;
@@ -462,7 +527,7 @@ public static class ServiceCollectionExtensions
                     {
                         context.Token = TokenRetrieval.FromAuthorizationHeaderOrQueryString()(context.Request);
                         return Task.CompletedTask;
-                    }
+                    },
                 };
             });
 
@@ -481,7 +546,10 @@ public static class ServiceCollectionExtensions
     }
 
     public static void AddCustomDataProtectionServices(
-        this IServiceCollection services, IWebHostEnvironment env, GlobalSettings globalSettings)
+        this IServiceCollection services,
+        IWebHostEnvironment env,
+        GlobalSettings globalSettings
+    )
     {
         var builder = services.AddDataProtection().SetApplicationName("Bitwarden");
         if (env.IsDevelopment())
@@ -500,22 +568,36 @@ public static class ServiceCollectionExtensions
             if (CoreHelpers.SettingHasValue(globalSettings.DataProtection.CertificateThumbprint))
             {
                 dataProtectionCert = CoreHelpers.GetCertificate(
-                    globalSettings.DataProtection.CertificateThumbprint);
+                    globalSettings.DataProtection.CertificateThumbprint
+                );
             }
             else if (CoreHelpers.SettingHasValue(globalSettings.DataProtection.CertificatePassword))
             {
-                dataProtectionCert = CoreHelpers.GetBlobCertificateAsync(globalSettings.Storage.ConnectionString, "certificates",
-                    "dataprotection.pfx", globalSettings.DataProtection.CertificatePassword)
-                    .GetAwaiter().GetResult();
+                dataProtectionCert = CoreHelpers
+                    .GetBlobCertificateAsync(
+                        globalSettings.Storage.ConnectionString,
+                        "certificates",
+                        "dataprotection.pfx",
+                        globalSettings.DataProtection.CertificatePassword
+                    )
+                    .GetAwaiter()
+                    .GetResult();
             }
             builder
-                .PersistKeysToAzureBlobStorage(globalSettings.Storage.ConnectionString, "aspnet-dataprotection", "keys.xml")
+                .PersistKeysToAzureBlobStorage(
+                    globalSettings.Storage.ConnectionString,
+                    "aspnet-dataprotection",
+                    "keys.xml"
+                )
                 .ProtectKeysWithCertificate(dataProtectionCert);
         }
     }
 
     public static IIdentityServerBuilder AddIdentityServerCertificate(
-        this IIdentityServerBuilder identityServerBuilder, IWebHostEnvironment env, GlobalSettings globalSettings)
+        this IIdentityServerBuilder identityServerBuilder,
+        IWebHostEnvironment env,
+        GlobalSettings globalSettings
+    )
     {
         var certificate = CoreHelpers.GetIdentityServerCertificate(globalSettings);
         if (certificate != null)
@@ -538,8 +620,11 @@ public static class ServiceCollectionExtensions
         return identityServerBuilder;
     }
 
-    public static GlobalSettings AddGlobalSettingsServices(this IServiceCollection services,
-        IConfiguration configuration, IHostEnvironment environment)
+    public static GlobalSettings AddGlobalSettingsServices(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        IHostEnvironment environment
+    )
     {
         var globalSettings = new GlobalSettings();
         ConfigurationBinder.Bind(configuration.GetSection("GlobalSettings"), globalSettings);
@@ -547,7 +632,10 @@ public static class ServiceCollectionExtensions
         if (environment.IsDevelopment() && configuration.GetValue<bool>("developSelfHosted"))
         {
             // Override settings with selfHostedOverride settings
-            ConfigurationBinder.Bind(configuration.GetSection("Dev:SelfHostOverride:GlobalSettings"), globalSettings);
+            ConfigurationBinder.Bind(
+                configuration.GetSection("Dev:SelfHostOverride:GlobalSettings"),
+                globalSettings
+            );
         }
 
         services.AddSingleton(s => globalSettings);
@@ -555,8 +643,11 @@ public static class ServiceCollectionExtensions
         return globalSettings;
     }
 
-    public static void UseDefaultMiddleware(this IApplicationBuilder app,
-        IWebHostEnvironment env, GlobalSettings globalSettings)
+    public static void UseDefaultMiddleware(
+        this IApplicationBuilder app,
+        IWebHostEnvironment env,
+        GlobalSettings globalSettings
+    )
     {
         app.UseMiddleware<RequestLoggingMiddleware>();
     }
@@ -565,7 +656,7 @@ public static class ServiceCollectionExtensions
     {
         var options = new ForwardedHeadersOptions
         {
-            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
         };
 
         if (!globalSettings.UnifiedDeployment)
@@ -612,10 +703,12 @@ public static class ServiceCollectionExtensions
     public static IApplicationBuilder UseCoreLocalization(this IApplicationBuilder app)
     {
         var supportedCultures = new[] { "en" };
-        return app.UseRequestLocalization(options => options
-            .SetDefaultCulture(supportedCultures[0])
-            .AddSupportedCultures(supportedCultures)
-            .AddSupportedUICultures(supportedCultures));
+        return app.UseRequestLocalization(options =>
+            options
+                .SetDefaultCulture(supportedCultures[0])
+                .AddSupportedCultures(supportedCultures)
+                .AddSupportedUICultures(supportedCultures)
+        );
     }
 
     public static IMvcBuilder AddViewAndDataAnnotationLocalization(this IMvcBuilder mvc)
@@ -627,16 +720,24 @@ public static class ServiceCollectionExtensions
                 {
                     var assemblyName = new AssemblyName(typeof(SharedResources).GetTypeInfo().Assembly.FullName);
                     return factory.Create("SharedResources", assemblyName.Name);
-                });
+                }
+            );
     }
 
     public static IServiceCollection AddDistributedIdentityServices(this IServiceCollection services)
     {
         services.AddOidcStateDataFormatterCache();
         services.AddSession();
-        services.ConfigureApplicationCookie(configure => configure.CookieManager = new DistributedCacheCookieManager());
-        services.ConfigureExternalCookie(configure => configure.CookieManager = new DistributedCacheCookieManager());
-        services.AddSingleton<IPostConfigureOptions<CookieAuthenticationOptions>, ConfigureOpenIdConnectDistributedOptions>();
+        services.ConfigureApplicationCookie(configure =>
+            configure.CookieManager = new DistributedCacheCookieManager()
+        );
+        services.ConfigureExternalCookie(configure =>
+            configure.CookieManager = new DistributedCacheCookieManager()
+        );
+        services.AddSingleton<
+            IPostConfigureOptions<CookieAuthenticationOptions>,
+            ConfigureOpenIdConnectDistributedOptions
+        >();
 
         return services;
     }
@@ -647,7 +748,7 @@ public static class ServiceCollectionExtensions
         {
             options.ServerDomain = new Uri(globalSettings.BaseServiceUri.Vault).Host;
             options.ServerName = "Bitwarden";
-            options.Origins = new HashSet<string> { globalSettings.BaseServiceUri.Vault, };
+            options.Origins = new HashSet<string> { globalSettings.BaseServiceUri.Vault };
             options.TimestampDriftTolerance = 300000;
         });
     }
@@ -657,14 +758,15 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <param name="globalSettings"></param>
-    public static void AddIpRateLimiting(this IServiceCollection services,
-        GlobalSettings globalSettings)
+    public static void AddIpRateLimiting(this IServiceCollection services, GlobalSettings globalSettings)
     {
         services.AddHostedService<IpRateLimitSeedStartupService>();
         services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
-        if (!globalSettings.DistributedIpRateLimiting.Enabled ||
-            string.IsNullOrEmpty(globalSettings.DistributedIpRateLimiting.RedisConnectionString))
+        if (
+            !globalSettings.DistributedIpRateLimiting.Enabled
+            || string.IsNullOrEmpty(globalSettings.DistributedIpRateLimiting.RedisConnectionString)
+        )
         {
             services.AddInMemoryRateLimiting();
         }
@@ -676,8 +778,11 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<IClientPolicyStore, MemoryCacheClientPolicyStore>();
 
             // Use a custom Redis processing strategy that skips Ip limiting if Redis is down
-            services.AddKeyedSingleton<IConnectionMultiplexer>("rate-limiter", (_, provider) =>
-                ConnectionMultiplexer.Connect(globalSettings.DistributedIpRateLimiting.RedisConnectionString));
+            services.AddKeyedSingleton<IConnectionMultiplexer>(
+                "rate-limiter",
+                (_, provider) =>
+                    ConnectionMultiplexer.Connect(globalSettings.DistributedIpRateLimiting.RedisConnectionString)
+            );
             services.AddSingleton<IProcessingStrategy, CustomRedisProcessingStrategy>();
         }
     }
@@ -686,9 +791,7 @@ public static class ServiceCollectionExtensions
     ///     Adds an implementation of <see cref="IDistributedCache"/> to the service collection. Uses a memory
     /// cache if self hosted or no Redis connection string is available in GlobalSettings.
     /// </summary>
-    public static void AddDistributedCache(
-        this IServiceCollection services,
-        GlobalSettings globalSettings)
+    public static void AddDistributedCache(this IServiceCollection services, GlobalSettings globalSettings)
     {
         if (!string.IsNullOrEmpty(globalSettings.DistributedCache?.Redis?.ConnectionString))
         {
@@ -717,14 +820,21 @@ public static class ServiceCollectionExtensions
 
         if (!string.IsNullOrEmpty(globalSettings.DistributedCache?.Cosmos?.ConnectionString))
         {
-            services.AddKeyedSingleton<IDistributedCache>("persistent", (s, _) =>
-                new CosmosCache(new CosmosCacheOptions
-                {
-                    DatabaseName = "cache",
-                    ContainerName = "default",
-                    CreateIfNotExists = false,
-                    ClientBuilder = new CosmosClientBuilder(globalSettings.DistributedCache?.Cosmos?.ConnectionString)
-                }));
+            services.AddKeyedSingleton<IDistributedCache>(
+                "persistent",
+                (s, _) =>
+                    new CosmosCache(
+                        new CosmosCacheOptions
+                        {
+                            DatabaseName = "cache",
+                            ContainerName = "default",
+                            CreateIfNotExists = false,
+                            ClientBuilder = new CosmosClientBuilder(
+                                globalSettings.DistributedCache?.Cosmos?.ConnectionString
+                            ),
+                        }
+                    )
+            );
         }
         else
         {
@@ -736,8 +846,9 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<ILdClient>(s =>
         {
-            return new LdClient(LaunchDarklyFeatureService.GetConfiguredClient(
-                s.GetRequiredService<GlobalSettings>()));
+            return new LdClient(
+                LaunchDarklyFeatureService.GetConfiguredClient(s.GetRequiredService<GlobalSettings>())
+            );
         });
 
         services.AddScoped<IFeatureService, LaunchDarklyFeatureService>();
@@ -745,8 +856,9 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    private static (SupportedDatabaseProviders provider, string connectionString)
-        GetDatabaseProvider(GlobalSettings globalSettings)
+    private static (SupportedDatabaseProviders provider, string connectionString) GetDatabaseProvider(
+        GlobalSettings globalSettings
+    )
     {
         var selectedDatabaseProvider = globalSettings.DatabaseProvider;
         var provider = SupportedDatabaseProviders.SqlServer;

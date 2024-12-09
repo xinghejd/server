@@ -6,6 +6,5 @@ public class ProviderUpdatePaymentMethodViewModel : BaseMailModel
     public string OrganizationName { get; set; }
     public string ProviderName { get; set; }
 
-    public string PaymentMethodUrl =>
-        $"{WebVaultUrl}/organizations/{OrganizationId}/billing/payment-method";
+    public string PaymentMethodUrl => $"{WebVaultUrl}/organizations/{OrganizationId}/billing/payment-method";
 }

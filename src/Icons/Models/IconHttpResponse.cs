@@ -21,7 +21,12 @@ public class IconHttpResponse : IDisposable
     public string? ContentType => _response.Content.Headers.ContentType?.MediaType;
     public HttpContent Content => _response.Content;
 
-    public IconHttpResponse(HttpResponseMessage response, ILogger<IIconFetchingService> logger, IHttpClientFactory httpClientFactory, IUriService uriService)
+    public IconHttpResponse(
+        HttpResponseMessage response,
+        ILogger<IIconFetchingService> logger,
+        IHttpClientFactory httpClientFactory,
+        IUriService uriService
+    )
     {
         _response = response;
         _logger = logger;
@@ -53,17 +58,19 @@ public class IconHttpResponse : IDisposable
             baseUrl = "/";
         }
 
-        var links = head.QuerySelectorAll("link[href]")
-            ?.Take(_maxIconLinksProcessed)
-            .Select(l => new IconLink(l, uri, baseUrl))
-            .Where(l => l.IsUsable())
-            .OrderBy(l => l.Priority)
-            .Take(_maxRetrievedIcons)
-            .ToArray() ?? Array.Empty<IconLink>();
-        var results = await Task.WhenAll(links.Select(l => l.FetchAsync(_logger, _httpClientFactory, _uriService)));
+        var links =
+            head.QuerySelectorAll("link[href]")
+                ?.Take(_maxIconLinksProcessed)
+                .Select(l => new IconLink(l, uri, baseUrl))
+                .Where(l => l.IsUsable())
+                .OrderBy(l => l.Priority)
+                .Take(_maxRetrievedIcons)
+                .ToArray() ?? Array.Empty<IconLink>();
+        var results = await Task.WhenAll(
+            links.Select(l => l.FetchAsync(_logger, _httpClientFactory, _uriService))
+        );
         return results.Where(r => r != null).Select(r => r!);
     }
-
 
     public void Dispose()
     {

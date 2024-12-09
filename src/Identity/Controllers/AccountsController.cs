@@ -56,7 +56,7 @@ public class AccountsController : Controller
         IReferenceEventService referenceEventService,
         IFeatureService featureService,
         IDataProtectorTokenFactory<RegistrationEmailVerificationTokenable> registrationEmailVerificationTokenDataFactory
-        )
+    )
     {
         _currentContext = currentContext;
         _logger = logger;
@@ -76,25 +76,34 @@ public class AccountsController : Controller
     public async Task<RegisterResponseModel> PostRegister([FromBody] RegisterRequestModel model)
     {
         var user = model.ToUser();
-        var identityResult = await _registerUserCommand.RegisterUserViaOrganizationInviteToken(user, model.MasterPasswordHash,
-            model.Token, model.OrganizationUserId);
+        var identityResult = await _registerUserCommand.RegisterUserViaOrganizationInviteToken(
+            user,
+            model.MasterPasswordHash,
+            model.Token,
+            model.OrganizationUserId
+        );
         // delaysEnabled false is only for the new registration with email verification process
         return await ProcessRegistrationResult(identityResult, user, delaysEnabled: true);
     }
 
     [RequireFeature(FeatureFlagKeys.EmailVerification)]
     [HttpPost("register/send-verification-email")]
-    public async Task<IActionResult> PostRegisterSendVerificationEmail([FromBody] RegisterSendVerificationEmailRequestModel model)
+    public async Task<IActionResult> PostRegisterSendVerificationEmail(
+        [FromBody] RegisterSendVerificationEmailRequestModel model
+    )
     {
-        var token = await _sendVerificationEmailForRegistrationCommand.Run(model.Email, model.Name,
-            model.ReceiveMarketingEmails);
+        var token = await _sendVerificationEmailForRegistrationCommand.Run(
+            model.Email,
+            model.Name,
+            model.ReceiveMarketingEmails
+        );
 
         var refEvent = new ReferenceEvent
         {
             Type = ReferenceEventType.SignupEmailSubmit,
             ClientId = _currentContext.ClientId,
             ClientVersion = _currentContext.ClientVersion,
-            Source = ReferenceEventSource.Registration
+            Source = ReferenceEventSource.Registration,
         };
         await _referenceEventService.RaiseEventAsync(refEvent);
 
@@ -108,9 +117,15 @@ public class AccountsController : Controller
 
     [RequireFeature(FeatureFlagKeys.EmailVerification)]
     [HttpPost("register/verification-email-clicked")]
-    public async Task<IActionResult> PostRegisterVerificationEmailClicked([FromBody] RegisterVerificationEmailClickedRequestModel model)
+    public async Task<IActionResult> PostRegisterVerificationEmailClicked(
+        [FromBody] RegisterVerificationEmailClickedRequestModel model
+    )
     {
-        var tokenValid = RegistrationEmailVerificationTokenable.ValidateToken(_registrationEmailVerificationTokenDataFactory, model.EmailVerificationToken, model.Email);
+        var tokenValid = RegistrationEmailVerificationTokenable.ValidateToken(
+            _registrationEmailVerificationTokenDataFactory,
+            model.EmailVerificationToken,
+            model.Email
+        );
 
         // Check to see if the user already exists - this is just to catch the unlikely but possible case
         // where a user finishes registration and then clicks the email verification link again.
@@ -124,19 +139,19 @@ public class AccountsController : Controller
             ClientVersion = _currentContext.ClientVersion,
             Source = ReferenceEventSource.Registration,
             EmailVerificationTokenValid = tokenValid,
-            UserAlreadyExists = userExists
+            UserAlreadyExists = userExists,
         };
 
         await _referenceEventService.RaiseEventAsync(refEvent);
 
         if (!tokenValid || userExists)
         {
-            throw new BadRequestException("Expired link. Please restart registration or try logging in. You may already have an account");
+            throw new BadRequestException(
+                "Expired link. Please restart registration or try logging in. You may already have an account"
+            );
         }
 
         return Ok();
-
-
     }
 
     [RequireFeature(FeatureFlagKeys.EmailVerification)]
@@ -153,34 +168,53 @@ public class AccountsController : Controller
         switch (model.GetTokenType())
         {
             case RegisterFinishTokenType.EmailVerification:
-                identityResult =
-                    await _registerUserCommand.RegisterUserViaEmailVerificationToken(user, model.MasterPasswordHash,
-                        model.EmailVerificationToken);
+                identityResult = await _registerUserCommand.RegisterUserViaEmailVerificationToken(
+                    user,
+                    model.MasterPasswordHash,
+                    model.EmailVerificationToken
+                );
 
                 return await ProcessRegistrationResult(identityResult, user, delaysEnabled);
                 break;
             case RegisterFinishTokenType.OrganizationInvite:
-                identityResult = await _registerUserCommand.RegisterUserViaOrganizationInviteToken(user, model.MasterPasswordHash,
-                    model.OrgInviteToken, model.OrganizationUserId);
+                identityResult = await _registerUserCommand.RegisterUserViaOrganizationInviteToken(
+                    user,
+                    model.MasterPasswordHash,
+                    model.OrgInviteToken,
+                    model.OrganizationUserId
+                );
 
                 return await ProcessRegistrationResult(identityResult, user, delaysEnabled);
                 break;
             case RegisterFinishTokenType.OrgSponsoredFreeFamilyPlan:
-                identityResult = await _registerUserCommand.RegisterUserViaOrganizationSponsoredFreeFamilyPlanInviteToken(user, model.MasterPasswordHash, model.OrgSponsoredFreeFamilyPlanToken);
+                identityResult =
+                    await _registerUserCommand.RegisterUserViaOrganizationSponsoredFreeFamilyPlanInviteToken(
+                        user,
+                        model.MasterPasswordHash,
+                        model.OrgSponsoredFreeFamilyPlanToken
+                    );
 
                 return await ProcessRegistrationResult(identityResult, user, delaysEnabled);
                 break;
             case RegisterFinishTokenType.EmergencyAccessInvite:
                 Debug.Assert(model.AcceptEmergencyAccessId.HasValue);
-                identityResult = await _registerUserCommand.RegisterUserViaAcceptEmergencyAccessInviteToken(user, model.MasterPasswordHash,
-                    model.AcceptEmergencyAccessInviteToken, model.AcceptEmergencyAccessId.Value);
+                identityResult = await _registerUserCommand.RegisterUserViaAcceptEmergencyAccessInviteToken(
+                    user,
+                    model.MasterPasswordHash,
+                    model.AcceptEmergencyAccessInviteToken,
+                    model.AcceptEmergencyAccessId.Value
+                );
 
                 return await ProcessRegistrationResult(identityResult, user, delaysEnabled);
                 break;
             case RegisterFinishTokenType.ProviderInvite:
                 Debug.Assert(model.ProviderUserId.HasValue);
-                identityResult = await _registerUserCommand.RegisterUserViaProviderInviteToken(user, model.MasterPasswordHash,
-                    model.ProviderInviteToken, model.ProviderUserId.Value);
+                identityResult = await _registerUserCommand.RegisterUserViaProviderInviteToken(
+                    user,
+                    model.MasterPasswordHash,
+                    model.ProviderInviteToken,
+                    model.ProviderUserId.Value
+                );
 
                 return await ProcessRegistrationResult(identityResult, user, delaysEnabled);
                 break;
@@ -190,7 +224,11 @@ public class AccountsController : Controller
         }
     }
 
-    private async Task<RegisterResponseModel> ProcessRegistrationResult(IdentityResult result, User user, bool delaysEnabled)
+    private async Task<RegisterResponseModel> ProcessRegistrationResult(
+        IdentityResult result,
+        User user,
+        bool delaysEnabled
+    )
     {
         if (result.Succeeded)
         {
@@ -229,15 +267,15 @@ public class AccountsController : Controller
     [HttpGet("webauthn/assertion-options")]
     public WebAuthnLoginAssertionOptionsResponseModel GetWebAuthnLoginAssertionOptions()
     {
-        var options = _getWebAuthnLoginCredentialAssertionOptionsCommand.GetWebAuthnLoginCredentialAssertionOptions();
+        var options =
+            _getWebAuthnLoginCredentialAssertionOptionsCommand.GetWebAuthnLoginCredentialAssertionOptions();
 
-        var tokenable = new WebAuthnLoginAssertionOptionsTokenable(WebAuthnLoginAssertionOptionsScope.Authentication, options);
+        var tokenable = new WebAuthnLoginAssertionOptionsTokenable(
+            WebAuthnLoginAssertionOptionsScope.Authentication,
+            options
+        );
         var token = _assertionOptionsDataProtector.Protect(tokenable);
 
-        return new WebAuthnLoginAssertionOptionsResponseModel
-        {
-            Options = options,
-            Token = token
-        };
+        return new WebAuthnLoginAssertionOptionsResponseModel { Options = options, Token = token };
     }
 }

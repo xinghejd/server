@@ -10,10 +10,8 @@ namespace Bit.Infrastructure.EntityFramework.AdminConsole.Repositories;
 
 public class ProviderRepository : Repository<Provider, Models.Provider.Provider, Guid>, IProviderRepository
 {
-
     public ProviderRepository(IServiceScopeFactory serviceScopeFactory, IMapper mapper)
-        : base(serviceScopeFactory, mapper, context => context.Providers)
-    { }
+        : base(serviceScopeFactory, mapper, context => context.Providers) { }
 
     public override async Task DeleteAsync(Provider provider)
     {
@@ -31,11 +29,11 @@ public class ProviderRepository : Repository<Provider, Models.Provider.Provider,
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var query = from p in dbContext.Providers
-                        join po in dbContext.ProviderOrganizations
-                            on p.Id equals po.ProviderId
-                        where po.OrganizationId == organizationId
-                        select p;
+            var query =
+                from p in dbContext.Providers
+                join po in dbContext.ProviderOrganizations on p.Id equals po.ProviderId
+                where po.OrganizationId == organizationId
+                select p;
             return await query.FirstOrDefaultAsync();
         }
     }
@@ -45,20 +43,19 @@ public class ProviderRepository : Repository<Provider, Models.Provider.Provider,
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var dbContext = GetDatabaseContext(scope);
-            var query = !string.IsNullOrWhiteSpace(userEmail) ?
-                (from p in dbContext.Providers
-                 join pu in dbContext.ProviderUsers
-                     on p.Id equals pu.ProviderId
-                 join u in dbContext.Users
-                     on pu.UserId equals u.Id
-                 where (string.IsNullOrWhiteSpace(name) || p.Name.Contains(name)) &&
-                     u.Email == userEmail
-                 orderby p.CreationDate descending
-                 select new { p, pu, u }).Skip(skip).Take(take).Select(x => x.p) :
-                (from p in dbContext.Providers
-                 where string.IsNullOrWhiteSpace(name) || p.Name.Contains(name)
-                 orderby p.CreationDate descending
-                 select new { p }).Skip(skip).Take(take).Select(x => x.p);
+            var query = !string.IsNullOrWhiteSpace(userEmail) ? (
+                    from p in dbContext.Providers
+                    join pu in dbContext.ProviderUsers on p.Id equals pu.ProviderId
+                    join u in dbContext.Users on pu.UserId equals u.Id
+                    where (string.IsNullOrWhiteSpace(name) || p.Name.Contains(name)) && u.Email == userEmail
+                    orderby p.CreationDate descending
+                    select new
+                    {
+                        p,
+                        pu,
+                        u,
+                    }
+                ).Skip(skip).Take(take).Select(x => x.p) : (from p in dbContext.Providers where string.IsNullOrWhiteSpace(name) || p.Name.Contains(name) orderby p.CreationDate descending select new { p }).Skip(skip).Take(take).Select(x => x.p);
             var providers = await query.ToArrayAsync();
             return Mapper.Map<List<Provider>>(providers);
         }
@@ -75,7 +72,8 @@ public class ProviderRepository : Repository<Provider, Models.Provider.Provider,
                     Enabled = e.Enabled,
                     Id = e.Id,
                     UseEvents = e.UseEvents,
-                }).ToListAsync();
+                })
+                .ToListAsync();
         }
     }
 }

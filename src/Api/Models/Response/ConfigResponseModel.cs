@@ -13,7 +13,8 @@ public class ConfigResponseModel : ResponseModel
     public IDictionary<string, object> FeatureStates { get; set; }
     public ServerSettingsResponseModel Settings { get; set; }
 
-    public ConfigResponseModel() : base("config")
+    public ConfigResponseModel()
+        : base("config")
     {
         Version = AssemblyHelpers.GetVersion();
         GitHash = AssemblyHelpers.GetGitHash();
@@ -22,9 +23,8 @@ public class ConfigResponseModel : ResponseModel
         Settings = new ServerSettingsResponseModel();
     }
 
-    public ConfigResponseModel(
-        IGlobalSettings globalSettings,
-        IDictionary<string, object> featureStates) : base("config")
+    public ConfigResponseModel(IGlobalSettings globalSettings, IDictionary<string, object> featureStates)
+        : base("config")
     {
         Version = AssemblyHelpers.GetVersion();
         GitHash = AssemblyHelpers.GetGitHash();
@@ -35,12 +35,12 @@ public class ConfigResponseModel : ResponseModel
             Api = globalSettings.BaseServiceUri.Api,
             Identity = globalSettings.BaseServiceUri.Identity,
             Notifications = globalSettings.BaseServiceUri.Notifications,
-            Sso = globalSettings.BaseServiceUri.Sso
+            Sso = globalSettings.BaseServiceUri.Sso,
         };
         FeatureStates = featureStates;
         Settings = new ServerSettingsResponseModel
         {
-            DisableUserRegistration = globalSettings.DisableUserRegistration
+            DisableUserRegistration = globalSettings.DisableUserRegistration,
         };
     }
 }

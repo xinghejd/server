@@ -30,7 +30,8 @@ public class LicensesController : Controller
         IOrganizationRepository organizationRepository,
         ICloudGetOrganizationLicenseQuery cloudGetOrganizationLicenseQuery,
         IValidateBillingSyncKeyCommand validateBillingSyncKeyCommand,
-        ICurrentContext currentContext)
+        ICurrentContext currentContext
+    )
     {
         _userRepository = userRepository;
         _userService = userService;
@@ -62,7 +63,10 @@ public class LicensesController : Controller
     /// Used by self-hosted installations to get an updated license file
     /// </summary>
     [HttpGet("organization/{id}")]
-    public async Task<OrganizationLicense> OrganizationSync(string id, [FromBody] SelfHostedOrganizationLicenseRequestModel model)
+    public async Task<OrganizationLicense> OrganizationSync(
+        string id,
+        [FromBody] SelfHostedOrganizationLicenseRequestModel model
+    )
     {
         var organization = await _organizationRepository.GetByIdAsync(new Guid(id));
         if (organization == null)
@@ -81,7 +85,10 @@ public class LicensesController : Controller
             throw new BadRequestException("Invalid Billing Sync Key");
         }
 
-        var license = await _cloudGetOrganizationLicenseQuery.GetLicenseAsync(organization, _currentContext.InstallationId.Value);
+        var license = await _cloudGetOrganizationLicenseQuery.GetLicenseAsync(
+            organization,
+            _currentContext.InstallationId.Value
+        );
         return license;
     }
 }

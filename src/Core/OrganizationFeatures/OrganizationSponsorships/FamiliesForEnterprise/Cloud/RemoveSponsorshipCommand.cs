@@ -9,9 +9,9 @@ public class RemoveSponsorshipCommand : CancelSponsorshipCommand, IRemoveSponsor
 {
     public RemoveSponsorshipCommand(
         IOrganizationSponsorshipRepository organizationSponsorshipRepository,
-        IOrganizationRepository organizationRepository) : base(organizationSponsorshipRepository, organizationRepository)
-    {
-    }
+        IOrganizationRepository organizationRepository
+    )
+        : base(organizationSponsorshipRepository, organizationRepository) { }
 
     public async Task RemoveSponsorshipAsync(OrganizationSponsorship sponsorship)
     {

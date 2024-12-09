@@ -21,7 +21,8 @@ public class PatchGroupCommand : IPatchGroupCommand
         IGroupRepository groupRepository,
         IGroupService groupService,
         IUpdateGroupCommand updateGroupCommand,
-        ILogger<PatchGroupCommand> logger)
+        ILogger<PatchGroupCommand> logger
+    )
     {
         _groupRepository = groupRepository;
         _groupService = groupService;
@@ -58,8 +59,10 @@ public class PatchGroupCommand : IPatchGroupCommand
                     operationHandled = true;
                 }
                 // Replace group name from value object
-                else if (string.IsNullOrWhiteSpace(operation.Path) &&
-                    operation.Value.TryGetProperty("displayName", out var displayNameProperty))
+                else if (
+                    string.IsNullOrWhiteSpace(operation.Path)
+                    && operation.Value.TryGetProperty("displayName", out var displayNameProperty)
+                )
                 {
                     group.Name = displayNameProperty.GetString();
                     await _updateGroupCommand.UpdateGroupAsync(group, organization, EventSystemUser.SCIM);
@@ -67,9 +70,11 @@ public class PatchGroupCommand : IPatchGroupCommand
                 }
             }
             // Add a single member
-            else if (operation.Op?.ToLowerInvariant() == "add" &&
-                !string.IsNullOrWhiteSpace(operation.Path) &&
-                operation.Path.ToLowerInvariant().StartsWith("members[value eq "))
+            else if (
+                operation.Op?.ToLowerInvariant() == "add"
+                && !string.IsNullOrWhiteSpace(operation.Path)
+                && operation.Path.ToLowerInvariant().StartsWith("members[value eq ")
+            )
             {
                 var addId = GetOperationPathId(operation.Path);
                 if (addId.HasValue)
@@ -81,8 +86,7 @@ public class PatchGroupCommand : IPatchGroupCommand
                 }
             }
             // Add a list of members
-            else if (operation.Op?.ToLowerInvariant() == "add" &&
-                operation.Path?.ToLowerInvariant() == "members")
+            else if (operation.Op?.ToLowerInvariant() == "add" && operation.Path?.ToLowerInvariant() == "members")
             {
                 var orgUserIds = (await _groupRepository.GetManyUserIdsByIdAsync(group.Id)).ToHashSet();
                 foreach (var v in GetOperationValueIds(operation.Value))
@@ -93,9 +97,11 @@ public class PatchGroupCommand : IPatchGroupCommand
                 operationHandled = true;
             }
             // Remove a single member
-            else if (operation.Op?.ToLowerInvariant() == "remove" &&
-                !string.IsNullOrWhiteSpace(operation.Path) &&
-                operation.Path.ToLowerInvariant().StartsWith("members[value eq "))
+            else if (
+                operation.Op?.ToLowerInvariant() == "remove"
+                && !string.IsNullOrWhiteSpace(operation.Path)
+                && operation.Path.ToLowerInvariant().StartsWith("members[value eq ")
+            )
             {
                 var removeId = GetOperationPathId(operation.Path);
                 if (removeId.HasValue)
@@ -105,8 +111,10 @@ public class PatchGroupCommand : IPatchGroupCommand
                 }
             }
             // Remove a list of members
-            else if (operation.Op?.ToLowerInvariant() == "remove" &&
-                operation.Path?.ToLowerInvariant() == "members")
+            else if (
+                operation.Op?.ToLowerInvariant() == "remove"
+                && operation.Path?.ToLowerInvariant() == "members"
+            )
             {
                 var orgUserIds = (await _groupRepository.GetManyUserIdsByIdAsync(group.Id)).ToHashSet();
                 foreach (var v in GetOperationValueIds(operation.Value))
@@ -120,8 +128,10 @@ public class PatchGroupCommand : IPatchGroupCommand
 
         if (!operationHandled)
         {
-            _logger.LogWarning("Group patch operation not handled: {0} : ",
-                string.Join(", ", model.Operations.Select(o => $"{o.Op}:{o.Path}")));
+            _logger.LogWarning(
+                "Group patch operation not handled: {0} : ",
+                string.Join(", ", model.Operations.Select(o => $"{o.Op}:{o.Path}"))
+            );
         }
     }
 

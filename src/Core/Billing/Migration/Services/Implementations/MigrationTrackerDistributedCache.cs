@@ -7,16 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bit.Core.Billing.Migration.Services.Implementations;
 
-public class MigrationTrackerDistributedCache(
-    [FromKeyedServices("persistent")]
-    IDistributedCache distributedCache) : IMigrationTrackerCache
+public class MigrationTrackerDistributedCache([FromKeyedServices("persistent")] IDistributedCache distributedCache)
+    : IMigrationTrackerCache
 {
     public async Task StartTracker(Provider provider) =>
-        await SetAsync(new ProviderMigrationTracker
-        {
-            ProviderId = provider.Id,
-            ProviderName = provider.Name
-        });
+        await SetAsync(new ProviderMigrationTracker { ProviderId = provider.Id, ProviderName = provider.Name });
 
     public async Task SetOrganizationIds(Guid providerId, IEnumerable<Guid> organizationIds)
     {
@@ -39,12 +34,14 @@ public class MigrationTrackerDistributedCache(
     }
 
     public async Task StartTracker(Guid providerId, Organization organization) =>
-        await SetAsync(new ClientMigrationTracker
-        {
-            ProviderId = providerId,
-            OrganizationId = organization.Id,
-            OrganizationName = organization.Name
-        });
+        await SetAsync(
+            new ClientMigrationTracker
+            {
+                ProviderId = providerId,
+                OrganizationId = organization.Id,
+                OrganizationName = organization.Name,
+            }
+        );
 
     public Task<ClientMigrationTracker> GetTracker(Guid providerId, Guid organizationId) =>
         GetAsync(providerId, organizationId);
@@ -87,10 +84,11 @@ public class MigrationTrackerDistributedCache(
 
         var json = JsonSerializer.Serialize(tracker);
 
-        await distributedCache.SetStringAsync(cacheKey, json, new DistributedCacheEntryOptions
-        {
-            SlidingExpiration = TimeSpan.FromMinutes(30)
-        });
+        await distributedCache.SetStringAsync(
+            cacheKey,
+            json,
+            new DistributedCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(30) }
+        );
     }
 
     private async Task SetAsync(ClientMigrationTracker tracker)
@@ -99,9 +97,10 @@ public class MigrationTrackerDistributedCache(
 
         var json = JsonSerializer.Serialize(tracker);
 
-        await distributedCache.SetStringAsync(cacheKey, json, new DistributedCacheEntryOptions
-        {
-            SlidingExpiration = TimeSpan.FromMinutes(30)
-        });
+        await distributedCache.SetStringAsync(
+            cacheKey,
+            json,
+            new DistributedCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(30) }
+        );
     }
 }

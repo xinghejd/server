@@ -44,8 +44,10 @@ public class SqlMigrationTesterService : IMigrationTesterService
 
     private string GetMigrationScript(string scriptName)
     {
-        var assembly = typeof(DbMigrator).Assembly; ;
-        var resourceName = assembly.GetManifestResourceNames()
+        var assembly = typeof(DbMigrator).Assembly;
+        ;
+        var resourceName = assembly
+            .GetManifestResourceNames()
             .FirstOrDefault(r => r.EndsWith($"{scriptName}.sql"));
 
         if (resourceName == null)

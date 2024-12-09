@@ -62,7 +62,11 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
     [InlineData(true, false, false)]
     [InlineData(true, false, true)]
     [InlineData(true, true, false)]
-    public async Task ListByOrganization_SmAccessDenied_NotFound(bool useSecrets, bool accessSecrets, bool organizationEnabled)
+    public async Task ListByOrganization_SmAccessDenied_NotFound(
+        bool useSecrets,
+        bool accessSecrets,
+        bool organizationEnabled
+    )
     {
         var (org, _) = await _organizationHelper.Initialize(useSecrets, accessSecrets, organizationEnabled);
         await _loginHelper.LoginAsync(_email);
@@ -79,12 +83,14 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         var (org, _) = await _organizationHelper.Initialize(true, true, true);
         await _loginHelper.LoginAsync(_email);
 
-        var project = await _projectRepository.CreateAsync(new Project
-        {
-            Id = new Guid(),
-            OrganizationId = org.Id,
-            Name = _mockEncryptedString,
-        });
+        var project = await _projectRepository.CreateAsync(
+            new Project
+            {
+                Id = new Guid(),
+                OrganizationId = org.Id,
+                Name = _mockEncryptedString,
+            }
+        );
 
         if (permissionType == PermissionType.RunAsUserWithPermission)
         {
@@ -95,7 +101,10 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             {
                 new UserProjectAccessPolicy
                 {
-                    GrantedProjectId = project.Id, OrganizationUserId = orgUser.Id, Read = true, Write = true,
+                    GrantedProjectId = project.Id,
+                    OrganizationUserId = orgUser.Id,
+                    Read = true,
+                    Write = true,
                 },
             };
             await _accessPolicyRepository.CreateManyAsync(accessPolicies);
@@ -104,15 +113,16 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         var secretIds = new List<Guid>();
         for (var i = 0; i < 3; i++)
         {
-            var secret = await _secretRepository.CreateAsync(new Secret
-            {
-                OrganizationId = org.Id,
-                Key = _mockEncryptedString,
-                Value = _mockEncryptedString,
-                Note = _mockEncryptedString,
-                Projects = new List<Project> { project }
-
-            });
+            var secret = await _secretRepository.CreateAsync(
+                new Secret
+                {
+                    OrganizationId = org.Id,
+                    Key = _mockEncryptedString,
+                    Value = _mockEncryptedString,
+                    Note = _mockEncryptedString,
+                    Projects = new List<Project> { project },
+                }
+            );
             secretIds.Add(secret.Id);
         }
 
@@ -142,7 +152,7 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         {
             Key = _mockEncryptedString,
             Value = _mockEncryptedString,
-            Note = _mockEncryptedString
+            Note = _mockEncryptedString,
         };
 
         var response = await _client.PostAsJsonAsync($"/organizations/{org.Id}/secrets", request);
@@ -156,7 +166,10 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
     {
         var (organizationUser, request) = await SetupSecretCreateRequestAsync(withAccessPolicies);
 
-        var response = await _client.PostAsJsonAsync($"/organizations/{organizationUser.OrganizationId}/secrets", request);
+        var response = await _client.PostAsJsonAsync(
+            $"/organizations/{organizationUser.OrganizationId}/secrets",
+            request
+        );
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<SecretResponseModel>();
 
@@ -178,7 +191,10 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
 
         if (withAccessPolicies)
         {
-            var secretAccessPolicies = await _accessPolicyRepository.GetSecretAccessPoliciesAsync(result.Id, organizationUser.UserId!.Value);
+            var secretAccessPolicies = await _accessPolicyRepository.GetSecretAccessPoliciesAsync(
+                result.Id,
+                organizationUser.UserId!.Value
+            );
             Assert.NotNull(secretAccessPolicies);
             Assert.NotEmpty(secretAccessPolicies.UserAccessPolicies);
             Assert.Equal(organizationUser.Id, secretAccessPolicies.UserAccessPolicies.First().OrganizationUserId);
@@ -195,15 +211,16 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         await _loginHelper.LoginAsync(_email);
         var anotherOrg = await _organizationHelper.CreateSmOrganizationAsync();
 
-        var project =
-            await _projectRepository.CreateAsync(new Project { Name = "123", OrganizationId = anotherOrg.Id });
+        var project = await _projectRepository.CreateAsync(
+            new Project { Name = "123", OrganizationId = anotherOrg.Id }
+        );
 
         var request = new SecretCreateRequestModel
         {
             ProjectIds = new[] { project.Id },
             Key = _mockEncryptedString,
             Value = _mockEncryptedString,
-            Note = _mockEncryptedString
+            Note = _mockEncryptedString,
         };
 
         var response = await _client.PostAsJsonAsync($"/organizations/{org.Id}/secrets", request);
@@ -216,8 +233,12 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         var (org, _) = await _organizationHelper.Initialize(true, true, true);
         await _loginHelper.LoginAsync(_email);
 
-        var projectA = await _projectRepository.CreateAsync(new Project { OrganizationId = org.Id, Name = "123A" });
-        var projectB = await _projectRepository.CreateAsync(new Project { OrganizationId = org.Id, Name = "123B" });
+        var projectA = await _projectRepository.CreateAsync(
+            new Project { OrganizationId = org.Id, Name = "123A" }
+        );
+        var projectB = await _projectRepository.CreateAsync(
+            new Project { OrganizationId = org.Id, Name = "123B" }
+        );
 
         var request = new SecretCreateRequestModel
         {
@@ -242,7 +263,7 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         {
             Key = _mockEncryptedString,
             Value = _mockEncryptedString,
-            Note = _mockEncryptedString
+            Note = _mockEncryptedString,
         };
 
         var response = await _client.PostAsJsonAsync($"/organizations/{org.Id}/secrets", request);
@@ -252,11 +273,15 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
     [Fact]
     public async Task Create_RunAsServiceAccount_WithAccessPolicies_NotFound()
     {
-        var (organizationUser, secretRequest) =
-            await SetupSecretWithProjectCreateRequestAsync(PermissionType.RunAsServiceAccountWithPermission, true);
+        var (organizationUser, secretRequest) = await SetupSecretWithProjectCreateRequestAsync(
+            PermissionType.RunAsServiceAccountWithPermission,
+            true
+        );
 
-        var response =
-            await _client.PostAsJsonAsync($"/organizations/{organizationUser.OrganizationId}/secrets", secretRequest);
+        var response = await _client.PostAsJsonAsync(
+            $"/organizations/{organizationUser.OrganizationId}/secrets",
+            secretRequest
+        );
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -269,9 +294,15 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
     [InlineData(PermissionType.RunAsServiceAccountWithPermission, false)]
     public async Task Create_WithProject_Success(PermissionType permissionType, bool withAccessPolicies)
     {
-        var (organizationUser, secretRequest) = await SetupSecretWithProjectCreateRequestAsync(permissionType, withAccessPolicies);
+        var (organizationUser, secretRequest) = await SetupSecretWithProjectCreateRequestAsync(
+            permissionType,
+            withAccessPolicies
+        );
 
-        var secretResponse = await _client.PostAsJsonAsync($"/organizations/{organizationUser.OrganizationId}/secrets", secretRequest);
+        var secretResponse = await _client.PostAsJsonAsync(
+            $"/organizations/{organizationUser.OrganizationId}/secrets",
+            secretRequest
+        );
         secretResponse.EnsureSuccessStatusCode();
         var result = await secretResponse.Content.ReadFromJsonAsync<SecretResponseModel>();
 
@@ -287,7 +318,10 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
 
         if (withAccessPolicies)
         {
-            var secretAccessPolicies = await _accessPolicyRepository.GetSecretAccessPoliciesAsync(secret.Id, organizationUser.UserId!.Value);
+            var secretAccessPolicies = await _accessPolicyRepository.GetSecretAccessPoliciesAsync(
+                secret.Id,
+                organizationUser.UserId!.Value
+            );
             Assert.NotNull(secretAccessPolicies);
             Assert.NotEmpty(secretAccessPolicies.UserAccessPolicies);
             Assert.Equal(organizationUser.Id, secretAccessPolicies.UserAccessPolicies.First().OrganizationUserId);
@@ -310,13 +344,15 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         var (org, _) = await _organizationHelper.Initialize(useSecrets, accessSecrets, organizationEnabled);
         await _loginHelper.LoginAsync(_email);
 
-        var secret = await _secretRepository.CreateAsync(new Secret
-        {
-            OrganizationId = org.Id,
-            Key = _mockEncryptedString,
-            Value = _mockEncryptedString,
-            Note = _mockEncryptedString
-        });
+        var secret = await _secretRepository.CreateAsync(
+            new Secret
+            {
+                OrganizationId = org.Id,
+                Key = _mockEncryptedString,
+                Value = _mockEncryptedString,
+                Note = _mockEncryptedString,
+            }
+        );
 
         var response = await _client.GetAsync($"/organizations/secrets/{secret.Id}");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -330,12 +366,14 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         var (org, _) = await _organizationHelper.Initialize(true, true, true);
         await _loginHelper.LoginAsync(_email);
 
-        var project = await _projectRepository.CreateAsync(new Project()
-        {
-            Id = new Guid(),
-            OrganizationId = org.Id,
-            Name = _mockEncryptedString
-        });
+        var project = await _projectRepository.CreateAsync(
+            new Project()
+            {
+                Id = new Guid(),
+                OrganizationId = org.Id,
+                Name = _mockEncryptedString,
+            }
+        );
 
         if (permissionType == PermissionType.RunAsUserWithPermission)
         {
@@ -346,7 +384,10 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             {
                 new UserProjectAccessPolicy
                 {
-                    GrantedProjectId = project.Id, OrganizationUserId = orgUser.Id, Read = true, Write = true,
+                    GrantedProjectId = project.Id,
+                    OrganizationUserId = orgUser.Id,
+                    Read = true,
+                    Write = true,
                 },
             };
             await _accessPolicyRepository.CreateManyAsync(accessPolicies);
@@ -357,14 +398,16 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             await _loginHelper.LoginAsync(email);
         }
 
-        var secret = await _secretRepository.CreateAsync(new Secret
-        {
-            OrganizationId = org.Id,
-            Key = _mockEncryptedString,
-            Value = _mockEncryptedString,
-            Note = _mockEncryptedString,
-            Projects = new List<Project> { project }
-        });
+        var secret = await _secretRepository.CreateAsync(
+            new Secret
+            {
+                OrganizationId = org.Id,
+                Key = _mockEncryptedString,
+                Value = _mockEncryptedString,
+                Note = _mockEncryptedString,
+                Projects = new List<Project> { project },
+            }
+        );
 
         var response = await _client.GetAsync($"/secrets/{secret.Id}");
         response.EnsureSuccessStatusCode();
@@ -384,17 +427,19 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
     [InlineData(true, false, false)]
     [InlineData(true, false, true)]
     [InlineData(true, true, false)]
-    public async Task GetSecretsByProject_SmAccessDenied_NotFound(bool useSecrets, bool accessSecrets, bool organizationEnabled)
+    public async Task GetSecretsByProject_SmAccessDenied_NotFound(
+        bool useSecrets,
+        bool accessSecrets,
+        bool organizationEnabled
+    )
     {
         var (org, _) = await _organizationHelper.Initialize(useSecrets, accessSecrets, organizationEnabled);
         await _loginHelper.LoginAsync(_email);
         await _loginHelper.LoginAsync(_email);
 
-        var project = await _projectRepository.CreateAsync(new Project
-        {
-            OrganizationId = org.Id,
-            Name = _mockEncryptedString,
-        });
+        var project = await _projectRepository.CreateAsync(
+            new Project { OrganizationId = org.Id, Name = _mockEncryptedString }
+        );
 
         var response = await _client.GetAsync($"/projects/{project.Id}/secrets");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -407,21 +452,25 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         var (email, _) = await _organizationHelper.CreateNewUser(OrganizationUserType.User, true);
         await _loginHelper.LoginAsync(email);
 
-        var project = await _projectRepository.CreateAsync(new Project()
-        {
-            Id = new Guid(),
-            OrganizationId = org.Id,
-            Name = _mockEncryptedString
-        });
+        var project = await _projectRepository.CreateAsync(
+            new Project()
+            {
+                Id = new Guid(),
+                OrganizationId = org.Id,
+                Name = _mockEncryptedString,
+            }
+        );
 
-        await _secretRepository.CreateAsync(new Secret
-        {
-            OrganizationId = org.Id,
-            Key = _mockEncryptedString,
-            Value = _mockEncryptedString,
-            Note = _mockEncryptedString,
-            Projects = new List<Project> { project },
-        });
+        await _secretRepository.CreateAsync(
+            new Secret
+            {
+                OrganizationId = org.Id,
+                Key = _mockEncryptedString,
+                Value = _mockEncryptedString,
+                Note = _mockEncryptedString,
+                Projects = new List<Project> { project },
+            }
+        );
 
         var response = await _client.GetAsync($"/projects/{project.Id}/secrets");
         response.EnsureSuccessStatusCode();
@@ -439,12 +488,14 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         var (org, _) = await _organizationHelper.Initialize(true, true, true);
         await _loginHelper.LoginAsync(_email);
 
-        var project = await _projectRepository.CreateAsync(new Project()
-        {
-            Id = new Guid(),
-            OrganizationId = org.Id,
-            Name = _mockEncryptedString
-        });
+        var project = await _projectRepository.CreateAsync(
+            new Project()
+            {
+                Id = new Guid(),
+                OrganizationId = org.Id,
+                Name = _mockEncryptedString,
+            }
+        );
 
         if (permissionType == PermissionType.RunAsUserWithPermission)
         {
@@ -455,20 +506,25 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             {
                 new UserProjectAccessPolicy
                 {
-                    GrantedProjectId = project.Id, OrganizationUserId = orgUser.Id, Read = true, Write = true,
+                    GrantedProjectId = project.Id,
+                    OrganizationUserId = orgUser.Id,
+                    Read = true,
+                    Write = true,
                 },
             };
             await _accessPolicyRepository.CreateManyAsync(accessPolicies);
         }
 
-        var secret = await _secretRepository.CreateAsync(new Secret
-        {
-            OrganizationId = org.Id,
-            Key = _mockEncryptedString,
-            Value = _mockEncryptedString,
-            Note = _mockEncryptedString,
-            Projects = new List<Project> { project },
-        });
+        var secret = await _secretRepository.CreateAsync(
+            new Secret
+            {
+                OrganizationId = org.Id,
+                Key = _mockEncryptedString,
+                Value = _mockEncryptedString,
+                Note = _mockEncryptedString,
+                Projects = new List<Project> { project },
+            }
+        );
 
         var response = await _client.GetAsync($"/projects/{project.Id}/secrets");
         response.EnsureSuccessStatusCode();
@@ -496,19 +552,22 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         var (org, _) = await _organizationHelper.Initialize(useSecrets, accessSecrets, organizationEnabled);
         await _loginHelper.LoginAsync(_email);
 
-        var secret = await _secretRepository.CreateAsync(new Secret
-        {
-            OrganizationId = org.Id,
-            Key = _mockEncryptedString,
-            Value = _mockEncryptedString,
-            Note = _mockEncryptedString
-        });
+        var secret = await _secretRepository.CreateAsync(
+            new Secret
+            {
+                OrganizationId = org.Id,
+                Key = _mockEncryptedString,
+                Value = _mockEncryptedString,
+                Note = _mockEncryptedString,
+            }
+        );
 
         var request = new SecretUpdateRequestModel
         {
             Key = _mockEncryptedString,
-            Value = "2.3Uk+WNBIoU5xzmVFNcoWzz==|1MsPIYuRfdOHfu/0uY6H2Q==|/98xy4wb6pHP1VTZ9JcNCYgQjEUMFPlqJgCwRk1YXKg=",
-            Note = _mockEncryptedString
+            Value =
+                "2.3Uk+WNBIoU5xzmVFNcoWzz==|1MsPIYuRfdOHfu/0uY6H2Q==|/98xy4wb6pHP1VTZ9JcNCYgQjEUMFPlqJgCwRk1YXKg=",
+            Note = _mockEncryptedString,
         };
 
         var response = await _client.PutAsJsonAsync($"/organizations/secrets/{secret.Id}", request);
@@ -517,7 +576,10 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
 
     [Theory]
     [InlineData(PermissionType.RunAsServiceAccountWithPermission, true)]
-    public async Task Update_RunAsServiceAccountWithAccessPolicyUpdate_NotFound(PermissionType permissionType, bool withAccessPolices)
+    public async Task Update_RunAsServiceAccountWithAccessPolicyUpdate_NotFound(
+        PermissionType permissionType,
+        bool withAccessPolices
+    )
     {
         var (secret, request) = await SetupSecretUpdateRequestAsync(permissionType, withAccessPolices);
 
@@ -558,12 +620,16 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
 
         if (withAccessPolices)
         {
-            var secretAccessPolicies = await _accessPolicyRepository.GetSecretAccessPoliciesAsync(secret.Id,
-                request.AccessPoliciesRequests.UserAccessPolicyRequests.First().GranteeId);
+            var secretAccessPolicies = await _accessPolicyRepository.GetSecretAccessPoliciesAsync(
+                secret.Id,
+                request.AccessPoliciesRequests.UserAccessPolicyRequests.First().GranteeId
+            );
             Assert.NotNull(secretAccessPolicies);
             Assert.NotEmpty(secretAccessPolicies.UserAccessPolicies);
-            Assert.Equal(request.AccessPoliciesRequests.UserAccessPolicyRequests.First().GranteeId,
-                secretAccessPolicies.UserAccessPolicies.First().OrganizationUserId);
+            Assert.Equal(
+                request.AccessPoliciesRequests.UserAccessPolicyRequests.First().GranteeId,
+                secretAccessPolicies.UserAccessPolicies.First().OrganizationUserId
+            );
             Assert.Equal(secret.Id, secretAccessPolicies.UserAccessPolicies.First().GrantedSecretId);
             Assert.True(secretAccessPolicies.UserAccessPolicies.First().Read);
             Assert.True(secretAccessPolicies.UserAccessPolicies.First().Write);
@@ -577,20 +643,25 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         await _loginHelper.LoginAsync(_email);
         var anotherOrg = await _organizationHelper.CreateSmOrganizationAsync();
 
-        var project = await _projectRepository.CreateAsync(new Project { Name = "123", OrganizationId = anotherOrg.Id });
+        var project = await _projectRepository.CreateAsync(
+            new Project { Name = "123", OrganizationId = anotherOrg.Id }
+        );
 
-        var secret = await _secretRepository.CreateAsync(new Secret
-        {
-            OrganizationId = org.Id,
-            Key = _mockEncryptedString,
-            Value = _mockEncryptedString,
-            Note = _mockEncryptedString
-        });
+        var secret = await _secretRepository.CreateAsync(
+            new Secret
+            {
+                OrganizationId = org.Id,
+                Key = _mockEncryptedString,
+                Value = _mockEncryptedString,
+                Note = _mockEncryptedString,
+            }
+        );
 
         var request = new SecretUpdateRequestModel
         {
             Key = _mockEncryptedString,
-            Value = "2.3Uk+WNBIoU5xzmVFNcoWzz==|1MsPIYuRfdOHfu/0uY6H2Q==|/98xy4wb6pHP1VTZ9JcNCYgQjEUMFPlqJgCwRk1YXKg=",
+            Value =
+                "2.3Uk+WNBIoU5xzmVFNcoWzz==|1MsPIYuRfdOHfu/0uY6H2Q==|/98xy4wb6pHP1VTZ9JcNCYgQjEUMFPlqJgCwRk1YXKg=",
             Note = _mockEncryptedString,
             ProjectIds = new Guid[] { project.Id },
         };
@@ -605,21 +676,28 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         var (org, _) = await _organizationHelper.Initialize(true, true, true);
         await _loginHelper.LoginAsync(_email);
 
-        var projectA = await _projectRepository.CreateAsync(new Project { OrganizationId = org.Id, Name = "123A" });
-        var projectB = await _projectRepository.CreateAsync(new Project { OrganizationId = org.Id, Name = "123B" });
+        var projectA = await _projectRepository.CreateAsync(
+            new Project { OrganizationId = org.Id, Name = "123A" }
+        );
+        var projectB = await _projectRepository.CreateAsync(
+            new Project { OrganizationId = org.Id, Name = "123B" }
+        );
 
-        var secret = await _secretRepository.CreateAsync(new Secret
-        {
-            OrganizationId = org.Id,
-            Key = _mockEncryptedString,
-            Value = _mockEncryptedString,
-            Note = _mockEncryptedString
-        });
+        var secret = await _secretRepository.CreateAsync(
+            new Secret
+            {
+                OrganizationId = org.Id,
+                Key = _mockEncryptedString,
+                Value = _mockEncryptedString,
+                Note = _mockEncryptedString,
+            }
+        );
 
         var request = new SecretUpdateRequestModel
         {
             Key = _mockEncryptedString,
-            Value = "2.3Uk+WNBIoU5xzmVFNcoWzz==|1MsPIYuRfdOHfu/0uY6H2Q==|/98xy4wb6pHP1VTZ9JcNCYgQjEUMFPlqJgCwRk1YXKg=",
+            Value =
+                "2.3Uk+WNBIoU5xzmVFNcoWzz==|1MsPIYuRfdOHfu/0uY6H2Q==|/98xy4wb6pHP1VTZ9JcNCYgQjEUMFPlqJgCwRk1YXKg=",
             Note = _mockEncryptedString,
             ProjectIds = new Guid[] { projectA.Id, projectB.Id },
         };
@@ -641,13 +719,15 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         var (org, _) = await _organizationHelper.Initialize(useSecrets, accessSecrets, organizationEnabled);
         await _loginHelper.LoginAsync(_email);
 
-        var secret = await _secretRepository.CreateAsync(new Secret
-        {
-            OrganizationId = org.Id,
-            Key = _mockEncryptedString,
-            Value = _mockEncryptedString,
-            Note = _mockEncryptedString
-        });
+        var secret = await _secretRepository.CreateAsync(
+            new Secret
+            {
+                OrganizationId = org.Id,
+                Key = _mockEncryptedString,
+                Value = _mockEncryptedString,
+                Note = _mockEncryptedString,
+            }
+        );
         var secretIds = new[] { secret.Id };
 
         var response = await _client.PostAsJsonAsync($"/secrets/delete", secretIds);
@@ -667,8 +747,7 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
 
         var results = await response.Content.ReadFromJsonAsync<ListResponseModel<BulkDeleteResponseModel>>();
         Assert.NotNull(results);
-        Assert.Equal(secretIds.OrderBy(x => x),
-            results.Data.Select(x => x.Id).OrderBy(x => x));
+        Assert.Equal(secretIds.OrderBy(x => x), results.Data.Select(x => x.Id).OrderBy(x => x));
         Assert.All(results.Data, item => Assert.Equal("access denied", item.Error));
     }
 
@@ -692,8 +771,11 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             {
                 new UserProjectAccessPolicy
                 {
-                    GrantedProjectId = project.Id, OrganizationUserId = orgUser.Id, Read = true, Write = true
-                }
+                    GrantedProjectId = project.Id,
+                    OrganizationUserId = orgUser.Id,
+                    Read = true,
+                    Write = true,
+                },
             };
             await _accessPolicyRepository.CreateManyAsync(accessPolicies);
         }
@@ -722,18 +804,24 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
     [InlineData(true, false, false)]
     [InlineData(true, false, true)]
     [InlineData(true, true, false)]
-    public async Task GetSecretsByIds_SmAccessDenied_NotFound(bool useSecrets, bool accessSecrets, bool organizationEnabled)
+    public async Task GetSecretsByIds_SmAccessDenied_NotFound(
+        bool useSecrets,
+        bool accessSecrets,
+        bool organizationEnabled
+    )
     {
         var (org, _) = await _organizationHelper.Initialize(useSecrets, accessSecrets, organizationEnabled);
         await _loginHelper.LoginAsync(_email);
 
-        var secret = await _secretRepository.CreateAsync(new Secret
-        {
-            OrganizationId = org.Id,
-            Key = _mockEncryptedString,
-            Value = _mockEncryptedString,
-            Note = _mockEncryptedString,
-        });
+        var secret = await _secretRepository.CreateAsync(
+            new Secret
+            {
+                OrganizationId = org.Id,
+                Key = _mockEncryptedString,
+                Value = _mockEncryptedString,
+                Note = _mockEncryptedString,
+            }
+        );
 
         var request = new GetSecretsRequestModel { Ids = new[] { secret.Id } };
 
@@ -820,7 +908,6 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         Assert.All(result.Data, data => Assert.Equal(org.Id, data.OrganizationId));
     }
 
-
     [Theory]
     [InlineData(PermissionType.RunAsAdmin)]
     [InlineData(PermissionType.RunAsUserWithPermission)]
@@ -842,7 +929,10 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             {
                 new UserProjectAccessPolicy
                 {
-                    GrantedProjectId = project.Id, OrganizationUserId = orgUser.Id, Read = true, Write = true,
+                    GrantedProjectId = project.Id,
+                    OrganizationUserId = orgUser.Id,
+                    Read = true,
+                    Write = true,
                 },
             };
             await _accessPolicyRepository.CreateManyAsync(accessPolicies);
@@ -869,8 +959,11 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
     [InlineData(true, false, false)]
     [InlineData(true, false, true)]
     [InlineData(true, true, false)]
-    public async Task GetSecretsSyncAsync_SmAccessDenied_NotFound(bool useSecrets, bool accessSecrets,
-        bool organizationEnabled)
+    public async Task GetSecretsSyncAsync_SmAccessDenied_NotFound(
+        bool useSecrets,
+        bool accessSecrets,
+        bool organizationEnabled
+    )
     {
         var (org, _) = await _organizationHelper.Initialize(useSecrets, accessSecrets, organizationEnabled);
         await _loginHelper.LoginAsync(_email);
@@ -952,7 +1045,9 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         await SetupSecretsSyncRequestAsync(org.Id, serviceAccountId);
         await UpdateServiceAccountRevisionAsync(serviceAccountId, DateTime.UtcNow.AddDays(-1));
 
-        var response = await _client.GetAsync($"/organizations/{org.Id}/secrets/sync?lastSyncedDate={DateTime.UtcNow}");
+        var response = await _client.GetAsync(
+            $"/organizations/{org.Id}/secrets/sync?lastSyncedDate={DateTime.UtcNow}"
+        );
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<SecretsSyncResponseModel>();
 
@@ -961,26 +1056,33 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         Assert.Null(result.Secrets);
     }
 
-    private async Task<(Project Project, List<Guid> secretIds)> CreateSecretsAsync(Guid orgId, int numberToCreate = 3)
+    private async Task<(Project Project, List<Guid> secretIds)> CreateSecretsAsync(
+        Guid orgId,
+        int numberToCreate = 3
+    )
     {
-        var project = await _projectRepository.CreateAsync(new Project
-        {
-            Id = new Guid(),
-            OrganizationId = orgId,
-            Name = _mockEncryptedString
-        });
+        var project = await _projectRepository.CreateAsync(
+            new Project
+            {
+                Id = new Guid(),
+                OrganizationId = orgId,
+                Name = _mockEncryptedString,
+            }
+        );
 
         var secretIds = new List<Guid>();
         for (var i = 0; i < numberToCreate; i++)
         {
-            var secret = await _secretRepository.CreateAsync(new Secret
-            {
-                OrganizationId = orgId,
-                Key = _mockEncryptedString,
-                Value = _mockEncryptedString,
-                Note = _mockEncryptedString,
-                Projects = new List<Project>() { project }
-            });
+            var secret = await _secretRepository.CreateAsync(
+                new Secret
+                {
+                    OrganizationId = orgId,
+                    Key = _mockEncryptedString,
+                    Value = _mockEncryptedString,
+                    Note = _mockEncryptedString,
+                    Projects = new List<Project>() { project },
+                }
+            );
             secretIds.Add(secret.Id);
         }
 
@@ -992,40 +1094,46 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         switch (permissionType)
         {
             case PermissionType.RunAsAdmin:
-                {
-                    await _loginHelper.LoginAsync(_email);
-                    break;
-                }
+            {
+                await _loginHelper.LoginAsync(_email);
+                break;
+            }
             case PermissionType.RunAsUserWithPermission:
-                {
-                    var (email, orgUser) = await _organizationHelper.CreateNewUser(OrganizationUserType.User, true);
-                    await _loginHelper.LoginAsync(email);
+            {
+                var (email, orgUser) = await _organizationHelper.CreateNewUser(OrganizationUserType.User, true);
+                await _loginHelper.LoginAsync(email);
 
-                    var accessPolicies = new List<BaseAccessPolicy>
+                var accessPolicies = new List<BaseAccessPolicy>
                 {
                     new UserProjectAccessPolicy
                     {
-                        GrantedProjectId = project.Id, OrganizationUserId = orgUser.Id, Read = true, Write = true,
+                        GrantedProjectId = project.Id,
+                        OrganizationUserId = orgUser.Id,
+                        Read = true,
+                        Write = true,
                     },
                 };
-                    await _accessPolicyRepository.CreateManyAsync(accessPolicies);
-                    break;
-                }
+                await _accessPolicyRepository.CreateManyAsync(accessPolicies);
+                break;
+            }
             case PermissionType.RunAsServiceAccountWithPermission:
-                {
-                    var apiKeyDetails = await _organizationHelper.CreateNewServiceAccountApiKeyAsync();
-                    await _loginHelper.LoginWithApiKeyAsync(apiKeyDetails);
+            {
+                var apiKeyDetails = await _organizationHelper.CreateNewServiceAccountApiKeyAsync();
+                await _loginHelper.LoginWithApiKeyAsync(apiKeyDetails);
 
-                    var accessPolicies = new List<BaseAccessPolicy>
+                var accessPolicies = new List<BaseAccessPolicy>
                 {
                     new ServiceAccountProjectAccessPolicy
                     {
-                        GrantedProjectId = project.Id, ServiceAccountId = apiKeyDetails.ApiKey.ServiceAccountId, Read = true, Write = true,
+                        GrantedProjectId = project.Id,
+                        ServiceAccountId = apiKeyDetails.ApiKey.ServiceAccountId,
+                        Read = true,
+                        Write = true,
                     },
                 };
-                    await _accessPolicyRepository.CreateManyAsync(accessPolicies);
-                    break;
-                }
+                await _accessPolicyRepository.CreateManyAsync(accessPolicies);
+                break;
+            }
             default:
                 throw new ArgumentOutOfRangeException(nameof(permissionType), permissionType, null);
         }
@@ -1038,8 +1146,11 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         {
             new ServiceAccountProjectAccessPolicy
             {
-                GrantedProjectId = project.Id, ServiceAccountId = serviceAccountId, Read = true, Write = true
-            }
+                GrantedProjectId = project.Id,
+                ServiceAccountId = serviceAccountId,
+                Read = true,
+                Write = true,
+            },
         };
         await _accessPolicyRepository.CreateManyAsync(accessPolicies);
         return secretIds;
@@ -1053,7 +1164,8 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
     }
 
     private async Task<(OrganizationUser, SecretCreateRequestModel)> SetupSecretCreateRequestAsync(
-        bool withAccessPolicies)
+        bool withAccessPolicies
+    )
     {
         var (_, organizationUser) = await _organizationHelper.Initialize(true, true, true);
         await _loginHelper.LoginAsync(_email);
@@ -1062,7 +1174,7 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         {
             Key = _mockEncryptedString,
             Value = _mockEncryptedString,
-            Note = _mockEncryptedString
+            Note = _mockEncryptedString,
         };
 
         if (withAccessPolicies)
@@ -1071,10 +1183,15 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             {
                 UserAccessPolicyRequests =
                 [
-                    new AccessPolicyRequest { GranteeId = organizationUser.Id, Read = true, Write = true }
+                    new AccessPolicyRequest
+                    {
+                        GranteeId = organizationUser.Id,
+                        Read = true,
+                        Write = true,
+                    },
                 ],
                 GroupAccessPolicyRequests = [],
-                ServiceAccountAccessPolicyRequests = []
+                ServiceAccountAccessPolicyRequests = [],
             };
         }
 
@@ -1082,17 +1199,21 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
     }
 
     private async Task<(OrganizationUser, SecretCreateRequestModel)> SetupSecretWithProjectCreateRequestAsync(
-        PermissionType permissionType, bool withAccessPolicies)
+        PermissionType permissionType,
+        bool withAccessPolicies
+    )
     {
         var (org, orgAdminUser) = await _organizationHelper.Initialize(true, true, true);
         await _loginHelper.LoginAsync(_email);
 
-        var project = await _projectRepository.CreateAsync(new Project
-        {
-            Id = new Guid(),
-            OrganizationId = org.Id,
-            Name = _mockEncryptedString
-        });
+        var project = await _projectRepository.CreateAsync(
+            new Project
+            {
+                Id = new Guid(),
+                OrganizationId = org.Id,
+                Name = _mockEncryptedString,
+            }
+        );
 
         var currentOrganizationUser = orgAdminUser;
 
@@ -1105,8 +1226,11 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             {
                 new UserProjectAccessPolicy
                 {
-                    GrantedProjectId = project.Id, OrganizationUserId = orgUser.Id, Read = true, Write = true
-                }
+                    GrantedProjectId = project.Id,
+                    OrganizationUserId = orgUser.Id,
+                    Read = true,
+                    Write = true,
+                },
             };
             currentOrganizationUser = orgUser;
             await _accessPolicyRepository.CreateManyAsync(accessPolicies);
@@ -1124,8 +1248,8 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
                     GrantedProjectId = project.Id,
                     ServiceAccountId = apiKeyDetails.ApiKey.ServiceAccountId,
                     Read = true,
-                    Write = true
-                }
+                    Write = true,
+                },
             };
             await _accessPolicyRepository.CreateManyAsync(accessPolicies);
         }
@@ -1135,7 +1259,7 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             Key = _mockEncryptedString,
             Value = _mockEncryptedString,
             Note = _mockEncryptedString,
-            ProjectIds = [project.Id]
+            ProjectIds = [project.Id],
         };
 
         if (withAccessPolicies)
@@ -1144,37 +1268,48 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             {
                 UserAccessPolicyRequests =
                 [
-                    new AccessPolicyRequest { GranteeId = currentOrganizationUser.Id, Read = true, Write = true }
+                    new AccessPolicyRequest
+                    {
+                        GranteeId = currentOrganizationUser.Id,
+                        Read = true,
+                        Write = true,
+                    },
                 ],
                 GroupAccessPolicyRequests = [],
-                ServiceAccountAccessPolicyRequests = []
+                ServiceAccountAccessPolicyRequests = [],
             };
         }
 
         return (currentOrganizationUser, secretRequest);
     }
 
-    private async Task<(Secret, SecretUpdateRequestModel)> SetupSecretUpdateRequestAsync(PermissionType permissionType,
-        bool withAccessPolicies)
+    private async Task<(Secret, SecretUpdateRequestModel)> SetupSecretUpdateRequestAsync(
+        PermissionType permissionType,
+        bool withAccessPolicies
+    )
     {
         var (org, adminOrgUser) = await _organizationHelper.Initialize(true, true, true);
-        var project = await _projectRepository.CreateAsync(new Project
-        {
-            Id = Guid.NewGuid(),
-            OrganizationId = org.Id,
-            Name = _mockEncryptedString
-        });
+        var project = await _projectRepository.CreateAsync(
+            new Project
+            {
+                Id = Guid.NewGuid(),
+                OrganizationId = org.Id,
+                Name = _mockEncryptedString,
+            }
+        );
 
         await SetupProjectPermissionAndLoginAsync(permissionType, project);
 
-        var secret = await _secretRepository.CreateAsync(new Secret
-        {
-            OrganizationId = org.Id,
-            Key = _mockEncryptedString,
-            Value = _mockEncryptedString,
-            Note = _mockEncryptedString,
-            Projects = permissionType != PermissionType.RunAsAdmin ? new List<Project> { project } : null
-        });
+        var secret = await _secretRepository.CreateAsync(
+            new Secret
+            {
+                OrganizationId = org.Id,
+                Key = _mockEncryptedString,
+                Value = _mockEncryptedString,
+                Note = _mockEncryptedString,
+                Projects = permissionType != PermissionType.RunAsAdmin ? new List<Project> { project } : null,
+            }
+        );
 
         var request = new SecretUpdateRequestModel
         {
@@ -1182,7 +1317,7 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             Value =
                 "2.3Uk+WNBIoU5xzmVFNcoWzz==|1MsPIYuRfdOHfu/0uY6H2Q==|/98xy4wb6pHP1VTZ9JcNCYgQjEUMFPlqJgCwRk1YXKg=",
             Note = _mockEncryptedString,
-            ProjectIds = permissionType != PermissionType.RunAsAdmin ? [project.Id] : null
+            ProjectIds = permissionType != PermissionType.RunAsAdmin ? [project.Id] : null,
         };
 
         if (!withAccessPolicies)
@@ -1193,16 +1328,25 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         request.AccessPoliciesRequests = new SecretAccessPoliciesRequestsModel
         {
             UserAccessPolicyRequests =
-                [new AccessPolicyRequest { GranteeId = adminOrgUser.Id, Read = true, Write = true }],
+            [
+                new AccessPolicyRequest
+                {
+                    GranteeId = adminOrgUser.Id,
+                    Read = true,
+                    Write = true,
+                },
+            ],
             GroupAccessPolicyRequests = [],
-            ServiceAccountAccessPolicyRequests = []
+            ServiceAccountAccessPolicyRequests = [],
         };
 
         return (secret, request);
     }
 
-    private async Task<GetSecretsRequestModel> SetupGetSecretsByIdsRequestAsync(Guid organizationId,
-        PermissionType permissionType)
+    private async Task<GetSecretsRequestModel> SetupGetSecretsByIdsRequestAsync(
+        Guid organizationId,
+        PermissionType permissionType
+    )
     {
         var (project, secretIds) = await CreateSecretsAsync(organizationId);
 
@@ -1215,8 +1359,11 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
             {
                 new UserProjectAccessPolicy
                 {
-                    GrantedProjectId = project.Id, OrganizationUserId = orgUser.Id, Read = true, Write = true
-                }
+                    GrantedProjectId = project.Id,
+                    OrganizationUserId = orgUser.Id,
+                    Read = true,
+                    Write = true,
+                },
             };
             await _accessPolicyRepository.CreateManyAsync(accessPolicies);
         }
@@ -1233,8 +1380,8 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
                     GrantedProjectId = project.Id,
                     ServiceAccountId = apiKeyDetails.ApiKey.ServiceAccountId,
                     Read = true,
-                    Write = true
-                }
+                    Write = true,
+                },
             };
             await _accessPolicyRepository.CreateManyAsync(accessPolicies);
         }
@@ -1242,8 +1389,11 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
         return new GetSecretsRequestModel { Ids = secretIds };
     }
 
-    private async Task<GetSecretsRequestModel> SetupNoAccessRequestAsync(Guid organizationId, bool runAsServiceAccount,
-        bool partialAccess)
+    private async Task<GetSecretsRequestModel> SetupNoAccessRequestAsync(
+        Guid organizationId,
+        bool runAsServiceAccount,
+        bool partialAccess
+    )
     {
         var (_, secretIds) = await CreateSecretsAsync(organizationId);
 
@@ -1261,8 +1411,8 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
                         GrantedSecretId = secretIds[0],
                         ServiceAccountId = apiKeyDetails.ApiKey.ServiceAccountId,
                         Read = true,
-                        Write = true
-                    }
+                        Write = true,
+                    },
                 };
                 await _accessPolicyRepository.CreateManyAsync(accessPolicies);
             }
@@ -1281,8 +1431,8 @@ public class SecretsControllerTests : IClassFixture<ApiApplicationFactory>, IAsy
                         GrantedSecretId = secretIds[0],
                         OrganizationUserId = orgUser.Id,
                         Read = true,
-                        Write = true
-                    }
+                        Write = true,
+                    },
                 };
                 await _accessPolicyRepository.CreateManyAsync(accessPolicies);
             }

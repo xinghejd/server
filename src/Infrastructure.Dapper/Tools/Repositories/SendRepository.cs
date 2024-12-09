@@ -16,12 +16,10 @@ namespace Bit.Infrastructure.Dapper.Tools.Repositories;
 public class SendRepository : Repository<Send, Guid>, ISendRepository
 {
     public SendRepository(GlobalSettings globalSettings)
-        : this(globalSettings.SqlServer.ConnectionString, globalSettings.SqlServer.ReadOnlyConnectionString)
-    { }
+        : this(globalSettings.SqlServer.ConnectionString, globalSettings.SqlServer.ReadOnlyConnectionString) { }
 
     public SendRepository(string connectionString, string readOnlyConnectionString)
-        : base(connectionString, readOnlyConnectionString)
-    { }
+        : base(connectionString, readOnlyConnectionString) { }
 
     /// <inheritdoc />
     public async Task<ICollection<Send>> GetManyByUserIdAsync(Guid userId)
@@ -31,7 +29,8 @@ public class SendRepository : Repository<Send, Guid>, ISendRepository
             var results = await connection.QueryAsync<Send>(
                 $"[{Schema}].[Send_ReadByUserId]",
                 new { UserId = userId },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.ToList();
         }
@@ -45,7 +44,8 @@ public class SendRepository : Repository<Send, Guid>, ISendRepository
             var results = await connection.QueryAsync<Send>(
                 $"[{Schema}].[Send_ReadByDeletionDateBefore]",
                 new { DeletionDate = deletionDateBefore },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.StoredProcedure
+            );
 
             return results.ToList();
         }
@@ -57,7 +57,8 @@ public class SendRepository : Repository<Send, Guid>, ISendRepository
         return async (connection, transaction) =>
         {
             // Create temp table
-            var sqlCreateTemp = @"
+            var sqlCreateTemp =
+                @"
                             SELECT TOP 0 *
                             INTO #TempSend
                             FROM [dbo].[Send]";
@@ -82,7 +83,8 @@ public class SendRepository : Repository<Send, Guid>, ISendRepository
             }
 
             // Update send table from temp table
-            var sql = @"
+            var sql =
+                @"
                 UPDATE
                     [dbo].[Send]
                 SET

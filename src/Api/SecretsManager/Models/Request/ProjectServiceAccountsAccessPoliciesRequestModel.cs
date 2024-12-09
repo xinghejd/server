@@ -22,7 +22,7 @@ public class ProjectServiceAccountsAccessPoliciesRequestModel
         {
             ProjectId = project.Id,
             OrganizationId = project.OrganizationId,
-            ServiceAccountAccessPolicies = serviceAccountAccessPolicies
+            ServiceAccountAccessPolicies = serviceAccountAccessPolicies,
         };
     }
 }

@@ -9,9 +9,9 @@ public class SelfHostedRevokeSponsorshipCommand : CancelSponsorshipCommand, IRev
 {
     public SelfHostedRevokeSponsorshipCommand(
         IOrganizationSponsorshipRepository organizationSponsorshipRepository,
-        IOrganizationRepository organizationRepository) : base(organizationSponsorshipRepository, organizationRepository)
-    {
-    }
+        IOrganizationRepository organizationRepository
+    )
+        : base(organizationSponsorshipRepository, organizationRepository) { }
 
     public async Task RevokeSponsorshipAsync(OrganizationSponsorship sponsorship)
     {

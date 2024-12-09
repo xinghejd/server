@@ -14,8 +14,9 @@ namespace Bit.Api.Tools.Controllers;
 [Authorize("Application")]
 public class HibpController : Controller
 {
-    private const string HibpBreachApi = "https://haveibeenpwned.com/api/v3/breachedaccount/{0}" +
-        "?truncateResponse=false&includeUnverified=false";
+    private const string HibpBreachApi =
+        "https://haveibeenpwned.com/api/v3/breachedaccount/{0}"
+        + "?truncateResponse=false&includeUnverified=false";
     private static HttpClient _httpClient;
 
     private readonly IUserService _userService;
@@ -28,10 +29,7 @@ public class HibpController : Controller
         _httpClient = new HttpClient();
     }
 
-    public HibpController(
-        IUserService userService,
-        ICurrentContext currentContext,
-        GlobalSettings globalSettings)
+    public HibpController(IUserService userService, ICurrentContext currentContext, GlobalSettings globalSettings)
     {
         _userService = userService;
         _currentContext = currentContext;

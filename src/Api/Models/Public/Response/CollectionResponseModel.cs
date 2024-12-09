@@ -28,12 +28,14 @@ public class CollectionResponseModel : CollectionBaseModel, IResponseModel
     /// <example>collection</example>
     [Required]
     public string Object => "collection";
+
     /// <summary>
     /// The collection's unique identifier.
     /// </summary>
     /// <example>539a36c5-e0d2-4cf9-979e-51ecf5cf6593</example>
     [Required]
     public Guid Id { get; set; }
+
     /// <summary>
     /// The associated groups that this collection is assigned to.
     /// </summary>
